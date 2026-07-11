@@ -78,6 +78,23 @@ See [SECURITY.md](SECURITY.md) for the full security policy.
 | Pre-commit hooks | — | Secrets blocked |
 | Release gates | — | CI + reviewer evidence |
 
+## How the Orchestrator and Sub-Agents Cooperate
+
+The protocol defines a multi-agent topology where the orchestrator delegates to specialized helpers:
+
+| Role | When used | What it does |
+|------|-----------|-------------|
+| **Orchestrator** | Always | Routes tasks, owns strategy, makes final decisions |
+| **Planner** | Ambiguous, multi-step, high-risk work | Creates plans, validates readiness |
+| **Implementer** | After approved touch list | Bounded code changes only |
+| **Reviewer** | Risk 4+, sensitive paths, release gates | Independent quality check |
+| **Architect** | Architecture, auth, schema, cross-surface design | Resolves high-ambiguity decisions |
+| **Explorer** | Read-only discovery, cost/quota checks | Cheap routing classification |
+
+**Model routing** assigns the right model to each role based on eval evidence. **CI** enforces privacy scan and protocol conformance on every PR. **Branch protection** prevents direct pushes to main.
+
+See [docs/CAPABILITY_CATALOG.md](docs/CAPABILITY_CATALOG.md) for the full capability map and [docs/RUNTIME_MAP.md](docs/RUNTIME_MAP.md) for the runtime source-of-truth map.
+
 ## Documentation
 
 | Document | Purpose |
@@ -88,6 +105,10 @@ See [SECURITY.md](SECURITY.md) for the full security policy.
 | [docs/VERSIONING.md](docs/VERSIONING.md) | Versioning policy |
 | [docs/protocol/PROTOCOL_ATLAS.md](docs/protocol/PROTOCOL_ATLAS.md) | Visual system map |
 | [docs/PUBLICATION_POLICY.md](docs/PUBLICATION_POLICY.md) | Publication policy |
+| [docs/CAPABILITY_CATALOG.md](docs/CAPABILITY_CATALOG.md) | Capability catalog — every public capability mapped |
+| [docs/RUNTIME_MAP.md](docs/RUNTIME_MAP.md) | Runtime source-of-truth map |
+| [docs/CONFIGURATION_GUIDE.md](docs/CONFIGURATION_GUIDE.md) | How to customize the protocol |
+| [docs/CLAIMS.md](docs/CLAIMS.md) | Allowed and disallowed public claims |
 | [docs/MAINTAINERS.md](docs/MAINTAINERS.md) | Maintainer guide and branch protection |
 | [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) | Release checklist |
 | [CHANGELOG.md](CHANGELOG.md) | Public release summary |
@@ -116,7 +137,7 @@ bash .opencode/conformance/tests/model-roi.sh
 
 ## Protocol Version
 
-**Current:** v5.0.3 — Branch Protection Verification
+**Current:** v5.1.0 — Capability Catalog + Public Example Workflows
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
 
