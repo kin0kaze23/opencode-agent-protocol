@@ -95,6 +95,36 @@ The protocol defines a multi-agent topology where the orchestrator delegates to 
 
 See [docs/CAPABILITY_CATALOG.md](docs/CAPABILITY_CATALOG.md) for the full capability map and [docs/RUNTIME_MAP.md](docs/RUNTIME_MAP.md) for the runtime source-of-truth map.
 
+## Evidence and Limitations
+
+This protocol is **safety-first** but not **guaranteed safe**. It provides guardrails, not guarantees.
+
+### What the protocol does
+
+- CI-enforced privacy scanning on every PR
+- Protocol conformance tests (297+ tests)
+- Branch protection (PR required, no force push)
+- Documented agent topology and model routing
+- Repeatable release process with fresh-clone validation
+
+### What the protocol does not do
+
+- Guarantee code correctness (CI checks protocol, not product logic)
+- Guarantee model quality (routing is advisory)
+- Replace human review for HIGH-RISK changes
+- Catch unknown personal data patterns (only known patterns are scanned)
+- Prevent all security threats (see threat model for scope)
+
+### Evidence
+
+| Document | Purpose |
+|----------|---------|
+| [docs/CASE_STUDIES.md](docs/CASE_STUDIES.md) | 3 public-safe case studies |
+| [docs/EVIDENCE.md](docs/EVIDENCE.md) | Measured and illustrative workflow evidence |
+| [docs/FAILURE_MODES.md](docs/FAILURE_MODES.md) | 8 known failure modes with mitigations |
+| [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) | Security threat model with 9 threat categories |
+| [docs/CLAIMS.md](docs/CLAIMS.md) | Allowed and disallowed public claims |
+
 ## Documentation
 
 | Document | Purpose |
@@ -137,7 +167,7 @@ bash .opencode/conformance/tests/model-roi.sh
 
 ## Protocol Version
 
-**Current:** v5.1.0 — Capability Catalog + Public Example Workflows
+**Current:** v5.2.0 — Evidence Pack + Failure Modes + Threat Model
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
 

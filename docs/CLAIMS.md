@@ -14,13 +14,17 @@ These claims are evidence-based and defensible:
 | Safety-first AI engineering harness | Protocol kernel with safety rules, lane selection, escalation triggers |
 | Governed agentic development | Branch protection, CI enforcement, release gates, reviewer policy |
 | CI-enforced privacy scanning | `scripts/public-surface-scan.sh` runs in CI on every PR |
-| Conformance-tested | 297+ tests across multiple suites, 0 failures |
+| Conformance-tested public baseline | 297+ tests across multiple suites, 0 failures |
 | Fresh-clone validated | Every release validated from a clean clone |
 | Configurable protocol | Model routing, reviewer policy, gate matrix, token budgets all configurable |
 | Portable public installation | No machine-specific paths, no vault dependency, no personal data |
 | Branch protection enforced | GitHub ruleset active on main |
 | Protocol Atlas documented | 11 Mermaid diagrams with rendered SVGs |
 | Variant-aware privacy scanning | PascalCase, camelCase, space, kebab, snake, lowercase patterns |
+| Documented agent topology | Orchestrator + 5 helper roles with routing guidance |
+| Evidence-backed case studies | 3 case studies with measured/illustrative evidence |
+| Documented failure modes | 8 known failure modes with mitigations and validation commands |
+| Security threat model | 9 threat categories with mitigations and owner controls |
 
 ---
 
