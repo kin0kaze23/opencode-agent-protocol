@@ -88,6 +88,8 @@ See [SECURITY.md](SECURITY.md) for the full security policy.
 | [docs/VERSIONING.md](docs/VERSIONING.md) | Versioning policy |
 | [docs/protocol/PROTOCOL_ATLAS.md](docs/protocol/PROTOCOL_ATLAS.md) | Visual system map |
 | [docs/PUBLICATION_POLICY.md](docs/PUBLICATION_POLICY.md) | Publication policy |
+| [docs/MAINTAINERS.md](docs/MAINTAINERS.md) | Maintainer guide and branch protection |
+| [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) | Release checklist |
 | [CHANGELOG.md](CHANGELOG.md) | Public release summary |
 | [RELEASES.md](RELEASES.md) | Release index and checklist |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution guidelines |
@@ -114,7 +116,7 @@ bash .opencode/conformance/tests/model-roi.sh
 
 ## Protocol Version
 
-**Current:** v5.0.1 — Public Hardening + Privacy Scan Regression
+**Current:** v5.0.2 — Public CI + Branch Protection Gate
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
 

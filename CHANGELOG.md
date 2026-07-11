@@ -11,6 +11,10 @@ All notable changes to the OpenCode Agent Protocol are documented here.
 
 ## Recent Releases
 
+### v5.0.2 — 2026-07-11
+
+Public CI + branch protection gate. Added `.github/workflows/validation.yml` with privacy scan and protocol conformance jobs running on every PR and push to main. Added `docs/MAINTAINERS.md` with branch protection rules. Added `docs/RELEASE_CHECKLIST.md`. Verified GitHub owner spelling consistency. Fresh-clone validated.
+
 ### v5.0.1 — 2026-07-11
 
 Public hardening + privacy scan regression. Added `scripts/public-surface-scan.sh` with variant-aware pattern matching (PascalCase, camelCase, space, kebab, snake, lowercase). Anonymized 149 remaining personal project name references missed in v5.0.0. Added publication exclusions to `.gitignore`. Added issue templates. Fixed README and CHANGELOG to remove vault references. Fresh-clone validated.

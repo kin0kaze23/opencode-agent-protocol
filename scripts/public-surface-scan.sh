@@ -18,8 +18,8 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 FAILURES=0
 
 # Exclude this script, OOXML schema files (paperClips is a Word feature),
-# and policy docs that intentionally list excluded names
-EXCLUDE_PATTERN='^./.git/|^./scripts/public-surface-scan.sh|office/schemas/.*\.xsd$|^./docs/PUBLICATION_POLICY.md|^./NOW.md|^./.gitignore'
+# and policy/docs that intentionally list excluded names
+EXCLUDE_PATTERN='^./.git/|^./scripts/public-surface-scan.sh|office/schemas/.*\.xsd$|^./docs/PUBLICATION_POLICY.md|^./docs/RELEASE_CHECKLIST.md|^./NOW.md|^./.gitignore'
 
 scan_category() {
   local category="$1"
@@ -49,9 +49,12 @@ scan_category() {
 
 check_directory_absent() {
   local dirname="$1"
-  if [ -d "$ROOT_DIR/$dirname" ]; then
+  # Only flag if the directory is tracked by git (not just present on disk from test runs)
+  local tracked
+  tracked=$(cd "$ROOT_DIR" && git ls-files "$dirname/" 2>/dev/null | head -1 || true)
+  if [ -n "$tracked" ]; then
     echo ""
-    echo "FAIL: Forbidden directory present: $dirname/"
+    echo "FAIL: Forbidden directory tracked by git: $dirname/"
     FAILURES=$((FAILURES + 1))
   fi
 }

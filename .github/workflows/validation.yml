@@ -1,0 +1,40 @@
+# Validation CI — runs on every PR and push to main
+# Ensures privacy scan and protocol conformance pass before merge.
+
+name: Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  public-surface-scan:
+    name: Privacy Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run public-surface-scan
+        run: bash scripts/public-surface-scan.sh
+
+  protocol-validation:
+    name: Protocol Conformance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install verification
+        run: bash scripts/verify-install.sh
+      - name: Protocol Atlas validation
+        run: bash .opencode/scripts/validate-protocol-atlas.sh
+      - name: Protocol Atlas conformance
+        run: bash .opencode/conformance/tests/protocol-atlas.sh
+      - name: Production hardening
+        run: bash .opencode/conformance/tests/production-hardening.sh
+      - name: Loop controller
+        run: bash .opencode/conformance/tests/loop-controller.sh
+      - name: Model ROI
+        run: bash .opencode/conformance/tests/model-roi.sh
