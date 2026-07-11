@@ -11,6 +11,10 @@ All notable changes to the OpenCode Agent Protocol are documented here.
 
 ## Recent Releases
 
+### v5.2.0 — 2026-07-11
+
+Evidence pack + failure modes + threat model. Added `docs/CASE_STUDIES.md` with 3 public-safe case studies (privacy scan regression, repeatable release process, agent topology). Added `docs/EVIDENCE.md` with measured/illustrative workflow evidence. Added `docs/FAILURE_MODES.md` documenting 8 known failure modes with symptoms, risks, mitigations, and validation commands. Added `docs/THREAT_MODEL.md` covering 9 threat categories (secrets leakage, personal data leakage, prompt injection, unsafe automation, destructive commands, supply chain, malicious PRs, model hallucination, over-permissive actions). Updated README with evidence/limitations section. Updated CLAIMS.md with new allowed claims. Fresh-clone validated.
+
 ### v5.1.0 — 2026-07-11
 
 Capability catalog + public example workflows. Added `docs/CAPABILITY_CATALOG.md` mapping 17 public capabilities with status, source files, validation tests, and CI coverage. Added `docs/RUNTIME_MAP.md` showing authoritative vs generated files. Added `docs/CONFIGURATION_GUIDE.md` with customization instructions. Added `examples/workflows/` with 5 sanitized example workflows (docs-only change, small bugfix, privacy scan failure, release checklist, model routing advisory). Added `docs/CLAIMS.md` defining allowed and disallowed public claims. Updated README with agent cooperation section. Fresh-clone validated.
