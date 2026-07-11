@@ -63,7 +63,7 @@
 |---------|--------|
 | `ProjectTracker/` | Unrelated project — extract to separate repo |
 | `trace-eval/` | Unrelated project — extract to separate repo |
-| `Openclaw-STAGE/` | Unrelated project — extract to separate repo |
+| `example-toolchain-STAGE/` | Unrelated project — extract to separate repo |
 | `folq/` | Unrelated project |
 
 ## Machine-Specific Path Policy

@@ -10,7 +10,7 @@ description: >
   "compare" model output. Required before shipping any prompt or model change to
   production. Covers golden datasets, rule-based and LLM-as-judge scoring, prompt
   regression suites, trace analysis, and CI wiring across this workspace's AI
-  products (Hermes, example-orchestrator, example-platform, sample-service, Eliza, example-app).
+  products (example-agent, example-orchestrator, example-platform, sample-service, Eliza, example-app).
 ---
 
 # AI Agent Evaluation
@@ -54,7 +54,7 @@ The dataset is the eval. Bad dataset → useless eval no matter how clever the s
 
 **Sources to mine:**
 - `vault/agent-protocols/` (workspace AI history)
-- `paperclip-PROD/server/src/onboarding-assets/`
+- `example-orchestrator-PROD/server/src/onboarding-assets/`
 - Production traces from Langfuse / LangSmith / Anthropic Console if connected
 - Prior git commits that fixed AI bugs — the failing input that triggered the fix is gold
 

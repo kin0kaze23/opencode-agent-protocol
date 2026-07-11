@@ -69,7 +69,7 @@
       "lifecycle_state": "repo_only",
       "scope": "ui_ux",
       "purpose": "Browser automation for UI verification, visual QA, screenshot evidence",
-      "notes": "Disabled in baseline. Enabled via repo-level overlay in ui_ux repos: protected-repo-prod, example-app, paperclip-PROD, demo-project, example-dashboard. Must NOT appear in global config."
+      "notes": "Disabled in baseline. Enabled via repo-level overlay in ui_ux repos: protected-repo-prod, example-app, example-orchestrator-PROD, demo-project, example-dashboard. Must NOT appear in global config."
     },
     "pencil": {
       "lifecycle_state": "repo_only",

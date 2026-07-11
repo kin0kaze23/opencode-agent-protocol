@@ -22,7 +22,7 @@ environment_policy:
 - The canonical local repo path is the path listed in this registry. Preserved dirty
   copies should use a sibling -sandbox suffix.
 repositories:
-  lifepilot:
+  example-platform:
     name: example-platform
     path: example-platform
     purpose: "AI Life Optimization Agent \u2014 chat-first personal chief of staff"
@@ -34,7 +34,7 @@ repositories:
     ports:
       api: 8080
       other: Telegram bot
-  automationhub:
+  sample-service:
     name: sample-service
     path: sample-service
     purpose: AI-powered automation hub on n8n
@@ -47,7 +47,7 @@ repositories:
       dev: 3003
       api: 4000
       other: 'n8n: 5678'
-  aretelifeos:
+  example-app:
     name: example-app
     path: example-app
     purpose: Local-first Life OS with encrypted vault and AI mentor
@@ -58,7 +58,7 @@ repositories:
     has_git: false
     ports:
       dev: 3000
-  aretelifeos_sandbox:
+  example-app_sandbox:
     name: example-app-sandbox
     path: example-app-sandbox
     purpose: "Dirty/in-progress copy of example-app \u2014 port changes to canonical\
@@ -70,7 +70,7 @@ repositories:
     has_git: true
     ports:
       dev: 3000
-  stillness:
+  demo-project:
     name: demo-project
     path: demo-project
     purpose: Minimal daily devotion app with AI content
@@ -113,7 +113,7 @@ repositories:
     has_git: true
     ports:
       dev: 3005
-  elizadashboard2:
+  example-dashboard:
     name: example-dashboard
     path: example-dashboard
     purpose: Production admin dashboard for Twitter AI agents
@@ -124,7 +124,7 @@ repositories:
     has_git: true
     ports:
       dev: 5000
-  openclawmissioncontrol:
+  example-toolchain-control:
     name: example-toolchainMissionControl
     path: example-toolchainMissionControl
     purpose: Centralized operations platform for example-toolchain
@@ -136,9 +136,9 @@ repositories:
     ports:
       dev: 5176
       api: 8002
-  paperclip_prod:
-    name: paperclip-PROD
-    path: paperclip-PROD
+  example-orchestrator_prod:
+    name: example-orchestrator-PROD
+    path: example-orchestrator-PROD
     purpose: example-orchestrator AI agent company control plane
     stack: Express + React + Vite
     deploy_target: localhost:3100
@@ -147,7 +147,7 @@ repositories:
     has_git: true
     ports:
       api: 3100
-  openclaw_dev:
+  example-toolchain-dev:
     name: example-toolchain-DEV
     path: example-toolchain-DEV
     purpose: "example-toolchain development instance \u2014 source repo for example-toolchain changes"
@@ -158,19 +158,19 @@ repositories:
     has_git: false
     ports:
       other: 'sandbox: 18793, gateway: 18794'
-  openclaw_prod:
-    name: Openclaw-PROD
-    path: Openclaw-PROD
-    purpose: "Retired example-toolchain production runtime \u2014 see docs/retired/openclaw-retirement-2026-04-23"
+  example-toolchain-prod:
+    name: example-toolchain-PROD
+    path: example-toolchain-PROD
+    purpose: "Retired example-toolchain production runtime \u2014 see docs/retired/example-toolchain-retirement-2026-04-23"
     stack: Docker
     deploy_target: None
     status: missing_from_disk
     disk_status: missing
     has_git: false
-  openclaw_stage:
-    name: Openclaw-STAGE
-    path: Openclaw-STAGE
-    purpose: "Retired example-toolchain staging runtime \u2014 see docs/retired/openclaw-retirement-2026-04-23"
+  example-toolchain-stage:
+    name: example-toolchain-STAGE
+    path: example-toolchain-STAGE
+    purpose: "Retired example-toolchain staging runtime \u2014 see docs/retired/example-toolchain-retirement-2026-04-23"
     stack: Docker
     deploy_target: None
     status: missing_from_disk
@@ -185,7 +185,7 @@ repositories:
     status: operational
     disk_status: present
     has_git: false
-  hermesagent:
+  example-agent:
     name: example-agent
     path: example-agent
     purpose: "Example agent framework — nested git repo
@@ -194,12 +194,12 @@ repositories:
     status: active
     disk_status: present
     has_git: false
-    note: Wrapper files are tracked by the workspace root. Hermes source git repo
-      is nested at example-agent/hermes-agent/.git.
-  hermes_pilot_checklist_summary:
-    name: hermes-pilot-checklist-summary
-    path: hermes-pilot-checklist-summary
-    purpose: Minimal Hermes pilot repo for checklist summarization
+    note: Wrapper files are tracked by the workspace root. example-agent source git repo
+      is nested at example-agent/example-agent/.git.
+  example-pilot-summary:
+    name: example-pilot-summary
+    path: example-pilot-summary
+    purpose: Minimal example-agent pilot repo for checklist summarization
     stack: Python CLI
     deploy_target: None
     status: pilot
@@ -272,7 +272,7 @@ repositories:
     ports:
       dev: 5175
       api: 8001
-  ironclaw:
+  example-cli:
     name: example-cli
     path: example-cli
     purpose: Secure personal AI assistant
@@ -283,7 +283,7 @@ repositories:
     has_git: false
     ports:
       dev: 3002
-  openclaw:
+  example-toolchain:
     name: example-toolchain
     path: example-toolchain
     purpose: Autonomous AI agent workspace

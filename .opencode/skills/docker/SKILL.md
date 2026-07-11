@@ -84,9 +84,9 @@ RUN cargo build --release
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /app
-COPY --from=builder /app/target/release/ironclaw .
+COPY --from=builder /app/target/release/example-cli .
 EXPOSE 3002
-CMD ["./ironclaw"]
+CMD ["./example-cli"]
 ```
 
 ## Docker Compose

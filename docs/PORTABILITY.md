@@ -60,10 +60,10 @@ The control-plane previously tracked gitlinks (mode 160000) for three nested git
 
 | Repo | Classification | Decision | Rationale |
 |---|---|---|---|
-| `example-agent/hermes-agent` | Nested git repo (inside tracked `example-agent/` directory) | Untracked from control-plane index (`git rm --cached`). Already covered by `.gitignore` rule `example-agent/hermes-agent/`. | Independently managed repo. Control-plane should not track its commit state. |
+| `example-agent/example-agent` | Nested git repo (inside tracked `example-agent/` directory) | Untracked from control-plane index (`git rm --cached`). Already covered by `.gitignore` rule `example-agent/example-agent/`. | Independently managed repo. Control-plane should not track its commit state. |
 | `example-platform` | Nested git repo (pure gitlink, no other tracked files) | Untracked from control-plane index (`git rm --cached`). Already covered by `.gitignore` rule `/example-platform/`. | No GitHub remote configured. Local-only repo. Control-plane should not track its commit state. |
-| `Openclaw-PROD` | Stale gitlink (empty directory, no `.git` on disk) | Untracked from control-plane index (`git rm --cached`). Added `/Openclaw-PROD/` to `.gitignore`. | Stale gitlink with no actual repo on disk. Was causing workspace protocol guard failure. |
-| `paperclip-PROD` | Nested git repo (pure gitlink, no other tracked files) | Untracked from control-plane index (`git rm --cached`). Already covered by `.gitignore` rule `/paperclip-PROD/`. | Independently managed repo. Control-plane should not track its commit state. |
+| `example-toolchain-PROD` | Stale gitlink (empty directory, no `.git` on disk) | Untracked from control-plane index (`git rm --cached`). Added `/example-toolchain-PROD/` to `.gitignore`. | Stale gitlink with no actual repo on disk. Was causing workspace protocol guard failure. |
+| `example-orchestrator-PROD` | Nested git repo (pure gitlink, no other tracked files) | Untracked from control-plane index (`git rm --cached`). Already covered by `.gitignore` rule `/example-orchestrator-PROD/`. | Independently managed repo. Control-plane should not track its commit state. |
 
 ### Proper Submodules (unchanged)
 

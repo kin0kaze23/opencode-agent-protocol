@@ -103,9 +103,9 @@ fi
 STILL_OUTPUT=$(bash "$BOOTSTRAP_SCRIPT" "$WORKSPACE_ROOT/demo-project" 2>/dev/null)
 STILL_TYPE=$(echo "$STILL_OUTPUT" | grep '^REPO_TYPE:' | cut -d' ' -f2)
 if [[ "$STILL_TYPE" == "react_vite" ]]; then
-  guard_pass "V4172-004-stillness" "demo-project detected as react_vite"
+  guard_pass "V4172-004-demo-project" "demo-project detected as react_vite"
 else
-  guard_fail "V4172-004-stillness" "demo-project detected as '$STILL_TYPE' (expected react_vite)"
+  guard_fail "V4172-004-demo-project" "demo-project detected as '$STILL_TYPE' (expected react_vite)"
 fi
 
 # ============================================================

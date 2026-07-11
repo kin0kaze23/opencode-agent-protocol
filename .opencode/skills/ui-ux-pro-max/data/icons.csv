@@ -61,7 +61,7 @@ No,Category,Icon Name,Keywords,Library,Import Code,Usage,Best For,Style
 60,Files,file-text,document text page article,Lucide,import { FileText } from 'lucide-react',<FileText />,Text document article,Outline
 61,Files,folder,directory organize group files,Lucide,import { Folder } from 'lucide-react',<Folder />,Folder directory,Outline
 62,Files,folder-open,expanded browse files view,Lucide,import { FolderOpen } from 'lucide-react',<FolderOpen />,Open folder browse,Outline
-63,Files,paperclip,attachment attach file link,Lucide,import { example-orchestrator } from 'lucide-react',<example-orchestrator />,Attachment paperclip,Outline
+63,Files,example-orchestrator,attachment attach file link,Lucide,import { example-orchestrator } from 'lucide-react',<example-orchestrator />,Attachment example-orchestrator,Outline
 64,Files,link,url hyperlink chain connect,Lucide,import { Link } from 'lucide-react',<Link />,Link URL hyperlink,Outline
 65,Files,clipboard,paste copy buffer notes,Lucide,import { Clipboard } from 'lucide-react',<Clipboard />,Clipboard paste,Outline
 66,Layout,grid,tiles gallery layout dashboard,Lucide,import { Grid } from 'lucide-react',<Grid />,Grid layout gallery,Outline

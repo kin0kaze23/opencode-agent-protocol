@@ -220,8 +220,8 @@ assert_file_contains "$ROOT_DIR/.opencode/scripts/validate-protocol-atlas.sh" "M
 
 # ─── PA-038: atlas version matches NOW.md version (v4.51.1) ──────────
 test_start "PA-038" "atlas version matches NOW.md version"
-ATLAS_VERSION=$(grep -oE 'v4\.[0-9]+(\.[0-9]+)?' "$ATLAS" | head -1)
-NOW_VERSION=$(grep -oE 'v4\.[0-9]+(\.[0-9]+)?' "$ROOT_DIR/NOW.md" | head -1)
+ATLAS_VERSION=$(grep -oE 'v[0-9]+\.[0-9]+(\.[0-9]+)?' "$ATLAS" | head -1)
+NOW_VERSION=$(grep -oE 'v[0-9]+\.[0-9]+(\.[0-9]+)?' "$ROOT_DIR/NOW.md" | head -1)
 if [ "$ATLAS_VERSION" = "$NOW_VERSION" ]; then
   echo -e "  ${GREEN}✓${NC} Atlas version ($ATLAS_VERSION) matches NOW.md version ($NOW_VERSION)"
   TESTS_PASSED=$((TESTS_PASSED + 1))

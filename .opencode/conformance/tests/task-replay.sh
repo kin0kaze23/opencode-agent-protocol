@@ -60,10 +60,10 @@ assert_file_contains "$ROOT_DIR/.opencode/evals/task-replay/tasks.yaml" "protect
 
 # ─── TR-006: no task references protected-repo as repo_context ────────────────
 test_start "TR-006" "no task references protected-repo as repo_context"
-BABYGUIDE_TASKS=$(grep 'repo_context:' "$ROOT_DIR/.opencode/evals/task-replay/tasks.yaml" | grep -ci "baby" 2>/dev/null)
-BABYGUIDE_TASKS=${BABYGUIDE_TASKS//[^0-9]/}
-BABYGUIDE_TASKS=${BABYGUIDE_TASKS:-0}
-assert_equals "0" "$BABYGUIDE_TASKS" "No task has protected-repo as repo_context"
+PROTECTED_REPO_TASKS=$(grep 'repo_context:' "$ROOT_DIR/.opencode/evals/task-replay/tasks.yaml" | grep -ci "baby" 2>/dev/null)
+PROTECTED_REPO_TASKS=${PROTECTED_REPO_TASKS//[^0-9]/}
+PROTECTED_REPO_TASKS=${PROTECTED_REPO_TASKS:-0}
+assert_equals "0" "$PROTECTED_REPO_TASKS" "No task has protected-repo as repo_context"
 
 # ─── TR-007: replay runner exists ───────────────────────────────────────
 test_start "TR-007" "replay runner exists"
@@ -504,7 +504,7 @@ assert_equals "$TOTAL_IDS" "$UNIQUE_IDS" "All task IDs are unique"
 
 # ─── TR-051: all tasks have forbidden_files including protected-repo ──────────
 test_start "TR-051" "all tasks have protected-repo in forbidden_files"
-BABYGUIDE_FORBIDDEN_COUNT=$(awk '
+PROTECTED_REPO_FORBIDDEN_COUNT=$(awk '
   /^  - task_id:/ { task_id=$0; gsub(/.*task_id: "/, "", task_id); gsub(/".*/, "", task_id); has_baby=0; in_forbidden=0 }
   /forbidden_files:/ { in_forbidden=1; next }
   in_forbidden && /protected-repo/ { has_baby=1 }
@@ -514,7 +514,7 @@ BABYGUIDE_FORBIDDEN_COUNT=$(awk '
   }
   END { print count+0 }
 ' "$ROOT_DIR/.opencode/evals/task-replay/tasks.yaml")
-assert_equals "9" "$BABYGUIDE_FORBIDDEN_COUNT" "All 9 tasks forbid protected-repo"
+assert_equals "9" "$PROTECTED_REPO_FORBIDDEN_COUNT" "All 9 tasks forbid protected-repo"
 
 # ─── TR-052: registry has scoring rubric ────────────────────────────────
 test_start "TR-052" "registry has scoring rubric"

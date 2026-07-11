@@ -36,7 +36,7 @@
       "profile": "ui_ux",
       "rationale": "Dashboard UI requiring visual validation and browser testing."
     },
-    "paperclip-PROD": {
+    "example-orchestrator-PROD": {
       "profile": "ui_ux",
       "rationale": "example-orchestrator control plane (Express + React + Vite). Has React UI on localhost:3100 requiring visual validation."
     },

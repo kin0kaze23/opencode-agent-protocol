@@ -54,13 +54,13 @@
       "review_condition": "Review if example-app adds agent definitions or non-MCP config to opencode.json.",
       "profile": "ui_ux"
     },
-    "paperclip-PROD": {
+    "example-orchestrator-PROD": {
       "adr": null,
       "reason": "ui_ux profile requires Playwright and Pencil MCP enabled. Repo-local opencode.json contains MCP overrides only.",
       "allowed_contents": [
         "opencode.json"
       ],
-      "review_condition": "Review if paperclip-PROD adds agent definitions or non-MCP config to opencode.json.",
+      "review_condition": "Review if example-orchestrator-PROD adds agent definitions or non-MCP config to opencode.json.",
       "profile": "ui_ux"
     },
     "demo-project": {

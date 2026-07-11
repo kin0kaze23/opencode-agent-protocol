@@ -25,8 +25,8 @@ SEARCH_PATTERN="$ROOT_DIR/.opencode/scripts/search-patterns.sh"
 RETRIEVE_LESSONS="$ROOT_DIR/.opencode/scripts/retrieve-lessons.sh"
 IMPLEMENT_CMD="$ROOT_DIR/.opencode/commands/implement.md"
 SENIOR_REVIEW="$ROOT_DIR/.opencode/scripts/senior-self-review.sh"
-BABYGUIDE_MEMORY="$ROOT_DIR/protected-repo-prod/PROJECT_MEMORY.md"
-STILLNESS_MEMORY="$ROOT_DIR/demo-project/PROJECT_MEMORY.md"
+PROTECTED_REPO_MEMORY="$ROOT_DIR/protected-repo-prod/PROJECT_MEMORY.md"
+DEMO_PROJECT_MEMORY="$ROOT_DIR/demo-project/PROJECT_MEMORY.md"
 
 # --- Section 1: PATTERN.md template ---
 
@@ -136,17 +136,17 @@ assert_output_contains "$RESULT" "source_repos:" "Self-review has source_repos f
 # --- Section 7: PROJECT_MEMORY.md exists in multiple repos ---
 
 test_start "PM-017" "protected-repo-prod has PROJECT_MEMORY.md"
-assert_file_exists "$BABYGUIDE_MEMORY" "protected-repo-prod PROJECT_MEMORY.md exists"
+assert_file_exists "$PROTECTED_REPO_MEMORY" "protected-repo-prod PROJECT_MEMORY.md exists"
 
 test_start "PM-018" "demo-project has PROJECT_MEMORY.md"
-assert_file_exists "$STILLNESS_MEMORY" "demo-project PROJECT_MEMORY.md exists"
+assert_file_exists "$DEMO_PROJECT_MEMORY" "demo-project PROJECT_MEMORY.md exists"
 
 test_start "PM-019" "demo-project PROJECT_MEMORY has required sections"
-assert_file_contains "$STILLNESS_MEMORY" "Architecture Notes" "demo-project has Architecture Notes"
-assert_file_contains "$STILLNESS_MEMORY" "Key Decisions" "demo-project has Key Decisions"
-assert_file_contains "$STILLNESS_MEMORY" "Known Risks" "demo-project has Known Risks"
-assert_file_contains "$STILLNESS_MEMORY" "Testing Commands" "demo-project has Testing Commands"
-assert_file_contains "$STILLNESS_MEMORY" "Deployment Notes" "demo-project has Deployment Notes"
+assert_file_contains "$DEMO_PROJECT_MEMORY" "Architecture Notes" "demo-project has Architecture Notes"
+assert_file_contains "$DEMO_PROJECT_MEMORY" "Key Decisions" "demo-project has Key Decisions"
+assert_file_contains "$DEMO_PROJECT_MEMORY" "Known Risks" "demo-project has Known Risks"
+assert_file_contains "$DEMO_PROJECT_MEMORY" "Testing Commands" "demo-project has Testing Commands"
+assert_file_contains "$DEMO_PROJECT_MEMORY" "Deployment Notes" "demo-project has Deployment Notes"
 
 # --- Section 8: Lite Mode and prior capabilities preserved ---
 

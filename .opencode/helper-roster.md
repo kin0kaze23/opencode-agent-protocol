@@ -5,7 +5,7 @@
 > **v4.27.1** — Protocol Coherence Closure + Information Architecture Cleanup.
 >
 > **v4.10.0 / M3C** — OpenCode Go routing + implementer hotfix.
-> Routing guidance for helper delegation; Claude/Hermes/direct API remain deferred.
+> Routing guidance for helper delegation; Claude/example-agent/direct API remain deferred.
 >
 > **Migration note (2026-05-27):** OpenCode runtime agents use OpenCode Go routing.
 > Alibaba/Bailian decommissioned from workspace routing (quota exhausted, 429 insufficient_quota).
@@ -20,14 +20,14 @@ Use this roster when the Owner decides to delegate or switch reasoning depth.
 - Direct bounded implementation helper: `umans-ai-coding-plan/umans-coder` (v1.5 capacity-first).
 - Fallback/hard-solver/rollback: `opencode-go/qwen3.7-plus` (premium reserve).
 - This helper roster sets **delegated helper defaults**: `umans-ai-coding-plan/umans-coder` for Orchestrator/Planner/Implementer (capacity-first), `opencode-go/glm-5.1` for Reviewer (premium reserve), `opencode-go/qwen3.7-plus` for Architect (premium reserve), and `opencode-go/deepseek-v4-flash` for Explorer/Budget.
-- `.opencode/model-registry.yaml` tracks Umans as primary capacity provider, OpenCode Go as premium reserve, plus deferred Claude/Hermes/direct API blockers.
+- `.opencode/model-registry.yaml` tracks Umans as primary capacity provider, OpenCode Go as premium reserve, plus deferred Claude/example-agent/direct API blockers.
 - Orchestrator prompt source is intentionally manual-canonical at `.opencode/global-runtime/prompts/orchestrator.md`: the Owner prompt is workspace-specific policy, not a reusable helper spec. Helper prompts are generated from `.opencode/agents/*.md` and mirrored into global runtime; orchestrator is copied as-is by `.opencode/scripts/sync-opencode-runtime.sh`.
 - GPT-5.5 is external/manual escalation only — NOT wired into OpenCode config.
 - Do not treat helper defaults as a contradiction of the Owner session default; they apply only after the Owner delegates a bounded stage.
 
 ## Phase M1 OpenCode Go caveats
 
-- OpenCode Go routing is promoted for OpenCode runtime agents only. Do not remove Alibaba/Bailian fallback, migrate Hermes/direct API, or migrate Claude wrappers as part of Phase M1.3.
+- OpenCode Go routing is promoted for OpenCode runtime agents only. Do not remove Alibaba/Bailian fallback, migrate example-agent/direct API, or migrate Claude wrappers as part of Phase M1.3.
 - `umans-ai-coding-plan/umans-coder` is the v1.5 capacity-first Owner/Planner/Implementer route; `opencode-go/qwen3.7-plus` is the premium reserve for Architect and high-risk tasks; ambiguous performance requests remain plan-first under protocol guardrails.
 - `opencode-go/qwen3.6-plus` is the fallback/hard-solver/rollback baseline.
 - Ambiguous implementation and vague performance tasks must be plan-first: baseline measurement, target metric, suspected bottleneck, touch list, verification command, and rollback path are required before edits.

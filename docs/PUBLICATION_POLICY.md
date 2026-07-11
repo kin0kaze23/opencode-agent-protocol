@@ -20,7 +20,7 @@
 
 | Category | Reason |
 |----------|--------|
-| Vault submodule (3,293 files) | Personal workspace knowledge base with project names, lessons, decisions, Hermes evals |
+| Vault submodule (3,293 files) | Personal workspace knowledge base with project names, lessons, decisions, example-agent evals |
 | Fleet repo config | Lists personal project repos by name |
 | Personal project folders | Unrelated to protocol |
 | Machine-local configs | `.ai/`, `.launcher/`, `.claude/settings.json` |
@@ -29,26 +29,34 @@
 
 ## Personal Project Exclusion Policy
 
-The following personal project names must NOT appear in public-facing content:
+The following personal project names must NOT appear in public-facing content, in any variant form (PascalCase, camelCase, space-separated, kebab-case, snake_case, lowercase):
 
-- protected-repo (always excluded)
-- example-app
-- sample-service
-- demo-project
-- example-platform
-- example-agent
-- example-dashboard
-- example-analyzer
-- Pulse
-- example-cli
-- example-toolchain
-- example-orchestrator
+- AreteLifeOS / Arete Life OS / arete-life-os / arete_life_os / aretelifeos
+- AutomationHub / Automation Hub / automation-hub / automation_hub / automationhub
+- Stillness / stillness
+- LifePilot / Life Pilot / life-pilot / life_pilot / lifepilot
+- Hermes-agent / Hermes agent / hermes-agent / hermes_agent / hermesagent
+- ElizaDashboard / Eliza Dashboard / eliza-dashboard / eliza_dashboard / elizadashboard
+- PortfolioAnalyser / Portfolio Analyser / portfolio-analyser / portfolio_analyser
+- IronClaw / Iron Claw / iron-claw / iron_claw / ironclaw
+- OpenClaw / Open Claw / open-claw / open_claw / openclaw
+- Paperclip / paperclip
+- BabyGuide / Baby Guide / baby-guide / baby_guide / babyguide
 
-In conformance tests, eval fixtures, and skills, these should be replaced with generic names:
-- `sample-app`
-- `example-repo`
-- `demo-project`
-- `protected-repo`
+Use `bash scripts/public-surface-scan.sh` to verify before every release.
+
+## Publication Exclusions
+
+The following directories must never be committed to the public repo:
+
+| Directory | Reason |
+|-----------|--------|
+| `vault/` | Personal workspace knowledge base |
+| `reports/` | May contain historical personal project references |
+| `.paperclip/` | Personal project artifacts |
+| `.playwright-mcp/` | Internal browser screenshots |
+
+These are enforced by `.gitignore` and `scripts/public-surface-scan.sh`.
 
 ## Vault/Report Sanitization Policy
 

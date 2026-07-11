@@ -34,7 +34,7 @@ Run tests after writing them. Fix failures before finishing.
 | sample-service | 40% unit + E2E critical | 60% |
 | ClearPathOS | 60% unit + E2E core | 80% |
 | areté-life-os | 50% unit + E2E | 70% |
-| stillness | 30% unit | 50% |
+| demo-project | 30% unit | 50% |
 | example-cli | 60% unit | 80% |
 
 **No feature ships without tests.**

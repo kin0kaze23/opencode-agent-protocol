@@ -1027,9 +1027,9 @@ gains:
     source_role: vault_reference
     authority_level: advisory
     maturity: production
-    evidence: "Central registry: 3 system cron, 4 Hermes cron, 2 Launchd services with health status"
+    evidence: "Central registry: 3 system cron, 4 example-agent cron, 2 Launchd services with health status"
     risks:
-      - "Job health may change; verify with hermes cron list and crontab -l"
+      - "Job health may change; verify with example-agent cron list and crontab -l"
     related_gains:
       - "PGR-M01"
     last_verified: "2026-06-12"

@@ -33,11 +33,11 @@ ROOT_CONTRACTS=(
 )
 
 RUNTIME_TREES=(
-  "example-agent/.hermes-local"
-  "Openclaw-PROD/workspace"
-  "Openclaw-PROD/workspace.backup"
-  "Openclaw-STAGE/workspace"
-  "practice-repos/example-toolchain-DEV/openclaw/.openclaw-mission-control"
+  "example-agent/.example-agent-local"
+  "example-toolchain-PROD/workspace"
+  "example-toolchain-PROD/workspace.backup"
+  "example-toolchain-STAGE/workspace"
+  "practice-repos/example-toolchain-DEV/example-toolchain/.example-toolchain-mission-control"
   ".claude/validation"
   ".opencode/archive"
   ".opencode/conformance/results"
@@ -93,11 +93,11 @@ section "Repo .claude Settings Drift"
 template=".claude/templates/repo-settings.json"
 drift=""
 repo_settings_files="$(rg --files -g '*/.claude/settings.json' \
-  -g '!Openclaw-PROD/workspace/**' \
-  -g '!Openclaw-PROD/workspace.backup/**' \
-  -g '!Openclaw-STAGE/workspace/**' \
-  -g '!example-agent/.hermes-local/**' \
-  -g '!practice-repos/example-toolchain-DEV/openclaw/.openclaw-mission-control/**' \
+  -g '!example-toolchain-PROD/workspace/**' \
+  -g '!example-toolchain-PROD/workspace.backup/**' \
+  -g '!example-toolchain-STAGE/workspace/**' \
+  -g '!example-agent/.example-agent-local/**' \
+  -g '!practice-repos/example-toolchain-DEV/example-toolchain/.example-toolchain-mission-control/**' \
   -g '!vault/**' || true)"
 while IFS= read -r file; do
   [[ -z "$file" ]] && continue
@@ -114,11 +114,11 @@ fi
 
 section "Tracked Runtime-State Files"
 tracked_runtime="$(git ls-files \
-  'example-agent/.hermes-local/**' \
-  'Openclaw-PROD/workspace/**' \
-  'Openclaw-PROD/workspace.backup/**' \
-  'Openclaw-STAGE/workspace/**' \
-  'practice-repos/example-toolchain-DEV/openclaw/.openclaw-mission-control/**' \
+  'example-agent/.example-agent-local/**' \
+  'example-toolchain-PROD/workspace/**' \
+  'example-toolchain-PROD/workspace.backup/**' \
+  'example-toolchain-STAGE/workspace/**' \
+  'practice-repos/example-toolchain-DEV/example-toolchain/.example-toolchain-mission-control/**' \
   '.claude/settings.local.json' \
   '.claude/scheduled_tasks.lock' \
   '.claude/agent-memory-local/**' \
@@ -161,7 +161,7 @@ section "Generated Trees Treated As Authority"
 generated_refs=""
 for contract in "${ROOT_CONTRACTS[@]}"; do
   [[ -f "$contract" ]] || continue
-  hits="$(rg -n 'example-agent/\.hermes-local|Openclaw-PROD/workspace|Openclaw-PROD/workspace\.backup|Openclaw-STAGE/workspace|\.openclaw-mission-control|\.claude/validation|\.opencode/archive|\.opencode/conformance/results|vault/archive' "$contract" || true)"
+  hits="$(rg -n 'example-agent/\.example-agent-local|example-toolchain-PROD/workspace|example-toolchain-PROD/workspace\.backup|example-toolchain-STAGE/workspace|\.example-toolchain-mission-control|\.claude/validation|\.opencode/archive|\.opencode/conformance/results|vault/archive' "$contract" || true)"
   if [[ -n "$hits" ]]; then
     generated_refs+="$hits"$'\n'
   fi

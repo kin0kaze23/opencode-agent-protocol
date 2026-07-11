@@ -124,7 +124,7 @@ Was this caused by a recent deploy?
 
 - For Vercel projects (example-app, demo-project web): `vercel ls` → `vercel rollback <deployment-id>`
 - For Cloudflare Workers: `wrangler deployments list` → `wrangler rollback <deployment-id>`
-- For Docker (Hermes, sample-service, example-platform): check `docker compose ps`, roll back image tag, `docker compose up -d`
+- For Docker (example-agent, sample-service, example-platform): check `docker compose ps`, roll back image tag, `docker compose up -d`
 - Run `/deploy-rollback` command if available; run `/stop-ship` to block further deploys while incident is open
 
 ---

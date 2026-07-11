@@ -97,7 +97,7 @@ bash .opencode/scripts/sync-opencode-runtime.sh
 - firecrawl: disabled
 - web-tools: deprecated (removed 2026-07-01 — no service code, no unique capability)
 
-### ui_ux repos (protected-repo-prod, example-app, paperclip-PROD, demo-project, example-dashboard)
+### ui_ux repos (protected-repo-prod, example-app, example-orchestrator-PROD, demo-project, example-dashboard)
 - context7: enabled (inherited from global)
 - exa: enabled (inherited from global)
 - sequential-thinking: enabled (inherited from global)

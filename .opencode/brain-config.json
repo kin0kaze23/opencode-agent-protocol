@@ -22,7 +22,7 @@
   },
   "default_model": "opencode-go/qwen3.7-plus",
   "small_model": "opencode-go/deepseek-v4-flash",
-  "default_model_role": "OWNER ORCHESTRATOR — OpenCode-only routing is promoted for OpenCode runtime agents. Alibaba/Bailian remains configured as fallback until explicit decommission approval. Claude, Hermes, and direct API integrations remain unchanged/deferred.",
+  "default_model_role": "OWNER ORCHESTRATOR — OpenCode-only routing is promoted for OpenCode runtime agents. Alibaba/Bailian remains configured as fallback until explicit decommission approval. Claude, example-agent, and direct API integrations remain unchanged/deferred.",
   "provider_migration": {
     "status": "opencode-go-open-code-only-promoted",
     "secret_source": {
@@ -39,12 +39,12 @@
     "promotion_blockers": [
       "full golden-canary eval matrix not complete",
       "raw official OpenCode Go API endpoints returned 403 on 2026-05-21",
-      "Hermes and Claude wrapper compatibility not yet validated",
+      "example-agent and Claude wrapper compatibility not yet validated",
       "Phase M1 targeted re-eval for ambiguity, performance, and unsafe-security guardrails not yet passed"
     ],
     "phase_m1_guardrails": {
       "status": "active_candidate_hardening",
-      "routing_effect": "OpenCode runtime agent routing promoted only after M1.2/M1.3 minimal canaries; Claude/Hermes/direct API remain deferred",
+      "routing_effect": "OpenCode runtime agent routing promoted only after M1.2/M1.3 minimal canaries; Claude/example-agent/direct API remain deferred",
       "eval_modes": {
         "raw-model": "Measures model behavior without command guardrails; failures block promotion but do not prove production protocol failure.",
         "protocol-enforced": "Measures production-style behavior with Phase M1 guardrails injected or command path exercised. This mode is required before full role matrix promotion work."
@@ -247,7 +247,7 @@
       "rust/SKILL.md": [
         "rust",
         "cargo",
-        "ironclaw"
+        "example-cli"
       ],
       "systematic-debugging/SKILL.md": [
         "debug",
@@ -988,7 +988,7 @@
     }
   },
   "orchestrator_mode": {
-    "description": "Owner agent — OpenCode Go orchestrator; v1.1-production (Action 4D, 2026-06-05); qwen3.7-plus primary, qwen3.6-plus fallback/hard-solver; Claude/Hermes/direct API deferred",
+    "description": "Owner agent — OpenCode Go orchestrator; v1.1-production (Action 4D, 2026-06-05); qwen3.7-plus primary, qwen3.6-plus fallback/hard-solver; Claude/example-agent/direct API deferred",
     "enabled": true,
     "default_model": "umans-ai-coding-plan/umans-glm-5.2",
     "fallback_orchestrator": "opencode-go/qwen3.6-plus",

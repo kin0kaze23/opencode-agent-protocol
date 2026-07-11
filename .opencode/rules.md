@@ -122,7 +122,7 @@ When risk score is 0, exactly 1 file, and no sensitive paths are touched:
 - Unsafe security/auth/rate-limit/CORS requests must refuse early when they ask to bypass controls, weaken authentication, disable rate limits, loosen CORS broadly, expose secrets, or evade detection. Provide a safe alternative such as threat modeling, least-privilege configuration, scoped allowlists, local-only test fixtures, or defensive validation.
 - `/implement` must run this classifier before DIRECT or FAST lane shortcuts and before the first file edit. A request blocked by this section may proceed only after the missing plan fields are added and approved.
 - OpenCode Go migration caveat: `opencode-go/qwen3.7-plus` is v1.1-production primary (Action 4D). `opencode-go/qwen3.6-plus` is retained as fallback/hard-solver/rollback baseline. `opencode-go/qwen3.5-plus` is decommissioned from workspace routing (Alibaba quota exhausted) and superseded by qwen3.7-plus.
-- These guardrails are additive and do not authorize production/default model routing changes, `.opencode/opencode.json` edits, Hermes/direct API migration, Claude wrapper migration, secret changes, or Alibaba/Bailian fallback removal.
+- These guardrails are additive and do not authorize production/default model routing changes, `.opencode/opencode.json` edits, example-agent/direct API migration, Claude wrapper migration, secret changes, or Alibaba/Bailian fallback removal.
 
 ## Phase M1.7 Token And Model Efficiency Rules
 

@@ -1,5 +1,14 @@
-# Global .gitignore for Personal Projects
-# Last Updated: 2026-04-22
+# Global .gitignore for OpenCode Agent Protocol
+# Last Updated: 2026-07-11
+
+# ─────────────────────────────────────────────────────────────
+# Publication Exclusions (v5.0.1)
+# These directories must never be committed to the public repo.
+# ─────────────────────────────────────────────────────────────
+/vault/
+/reports/
+/.paperclip/
+/.playwright-mcp/
 
 # ─────────────────────────────────────────────────────────────
 # Temporary Files
@@ -107,7 +116,7 @@ coverage/
 
 # Captured real agent traces may include historical tool/env payloads.
 trace-eval/examples/claude_code_real*.jsonl
-trace-eval/examples/openclaw_*.jsonl
+trace-eval/examples/example-toolchain_*.jsonl
 
 # ─────────────────────────────────────────────────────────────
 # Misc
@@ -137,10 +146,10 @@ thought-graph-state.json
 .claude/scheduled_tasks.lock
 
 # ─────────────────────────────────────────────────────────────
-# Hermes Runtime-Home Volatile State
+# example-agent Runtime-Home Volatile State
 # ─────────────────────────────────────────────────────────────
 example-agent/.local/auth.lock
-example-agent/.local/.hermes_history
+example-agent/.local/.example-agent_history
 example-agent/.local/.skills_prompt_snapshot.json
 example-agent/.local/.update_check
 example-agent/.local/channel_directory.json
@@ -172,29 +181,29 @@ example-agent/.local/bin/
 # ─────────────────────────────────────────────────────────────
 # example-toolchain Runtime State
 # ─────────────────────────────────────────────────────────────
-Openclaw-PROD/workspace/
-Openclaw-PROD/workspace.backup/
-practice-repos/example-toolchain-DEV/openclaw/.openclaw-mission-control/
-Openclaw-PROD/devices/paired.json
-Openclaw-PROD/identity/device-auth.json
-Openclaw-PROD/exec-approvals.json
-Openclaw-PROD/agents/main/sessions/*.jsonl.reset.*
-Openclaw-STAGE/agents/main/agent/auth-profiles.json
-Openclaw-STAGE/agents/main/agent/models.json
-Openclaw-STAGE/agents/main/sessions/
-Openclaw-STAGE/update-check.json
-Openclaw-STAGE/workspace/
-Openclaw-STAGE/workspace/.agent/*/state.json
-Openclaw-STAGE/workspace/.openclaw/workspace-state.json
-Openclaw-STAGE/workspace/checkpoints/checkpoint-*.json
-Openclaw-STAGE/workspace/state/orchestrator.json
-Openclaw-STAGE/workspace/tasks/.approval-requests.json
-Openclaw-STAGE/workspace/tasks/.lock.json
-Openclaw-STAGE/workspace/tasks/approval-audit.json
-Openclaw-STAGE/workspace/tasks/autonomy-state.json
-Openclaw-STAGE/workspace/sandbox/.openclaw-work-*.marker
-Openclaw-STAGE/workspace/sandbox/vercel-preview/audit-log.json
-Openclaw-STAGE/workspace/workspace/deliverables/*.json
+example-toolchain-PROD/workspace/
+example-toolchain-PROD/workspace.backup/
+practice-repos/example-toolchain-DEV/example-toolchain/.example-toolchain-mission-control/
+example-toolchain-PROD/devices/paired.json
+example-toolchain-PROD/identity/device-auth.json
+example-toolchain-PROD/exec-approvals.json
+example-toolchain-PROD/agents/main/sessions/*.jsonl.reset.*
+example-toolchain-STAGE/agents/main/agent/auth-profiles.json
+example-toolchain-STAGE/agents/main/agent/models.json
+example-toolchain-STAGE/agents/main/sessions/
+example-toolchain-STAGE/update-check.json
+example-toolchain-STAGE/workspace/
+example-toolchain-STAGE/workspace/.agent/*/state.json
+example-toolchain-STAGE/workspace/.example-toolchain/workspace-state.json
+example-toolchain-STAGE/workspace/checkpoints/checkpoint-*.json
+example-toolchain-STAGE/workspace/state/orchestrator.json
+example-toolchain-STAGE/workspace/tasks/.approval-requests.json
+example-toolchain-STAGE/workspace/tasks/.lock.json
+example-toolchain-STAGE/workspace/tasks/approval-audit.json
+example-toolchain-STAGE/workspace/tasks/autonomy-state.json
+example-toolchain-STAGE/workspace/sandbox/.example-toolchain-work-*.marker
+example-toolchain-STAGE/workspace/sandbox/vercel-preview/audit-log.json
+example-toolchain-STAGE/workspace/workspace/deliverables/*.json
 example-agent/.local/
 
 # ─────────────────────────────────────────────────────────────
@@ -217,7 +226,7 @@ example-agent/.local/
 # ─────────────────────────────────────────────────────────────
 # Workspace Ignore Safety Guard (P1A-C, 2026-06-05)
 # Prevents accidental staging of Doppler secrets, fd developer
-# tooling, Hermes runtime context, auto-generated digests, and
+# tooling, example-agent runtime context, auto-generated digests, and
 # other local-only artifacts that should never reach the index.
 # ─────────────────────────────────────────────────────────────
 
@@ -226,15 +235,15 @@ example-agent/.local/
 
 # Local developer tooling
 **/.fdignore
-**/.hermes.md
+**/.example-agent.md
 
 # Generated reports / local artifacts
 ProjectTracker/reports/
 .playwright-mcp/
 .superpowers/
 
-# Optional local Hermes checkout; not required for protocol reproducibility
-example-agent/hermes-agent/
+# Optional local example-agent checkout; not required for protocol reproducibility
+example-agent/example-agent/
 
 # ─────────────────────────────────────────────────────────────
 # Multi-Repo Workspace Hygiene (v4.15.1, Phase 1B)
@@ -247,8 +256,8 @@ example-agent/hermes-agent/
 /protected-repo/
 /protected-repo-prod/
 /example-platform/
-/Openclaw-PROD/
-/paperclip-PROD/
+/example-toolchain-PROD/
+/example-orchestrator-PROD/
 /trace-eval/
 /agent-ready/
 /ai-agents/
@@ -368,7 +377,7 @@ folq/
 # v4.53.1 Unrelated projects (not protocol source — extract to separate repos)
 /ProjectTracker/
 /trace-eval/
-/Openclaw-STAGE/
+/example-toolchain-STAGE/
 
 # v4.53.1 Stale top-level files (replaced by docs/)
 /INSTALL.md

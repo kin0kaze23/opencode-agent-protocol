@@ -42,7 +42,7 @@ rust-analyzer (VS Code)
 ## Project Structure
 
 ```
-ironclaw/
+example-cli/
 ├── src/
 │   ├── main.rs        # Entry point
 │   ├── lib.rs         # Library root
@@ -63,7 +63,7 @@ ironclaw/
 use clap::{Parser, Subcommand}
 
 #[derive(Parser)]
-#[command(name = "ironclaw")]
+#[command(name = "example-cli")]
 #[command(about = "Personal AI Assistant")]
 struct Cli {
     #[command(subcommand)]
@@ -158,7 +158,7 @@ fn main() {
 
 ```toml
 [package]
-name = "ironclaw"
+name = "example-cli"
 version = "0.1.0"
 edition = "2021"
 

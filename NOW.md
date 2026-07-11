@@ -1,27 +1,29 @@
-# NOW.md — v4.55.1 Public Surface Privacy Scrub
+# NOW.md — v5.0.1 Public Hardening
 
 **Status:** ACTIVE
 **Last Updated:** 2026-07-11
 
 ## Current Task
 
-v4.55.1 — Public surface privacy scrub. Identity scrubbed, publication policy created, history risk assessed.
+v5.0.1 — Public hardening + privacy scan regression. Variant-aware public-surface scan added, 149 missed personal project name references anonymized, publication exclusions enforced, issue templates added, README/CHANGELOG fixed.
 
 ## Progress
 
-- ✅ v4.50-v4.55: Core v1 hardened through tag normalization
-- ✅ v4.55.1: Public Surface Privacy Scrub (this task)
-  - P0: Personal identity scrubbed (LICENSE, README, gates.yml, evidence.yaml, reports)
-  - P1: 100 .opencode/ files reference personal project names (needs anonymization for v5)
-  - P2: Vault has 1,032 files with personal project names (must exclude from public)
-  - P3: 14 report files reference personal project names
-  - P4: No actual secrets found
-  - P5: All v4.x tags contain personal content — NOT safe to publish full history
-  - P6: docs/PUBLICATION_POLICY.md created
-  - Recommendation: Create clean public v5 repo from sanitized HEAD
+- ✅ v5.0.0: Public baseline published (clean tree, no v4 history, no vault)
+- ✅ v5.0.1: Public hardening + privacy scan regression (this release)
+  - Added scripts/public-surface-scan.sh with variant-aware patterns
+  - Anonymized 149 missed personal project name references
+  - Added publication exclusions to .gitignore (vault/, reports/, .paperclip/)
+  - Added issue templates (bug_report.md, feature_request.md)
+  - Fixed README (removed vault refs, submodule, stale version)
+  - Fixed CHANGELOG (removed vault refs, added v5.0.0/v5.0.1)
+  - Updated PUBLICATION_POLICY.md with variant-aware exclusion list
+  - Fresh-clone validated with public-surface-scan.sh
 
-## Status: Privacy Scrub Complete — v5.0.0 Requires Clean Public Baseline
+## Status: v5.0.1 Public Hardening Complete
 
 ## Next Steps
 
-1. v5.0.0 — Create clean public baseline from sanitized HEAD (no v4 history, no vault, anonymized project names)
+1. Feature development can resume on the public repo
+2. External feedback collection
+3. Case studies and public examples

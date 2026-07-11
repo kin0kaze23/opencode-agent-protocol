@@ -474,7 +474,7 @@ For workspace-level agent/runtime edits, run the guard before and after changes:
 bash .opencode/scripts/workspace-protocol-guard.sh
 ```
 
-The guard is the fast, canonical check for keeping OpenCode, Claude, Codex, Gemini, Hermes routing, registry state, and launcher-facing runtime config aligned.
+The guard is the fast, canonical check for keeping OpenCode, Claude, Codex, Gemini, example-agent routing, registry state, and launcher-facing runtime config aligned.
 
 ## OpenCode Session Expectations
 

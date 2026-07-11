@@ -27,8 +27,8 @@ ALL_REPOS=(
     example-toolchainMissionControl
     example-orchestratorNuggie
     example-toolchain-DEV
-    Openclaw-PROD
-    Openclaw-STAGE
+    example-toolchain-PROD
+    example-toolchain-STAGE
     ProjectTracker
     example-agent
     # Missing from disk — kept for reference, doctor will SKIP

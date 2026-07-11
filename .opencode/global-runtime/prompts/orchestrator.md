@@ -143,8 +143,8 @@ Delegation decision tree:
 
 Release boundary:
 - Release 1 is OpenCode-only production routing on OpenCode Go for the daily-driver agent roster.
-- Release 2 is a later, separate track for Claude/Hermes/direct OpenCode Go API feasibility and the raw API 403 investigation.
-- Do not silently start Claude migration, Hermes migration, direct/raw API work, Alibaba/Bailian fallback removal, or full model-matrix work during Release 1 soak.
+- Release 2 is a later, separate track for Claude/example-agent/direct OpenCode Go API feasibility and the raw API 403 investigation.
+- Do not silently start Claude migration, example-agent migration, direct/raw API work, Alibaba/Bailian fallback removal, or full model-matrix work during Release 1 soak.
 
 Secret and fallback safety:
 - Doppler is the canonical secret source by project/config/name only; never print, paste, log, commit, or hardcode secret values.

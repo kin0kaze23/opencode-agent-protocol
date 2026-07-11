@@ -98,7 +98,7 @@ profiles:
     base_url_env: OPENCODE_GO_BASE_URL
     default_base_url: https://opencode.ai/zen/go/v1
     use_when: model-list checks, smoke tests, eval matrix, non-default trials
-    do_not_use_when: Claude/Hermes/direct API routing until separate integration track passes
+    do_not_use_when: Claude/example-agent/direct API routing until separate integration track passes
 
   opencode-go-primary:
     status: premium_reserve_provider
@@ -160,7 +160,7 @@ namespace_rules:
   opencode_config_model_id: opencode-go/<model-id>
   opencode_cli_model_id: opencode-go/<model-id>
   direct_api_model_id: <model-id>
-  hermes_provider: opencode-go
+  example-agent_provider: opencode-go
   notes:
     - Direct OpenCode Go API calls use bare model IDs.
     - OpenCode config and CLI use provider-prefixed IDs.

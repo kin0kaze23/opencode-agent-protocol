@@ -5,19 +5,17 @@
 
 > **Disclaimer:** This project is not affiliated with or endorsed by OpenCode unless otherwise stated. It is an independent protocol built on top of the OpenCode CLI.
 
-[![Protocol Conformance](https://github.com/kin0kaze23/opencode-agent-protocol/actions/workflows/protocol-conformance.yml/badge.svg)](https://github.com/kin0kaze23/opencode-agent-protocol/actions/workflows/protocol-conformance.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## What This Is
 
-This repository is the **control plane** for a multi-repo AI engineering workspace. It contains:
+This repository contains the **OpenCode agent protocol** — behavioral rules, model routing, commands, scripts, conformance tests, and visual documentation for governing AI-assisted software development.
 
 - **OpenCode protocol** (`.opencode/`) — behavioral rules, model routing, commands, scripts, conformance tests
-- **Protocol Atlas** (`docs/protocol/PROTOCOL_ATLAS.md`) — visual system map with 10 Mermaid diagrams
-- **Vault** (`vault/`) — knowledge base, lessons, decisions, protocol history
-- **Conformance suite** — 818+ tests across 16 suites, 0 failures
+- **Protocol Atlas** (`docs/protocol/PROTOCOL_ATLAS.md`) — visual system map with 11 Mermaid diagrams
+- **Conformance suite** — 297+ tests across multiple suites, 0 failures
 
-It does **not** contain product code. Product code lives in individual repo directories.
+It does **not** contain product code. It is a protocol layer that sits on top of the OpenCode CLI.
 
 ## What Problem It Solves
 
@@ -38,14 +36,16 @@ AI coding agents are powerful but unsafe without guardrails. This protocol provi
 # 1. Clone
 git clone https://github.com/kin0kaze23/opencode-agent-protocol.git
 cd opencode-agent-protocol
-git submodule update --init --recursive
 
-# 2. Add aliases (see docs/QUICKSTART.md)
-# 3. Verify
+# 2. Verify
 bash scripts/verify-install.sh
 
-# 4. Start
-oc  # autopilot mode
+# 3. Run conformance tests
+bash .opencode/conformance/tests/protocol-atlas.sh
+bash .opencode/conformance/tests/production-hardening.sh
+
+# 4. Run public-surface scan (privacy regression)
+bash scripts/public-surface-scan.sh
 ```
 
 See [docs/QUICKSTART.md](docs/QUICKSTART.md) for the 5-minute guide.
@@ -65,7 +65,6 @@ See [docs/QUICKSTART.md](docs/QUICKSTART.md) for the 5-minute guide.
 - **No self-approval** of HIGH-RISK changes
 - **No secrets** committed (gitleaks + .gitignore + pre-commit hooks)
 - **All policies advisory** — routing and reviewer policies are never auto-applied
-- **Protected repos excluded — always
 
 See [SECURITY.md](SECURITY.md) for the full security policy.
 
@@ -73,12 +72,11 @@ See [SECURITY.md](SECURITY.md) for the full security policy.
 
 | Aspect | Advisory | Enforced |
 |--------|----------|----------|
-| Model routing | ✅ Recommendations only | — |
-| Reviewer policy | ✅ Recommendations only | — |
-| Risk classification | — | ✅ Lanes enforced |
-| Pre-commit hooks | — | ✅ Secrets blocked |
-| Release gates | — | ✅ CI + reviewer evidence |
-| Protected repo exclusion — Always excluded |
+| Model routing | Recommendations only | — |
+| Reviewer policy | Recommendations only | — |
+| Risk classification | — | Lanes enforced |
+| Pre-commit hooks | — | Secrets blocked |
+| Release gates | — | CI + reviewer evidence |
 
 ## Documentation
 
@@ -89,6 +87,7 @@ See [SECURITY.md](SECURITY.md) for the full security policy.
 | [docs/OPERATING_GUIDE.md](docs/OPERATING_GUIDE.md) | Daily operating guide |
 | [docs/VERSIONING.md](docs/VERSIONING.md) | Versioning policy |
 | [docs/protocol/PROTOCOL_ATLAS.md](docs/protocol/PROTOCOL_ATLAS.md) | Visual system map |
+| [docs/PUBLICATION_POLICY.md](docs/PUBLICATION_POLICY.md) | Publication policy |
 | [CHANGELOG.md](CHANGELOG.md) | Public release summary |
 | [RELEASES.md](RELEASES.md) | Release index and checklist |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution guidelines |
@@ -103,17 +102,21 @@ bash scripts/verify-install.sh
 # Protocol Atlas validation
 bash .opencode/scripts/validate-protocol-atlas.sh
 
-# Full conformance suite (16 suites, 818+ tests)
+# Public-surface privacy scan
+bash scripts/public-surface-scan.sh
+
+# Conformance tests
 bash .opencode/conformance/tests/protocol-atlas.sh
 bash .opencode/conformance/tests/production-hardening.sh
+bash .opencode/conformance/tests/loop-controller.sh
 bash .opencode/conformance/tests/model-roi.sh
 ```
 
 ## Protocol Version
 
-**Current:** v4.54 — Repo Rename + Product Identity
+**Current:** v5.0.1 — Public Hardening + Privacy Scan Regression
 
-See [CHANGELOG.md](CHANGELOG.md) for release summary and [vault/protocols/opencode/CHANGELOG.md](vault/protocols/opencode/CHANGELOG.md) for detailed history.
+See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 ## License
 

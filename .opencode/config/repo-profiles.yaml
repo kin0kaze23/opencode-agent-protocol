@@ -26,7 +26,7 @@ detection:
       - "package.json exists without vite/next"
       - "express, hono, or fastify in dependencies"
     stack: "Node.js backend"
-    examples: [sample-service, example-dashboard, paperclip-PROD]
+    examples: [sample-service, example-dashboard, example-orchestrator-PROD]
 
   python:
     detect:

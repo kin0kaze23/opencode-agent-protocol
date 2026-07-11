@@ -57,7 +57,7 @@ def parse_now_md(path):
 
     Format A: YAML frontmatter (--- delimited)
     Format B: Markdown headers (# Current State — X / **Status:** ...)
-    Format C: Bare key: value lines before --- (paperclip-PROD style)
+    Format C: Bare key: value lines before --- (example-orchestrator-PROD style)
     """
     if not os.path.isfile(path):
         return None

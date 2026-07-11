@@ -154,7 +154,7 @@ The following are explicitly out of scope for Release 1 soak. Do not enable, wir
 | **IDE extension install** | OpenCode extension not installed in VSCode / Cursor / Zed | In-editor LSP type-check is missing; can be approximated by `oc-status` and pre-commit | D5 (cross-device replication) |
 | **v0.2 prompt work acceptance/revert** | 6 v0.2 prompt candidate entries in `known-c0-drift.json` (C0-DRIFT-021 through C0-DRIFT-026) | R2 deferred milestone | R2 |
 | **Aliyun / Bailian fallback retirement** | Fallback provider still in model-registry | Release 2 / out-of-scope track | R5 (or Release 2) |
-| **Claude / Hermes / direct API migration** | Not in workspace routing | Separate integration track | Release 2 (per Release 1 boundary rules) |
+| **Claude / example-agent / direct API migration** | Not in workspace routing | Separate integration track | Release 2 (per Release 1 boundary rules) |
 
 **If a real blocker appears that requires touching any of these, stop and surface to owner. The frozen baseline chain is the working agreement.**
 
@@ -203,7 +203,7 @@ The following are explicitly out of scope for Release 1 soak. Do not enable, wir
 **Frozen baseline chain (immutable during soak):**
 
 ```
-0a1a7db  P1A-A  stale Openclaw-STAGE and example-platform.zip cleanup
+0a1a7db  P1A-A  stale example-toolchain-STAGE and example-platform.zip cleanup
 001c627  P1A-C2 Doppler config moved to local example
 6032117  P1A-B  example-agent submodule pointer bump
 6b645b1  P1A-C  workspace ignore safety guard

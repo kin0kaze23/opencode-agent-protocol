@@ -14,7 +14,7 @@
 
 repos:
   - name: sample-service
-    github: kin0kaze23/automation-hub
+    github: kin0kaze23/sample-service
     branch: main
     evidence_status: manually_verified
     recorded_by: "kin0kaze23"
@@ -41,7 +41,7 @@ repos:
     admin_bypass_disabled: true
 
   - name: demo-project
-    github: kin0kaze23/stillness-daily-devotion
+    github: kin0kaze23/demo-project-daily-devotion
     branch: main
     evidence_status: manually_verified
     recorded_by: "kin0kaze23"

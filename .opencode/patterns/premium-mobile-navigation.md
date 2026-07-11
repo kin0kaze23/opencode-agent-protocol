@@ -98,7 +98,7 @@
 | Detail | Value |
 |--------|-------|
 | **Project** | demo-project (daily devotion app) |
-| **Commit** | `8c2ed9d feat(stillness): add premium mobile tab dock` |
+| **Commit** | `8c2ed9d feat(demo-project): add premium mobile tab dock` |
 | **Files** | `src/components/TabDock.tsx`, `src/styles/design-system.css` |
 | **Tabs** | Today (Sun), Explore (Compass), Vault (Heart), Settings (SlidersHorizontal) |
 | **Post-commit verification** | ✅ Passed — 8 screens, 2 themes, 4 breakpoints |

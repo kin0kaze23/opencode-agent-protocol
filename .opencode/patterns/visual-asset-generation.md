@@ -168,5 +168,5 @@ This pattern builds on:
 | **Format** | SVG (inline in component) |
 | **Color** | `--accent-primary` (#4A5D7C) |
 | **Size** | 48×48px |
-| **Commit** | `ce22245 feat(stillness): refine welcome screen visual identity` |
+| **Commit** | `ce22245 feat(demo-project): refine welcome screen visual identity` |
 | **Verification** | 8 screenshots across viewports + dark mode |

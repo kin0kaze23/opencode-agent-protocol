@@ -193,7 +193,7 @@ Suggested Alternative: Manual research on GitHub Trends, State of JS survey, or 
 
 | Lead | Source | Next Step |
 |------|--------|-----------|
-| Similar pattern in example-orchestratorNuggie | gh search: "paperclip upgradeWebSocket" | Manual verification |
+| Similar pattern in example-orchestratorNuggie | gh search: "example-orchestrator upgradeWebSocket" | Manual verification |
 
 ### OUT-OF-SCOPE (Requires Manual Research)
 
