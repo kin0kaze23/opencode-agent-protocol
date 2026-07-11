@@ -235,7 +235,7 @@ Each capability entry documents:
 | Field | Value |
 |-------|-------|
 | **Status** | Stable |
-| **Source** | `.opencode/git-guard/git-guard.sh`, `.opencode/git-guard/git-guard.md` |
+| **Source** | `.opencode/git-guard/git-guard.sh` |
 | **Configuration** | `.opencode/git-guard/` directory |
 | **Validation** | `.opencode/conformance/tests/git-guard-compliance.sh`, `.opencode/conformance/tests/git-guard-enforcement.sh`, `.opencode/conformance/tests/git-guard-wrapper.sh` |
 | **CI coverage** | No (requires local git context) |
