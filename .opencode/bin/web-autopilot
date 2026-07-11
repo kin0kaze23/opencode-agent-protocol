@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# v4.38.1 — Web Launcher for Safe Autopilot Profile
+#
+# Starts the OpenCode web interface with logging enabled.
+# Auto mode is NOT supported via CLI flag in opencode v1.17.x.
+# Enable Auto/Autopilot inside the Web UI after launching.
+#
+# Usage:
+#   bash .opencode/bin/web-autopilot
+#   bash .opencode/bin/web-autopilot --port 8080
+#
+# PermissionGuard enforces deny-lists regardless of Web UI mode.
+# Web Autopilot is only GO after Auto mode is enabled in the UI
+# and the 18-test canary passes.
+
+echo "OpenCode web does not support --auto via CLI in v1.17.x."
+echo "This launcher starts Web with logs only."
+echo "Enable Auto mode inside the Web UI before running the canary."
+echo "PermissionGuard enforces deny-lists regardless of UI mode."
+echo ""
+echo "Starting OpenCode web with INFO logging..."
+echo ""
+
+exec opencode web --print-logs --log-level INFO "$@"

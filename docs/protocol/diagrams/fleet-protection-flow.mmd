@@ -1,0 +1,49 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1a1a2e', 'primaryTextColor': '#e0e0e0', 'lineColor': '#7f8c8d'}}}%%
+flowchart TD
+    subgraph Fleet
+        AH[sample-service<br/>manually_verified]
+        ST[demo-project<br/>manually_verified]
+        BG[protected-repo<br/>EXCLUDED]
+    end
+
+    subgraph Protection
+        BPV[Branch Protection Verifier v4.38]
+        CO[CODEOWNERS Verifier v4.38]
+        MBE[Manual Branch Protection Evidence v4.41]
+    end
+
+    subgraph Monitoring
+        FD[Fleet Dashboard v4.40]
+        FT[Fleet Trends v4.42]
+        EF[Evidence Freshness v4.43]
+        FS[Fleet Snapshots v4.43.1]
+    end
+
+    subgraph Release
+        RG[Release Gate v4.34]
+        PC[PR Comments v4.39]
+        IRG[Installer v4.37]
+    end
+
+    AH --> BPV
+    ST --> BPV
+    BG -.->|EXCLUDED| BGX[Do not touch]
+
+    BPV --> FD
+    CO --> FD
+    MBE --> FD
+
+    FD --> FT
+    FT --> EF
+    EF --> FS
+
+    FS -->|freshness metrics| FD
+
+    IRG -->|installs to| AH
+    IRG -->|installs to| ST
+
+    RG -->|gates| AH
+    RG -->|gates| ST
+
+    PC -->|comments on| AH
+    PC -->|comments on| ST

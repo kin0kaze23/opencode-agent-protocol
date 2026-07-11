@@ -1,0 +1,196 @@
+# Token Budget Configuration — v4.26
+# Authority: workspace canonical (brain-config.json references this)
+# Purpose: Define per-lane token, file, context, and usage budgets for agent throughput optimization
+
+version: "4.26.0"
+
+# Per-lane budgets
+lanes:
+  DIRECT:
+    max_tokens: 5000
+    max_files_before_edit: 1
+    max_line_reads: 200
+    max_helper_calls: 0
+    max_context_expansions: 0
+    plan_required: false
+    soft_warning_tokens: 5000
+    hard_cap_tokens: 8000
+    # v4.26 Usage budgets
+    reviewer_required: false
+    reviewer_optional: false
+    premium_model_allowed: false
+    premium_model_reason: "DIRECT tasks are trivial — never use premium models"
+    pattern_search_required: false
+    test_generation_required: false
+    usage_guidance: "Minimal usage. No reviewer, no pattern search, no test generation. Keep fast."
+
+  FAST:
+    max_tokens: 15000
+    max_files_before_edit: 3
+    max_line_reads: 500
+    max_helper_calls: 1
+    max_context_expansions: 1
+    plan_optional: true
+    soft_warning_tokens: 15000
+    hard_cap_tokens: 25000
+    # v4.26 Usage budgets
+    reviewer_required: false
+    reviewer_optional: true
+    premium_model_allowed: false
+    premium_model_reason: "FAST tasks should use capacity model (umans-coder). Escalate to premium only if quality fails."
+    pattern_search_required: false
+    pattern_search_optional: true
+    test_generation_required: true
+    test_generation_condition: "required for bug/logic changes; not required for UI-only/config"
+    usage_guidance: "Capacity model by default. Reviewer optional. Pattern search optional. Tests required for logic changes."
+
+  STANDARD:
+    max_tokens: 50000
+    max_files_before_edit: 6
+    max_line_reads: 1500
+    max_helper_calls: 3
+    max_context_expansions: 2
+    plan_required: true
+    soft_warning_tokens: 50000
+    hard_cap_tokens: 80000
+    # v4.26 Usage budgets
+    reviewer_required: true
+    reviewer_optional: false
+    reviewer_condition: "required for risk 4+, sensitive paths, 4+ files, or release gates; optional otherwise"
+    premium_model_allowed: true
+    premium_model_reason: "allowed for architecture, difficult debugging, or when capacity model quality is insufficient"
+    premium_model_budget: "max 1 premium model escalation per task"
+    pattern_search_required: true
+    test_generation_required: true
+    usage_guidance: "Capacity model + reviewer when risk justifies. Premium model allowed for architecture/debugging. Pattern search and test generation required."
+
+  HIGH-RISK:
+    max_tokens: 150000
+    max_files_before_edit: 10
+    max_line_reads: 3000
+    max_helper_calls: 5
+    max_context_expansions: 3
+    plan_required: true
+    soft_warning_tokens: 150000
+    hard_cap_tokens: 250000
+    # v4.26 Usage budgets
+    reviewer_required: true
+    reviewer_optional: false
+    reviewer_condition: "always required — no exceptions"
+    premium_model_allowed: true
+    premium_model_reason: "allowed and recommended for architecture, security, schema, auth, payment, migration work"
+    premium_model_budget: "no hard limit — use as needed for risk mitigation"
+    pattern_search_required: true
+    test_generation_required: true
+    usage_guidance: "Premium model + reviewer required. Full pattern search and test generation. No shortcuts on safety."
+
+# v4.26 Usage-aware routing rules
+# v4.32: Sensitive-path escalation rules
+usage_routing_rules:
+  capacity_first: "Use umans-coder/umans-flash for routine work. Preserve OpenCode Go quota."
+  sensitive_path_escalation:
+    description: "DIRECT/FAST must escalate to STANDARD if sensitive paths are touched"
+    sensitive_areas: [auth, security, secrets, payments, schema, deployment, pii, storage]
+    escalation_rule: "If sensitive-change-classifier.sh detects any sensitive area, DIRECT escalates to FAST, FAST escalates to STANDARD"
+    no_override: "Sensitive-path escalation cannot be overridden by lane classification"
+  allowed_failure_policy:
+    description: "Allowed failures must be explicit, signed, and expiring"
+    required_fields: [name, reason, signature, owner, date, expiry, follow_up]
+    unknown_failures_block: true
+    expired_failures_block: true
+    broad_swallowing_forbidden: true
+  premium_escalation_triggers:
+    - "Architecture decisions (schema, auth, state model)"
+    - "Difficult debugging (3+ failed attempts)"
+    - "Security-sensitive review (auth, payment, crypto, RLS)"
+    - "Production release review"
+    - "Capacity model quality insufficient"
+  reviewer_routing:
+    required: "risk 4+, sensitive paths, 4+ files, release gates, HIGH-RISK"
+    optional: "STANDARD without sensitive paths, FAST with logic changes"
+    skip: "DIRECT Lite, FAST UI-only/copy changes, trivial config tweaks"
+  cheaper_model_would_have_sufficed_check:
+    - "Did the task require complex reasoning?"
+    - "Did the task touch sensitive paths?"
+    - "Did the reviewer find material issues?"
+    - "Was the premium model chosen because of risk, or habit?"
+  quota_preservation:
+    - "Do not use OpenCode Go for routine implementation/planning"
+    - "Switch to Umans immediately on OpenCode Go quota/rate limit"
+    - "Use umans-flash for exploration/budget tasks"
+    - "Reserve OpenCode Go for architecture, debugging, final review"
+
+# Context discipline rules
+context_rules:
+  first_read_budget:
+    description: "Read AGENTS.md + NOW.md first, then max 3 additional files before starting work"
+    max_initial_reads: 5
+    mandatory_first:
+      - "<repo>/AGENTS.md"
+      - "<repo>/NOW.md"
+    expand_only_when_blocked: true
+
+  lazy_loading:
+    description: "Read only the section of a file that matters"
+    method: "grep to find section, then read with offset/limit"
+    max_lines_per_read: 300
+    prefer_grep_before_read: true
+
+  session_file_cache:
+    description: "Track file hashes; skip re-read if unchanged"
+    enabled: true
+    cache_location: ".opencode/.session-cache.json"
+    invalidation:
+      - "file modified on disk"
+      - "git checkout/switch/reset"
+      - "session restart"
+    cacheable_files:
+      - "AGENTS.md"
+      - "NOW.md"
+      - "PLAN.md"
+      - "WORKSPACE_MAP.md"
+      - ".opencode/AGENTS.md"
+      - ".opencode/rules.md"
+      - ".opencode/helper-roster.md"
+      - "skills/*/SKILL.md"
+
+  diff_first_inspection:
+    description: "Run git diff --stat before full diffs"
+    rule: "Always run git diff --stat first; only read full diff for files that matter"
+    max_full_diff_files: 5
+
+  targeted_diff_rule:
+    description: "For review, read only changed lines + 5 lines of context"
+    context_lines: 5
+    skip_unchanged_files: true
+
+  evidence_sufficiency:
+    description: "If 3+ independent checks pass for the changed area, stop verifying"
+    min_passing_checks: 3
+    stop_condition: "3+ independent checks pass for changed area"
+    exceptions:
+      - "auth/security/RLS changes always require full verification"
+      - "release lane always requires full verification"
+
+  output_brevity:
+    description: "Gate reports use compact format"
+    gate_format: "lint: PASS (exit 0)"
+    skip_full_tool_output: true
+    max_error_lines: 10
+    checkpoint_compact: true
+
+  compact_reviewer_handoff:
+    description: "Reviewer gets structured summary + targeted diff, not full repeated context"
+    required_fields:
+      - "Objective"
+      - "Files inspected or changed"
+      - "Key findings"
+      - "Decision/recommendation"
+      - "Risks/blockers"
+      - "Next recommended agent/action"
+    max_handoff_tokens: 2000
+
+  command_capsule:
+    description: "Commands stay short in surface; long runbooks load only when triggered"
+    max_command_surface_lines: 50
+    runbook_loads_on_trigger: true

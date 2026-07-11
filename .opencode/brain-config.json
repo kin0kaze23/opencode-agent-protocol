@@ -1,0 +1,1260 @@
+{
+  "version": "4.55",
+  "name": "v4.55 Release/Tag Normalization",
+  "description": "OpenCode Agent Protocol v4.55 — Release/tag normalization. 16 backfilled tags, legacy tag policy, release history verifier. 60 v4.x tags total.",
+  "bootstrap_authority": {
+    "bootstrap": "opencode.json loads startup policy surfaces only",
+    "runtime_config": "brain-config.json defines defaults, routing, budgets, and enforcement metadata",
+    "policy_surface": [
+      ".opencode/AGENTS.md",
+      ".opencode/rules.md",
+      ".opencode/commands/*.md",
+      ".opencode/agents/*.md"
+    ],
+    "conflict_policy": "If runtime config and behavioral policy disagree in a way that could change execution, fail safe, stop the ambiguous action, and surface the mismatch. The behavioral policy surface remains authoritative until patched.",
+    "plugins": "augment only; hooks may inject context or notifications but may not redefine authority",
+    "conformance": "tests under .opencode/conformance enforce cross-file coherence"
+  },
+  "prompt_source_of_truth": {
+    "orchestrator": ".opencode/global-runtime/prompts/orchestrator.md is intentionally manual-canonical because the Owner prompt is workspace-specific policy, not a reusable helper spec.",
+    "helpers": ".opencode/agents/*.md are canonical helper specs; .opencode/global-runtime/prompts/{agent}.md are generated mirrors; ~/.config/opencode/prompts/{agent}.md are installed runtime copies.",
+    "sync_script": ".opencode/scripts/sync-opencode-runtime.sh"
+  },
+  "default_model": "opencode-go/qwen3.7-plus",
+  "small_model": "opencode-go/deepseek-v4-flash",
+  "default_model_role": "OWNER ORCHESTRATOR — OpenCode-only routing is promoted for OpenCode runtime agents. Alibaba/Bailian remains configured as fallback until explicit decommission approval. Claude, Hermes, and direct API integrations remain unchanged/deferred.",
+  "provider_migration": {
+    "status": "opencode-go-open-code-only-promoted",
+    "secret_source": {
+      "provider": "doppler",
+      "project": "nuggie-be",
+      "config": "dev_backend",
+      "required_env": "OPENCODE_GO_API_KEY"
+    },
+    "active_default_provider": "opencode-go",
+    "candidate_provider": "opencode-go",
+    "candidate_model_format": "opencode-go/<model-id>",
+    "direct_api_model_format": "<model-id>",
+    "canonical_registry": ".opencode/model-registry.yaml",
+    "promotion_blockers": [
+      "full golden-canary eval matrix not complete",
+      "raw official OpenCode Go API endpoints returned 403 on 2026-05-21",
+      "Hermes and Claude wrapper compatibility not yet validated",
+      "Phase M1 targeted re-eval for ambiguity, performance, and unsafe-security guardrails not yet passed"
+    ],
+    "phase_m1_guardrails": {
+      "status": "active_candidate_hardening",
+      "routing_effect": "OpenCode runtime agent routing promoted only after M1.2/M1.3 minimal canaries; Claude/Hermes/direct API remain deferred",
+      "eval_modes": {
+        "raw-model": "Measures model behavior without command guardrails; failures block promotion but do not prove production protocol failure.",
+        "protocol-enforced": "Measures production-style behavior with Phase M1 guardrails injected or command path exercised. This mode is required before full role matrix promotion work."
+      },
+      "blocked_before_edit": [
+        "ambiguous implementation requests without runtime authority, success criteria, approved touch list, verification command, and rollback path",
+        "vague optimization prompts without baseline measurement, target metric, suspected bottleneck, approved touch list, verification command, and rollback path",
+        "unsafe security/auth/rate-limit/CORS requests that bypass controls, weaken authentication, disable protections, expose secrets, or evade detection"
+      ],
+      "safe_alternatives": [
+        "ask clarifying questions",
+        "produce or repair PLAN.md",
+        "threat model the request",
+        "propose least-privilege or scoped allowlist design",
+        "write defensive tests or validation plan"
+      ],
+      "targeted_eval_tests": [
+        "C-TEST-004",
+        "C-TEST-006",
+        "C-TEST-002"
+      ],
+      "candidate_caveats": {
+        "opencode-go/qwen3.5-plus": "Decommissioned from workspace routing (Alibaba quota exhausted, 429 insufficient_quota). Superseded by qwen3.7-plus production v1.1. Historical reference only.",
+        "opencode-go/qwen3.6-plus": "OpenCode fallback/hard-solver/rollback baseline; was owner/planner/architect in v1; retained as safety net for v1.1 production",
+        "opencode-go/qwen3.7-plus": "v1.1-production primary: owner/orchestrator/planner/architect/implementer/FAST-DIRECT (Action 4D, 2026-06-05)"
+      },
+      "permission_safety": {
+        "recommendation": "For high-risk implementation flows, set edit permission to ask or deny until the pre-edit classifier passes.",
+        "applies_to": [
+          "ambiguous implementation",
+          "vague performance optimization",
+          "unsafe security/auth/rate-limit/CORS changes"
+        ]
+      }
+    },
+    "rollback_provider": "opencode-go"
+  },
+  "skills": {
+    "directory": ".opencode/skills",
+    "auto_load": {},
+    "manual_load_for": {
+      "testing-validation/SKILL.md": [
+        "test",
+        "spec",
+        "vitest",
+        "jest",
+        "tdd"
+      ],
+      "webapp-testing/SKILL.md": [
+        "playwright",
+        "browser test",
+        "web flow",
+        "ui verify"
+      ],
+      "deployment/SKILL.md": [
+        "docker",
+        "container",
+        "dockerfile",
+        "docker compose"
+      ],
+      "ci-cd-patterns/SKILL.md": [
+        "ci/cd",
+        "pipeline",
+        "github actions",
+        "vercel",
+        "deploy"
+      ],
+      "playbooks/SKILL.md": [
+        "playbook",
+        "template",
+        "workflow",
+        "deploy flow",
+        "hotfix flow",
+        "feature flow",
+        "migrate flow",
+        "bugfix flow",
+        "refactor flow"
+      ],
+      "github-pr-automation/SKILL.md": [
+        "PR",
+        "pull request",
+        "create PR",
+        "merge",
+        "reviewer",
+        "label",
+        "assign",
+        "github",
+        "gh pr"
+      ],
+      "database-migration/SKILL.md": [
+        "migration",
+        "prisma migrate",
+        "drizzle migrate",
+        "alter table",
+        "add column",
+        "drop column",
+        "zero-downtime",
+        "backup",
+        "rollback migration"
+      ],
+      "performance-profiling/SKILL.md": [
+        "performance",
+        "slow",
+        "optimize",
+        "profile",
+        "benchmark",
+        "memory leak",
+        "cpu usage",
+        "load test"
+      ],
+      "technical-debt-assessment/SKILL.md": [
+        "technical debt",
+        "code smell",
+        "refactor needed"
+      ],
+      "cross-repo-dependencies/SKILL.md": [
+        "cross-repo",
+        "dependency",
+        "multi-repo"
+      ],
+      "technical-debt-prevention/SKILL.md": [
+        "debt prevention",
+        "refactor",
+        "cleanup"
+      ],
+      "dependency-hygiene/SKILL.md": [
+        "dependency",
+        "npm update",
+        "package",
+        "vulnerability",
+        "pin"
+      ],
+      "interrogation/SKILL.md": [
+        "interrogate",
+        "requirements",
+        "clarify",
+        "questions"
+      ],
+      "pencil-design/SKILL.md": [
+        "pencil",
+        "design",
+        "ui mockup"
+      ],
+      "pencil-pen-format/SKILL.md": [
+        ".pen",
+        "pencil format",
+        "design file"
+      ],
+      "ui-ux-pro-max/SKILL.md": [
+        "ui",
+        "ux",
+        "component",
+        "page",
+        "frontend"
+      ],
+      "frontend-design/SKILL.md": [
+        "frontend",
+        "landing page",
+        "UI design",
+        "visual direction"
+      ],
+      "security/SKILL.md": [
+        "security",
+        "auth",
+        "crypto",
+        "xss",
+        "csrf",
+        "vulnerability"
+      ],
+      "database/SKILL.md": [
+        "database",
+        "prisma",
+        "drizzle",
+        "postgresql",
+        "migration",
+        "query"
+      ],
+      "runtime-wiring-audit/SKILL.md": [
+        "wiring",
+        "entrypoint",
+        "router",
+        "mount"
+      ],
+      "contract-touchlist-audit/SKILL.md": [
+        "touch list",
+        "contract",
+        "interface",
+        "schema"
+      ],
+      "implementation-readiness-gate/SKILL.md": [
+        "readiness",
+        "implementation gate",
+        "pre-implementation"
+      ],
+      "plan-correction-discipline/SKILL.md": [
+        "plan correction",
+        "replan",
+        "drift"
+      ],
+      "rust/SKILL.md": [
+        "rust",
+        "cargo",
+        "ironclaw"
+      ],
+      "systematic-debugging/SKILL.md": [
+        "debug",
+        "bug",
+        "root cause",
+        "troubleshoot"
+      ],
+      "verification-before-completion/SKILL.md": [
+        "verify",
+        "done",
+        "complete",
+        "check"
+      ],
+      "ecosystem-scan/SKILL.md": [
+        "ecosystem",
+        "alternatives",
+        "library comparison"
+      ],
+      "token-optimization/SKILL.md": [
+        "token",
+        "optimize tokens",
+        "reduce context"
+      ],
+      "runtime-optimization/SKILL.md": [
+        "runtime optimize",
+        "execution efficiency",
+        "parallel"
+      ],
+      "ci-cd-pipeline/SKILL.md": [
+        "deploy",
+        "deployment",
+        "ci/cd",
+        "pipeline",
+        "github actions",
+        "vercel",
+        "wrangler",
+        "cloudflare",
+        "rollback",
+        "preview",
+        "production",
+        "staging",
+        "environment",
+        "smoke test",
+        "health check",
+        "deployment gate",
+        "canary",
+        "blue-green"
+      ],
+      "error-handling/SKILL.md": [
+        "error",
+        "500",
+        "try-catch",
+        "exception",
+        "crash",
+        "graceful degradation"
+      ],
+      "nextjs/SKILL.md": [
+        "next.js",
+        "app router",
+        "server component",
+        "client component",
+        "next.config",
+        "vercel deployment"
+      ],
+      "observability/SKILL.md": [
+        "log",
+        "metric",
+        "trace",
+        "monitoring",
+        "alert",
+        "dashboard",
+        "health check"
+      ],
+      "refactor-clean/SKILL.md": [
+        "refactor",
+        "clean",
+        "simplify",
+        "extract function",
+        "reduce complexity"
+      ],
+      "code-review-checklist/SKILL.md": [
+        "review",
+        "checklist",
+        "naming",
+        "complexity",
+        "test coverage"
+      ],
+      "migration-patterns/SKILL.md": [
+        "migration",
+        "schema change",
+        "backward compatible",
+        "versioned migration"
+      ],
+      "api-design/SKILL.md": [
+        "api",
+        "rest",
+        "graphql",
+        "endpoint",
+        "versioning",
+        "pagination"
+      ],
+      "brainstorming/SKILL.md": [
+        "brainstorm",
+        "idea",
+        "proposal",
+        "design",
+        "approach"
+      ],
+      "sec-codeql/SKILL.md": [
+        "codeql",
+        "security scan",
+        "vulnerability",
+        "taint tracking"
+      ],
+      "sec-solana/SKILL.md": [
+        "solana",
+        "anchor",
+        "pda",
+        "cpi",
+        "smart contract"
+      ],
+      "performance/SKILL.md": [
+        "performance",
+        "slow",
+        "optimize",
+        "profile",
+        "benchmark",
+        "cpu",
+        "memory",
+        "latency"
+      ],
+      "accessibility-audit/SKILL.md": [
+        "accessibility",
+        "a11y",
+        "wcag",
+        "screen reader",
+        "keyboard nav",
+        "color contrast"
+      ],
+      "incident-response/SKILL.md": [
+        "incident",
+        "outage",
+        "P0",
+        "P1",
+        "rollback",
+        "postmortem",
+        "site down"
+      ],
+      "testing/SKILL.md": [
+        "testing",
+        "unit test",
+        "integration test",
+        "e2e",
+        "tdd"
+      ],
+      "docker/SKILL.md": [
+        "docker",
+        "dockerfile",
+        "docker compose",
+        "container",
+        "image",
+        "build"
+      ]
+    },
+    "skill_loading_policy": "auto_load is disabled. Startup loads policy files only. Skills load selectively from .opencode/skills when task keywords match, and skill files must not be bootstrapped through opencode.json."
+  },
+  "plugins": [],
+  "operator_experience": {
+    "preflight": {
+      "default_format": "full-13-field",
+      "direct_lane_format": {
+        "enabled": true,
+        "field_count": 5,
+        "fields": [
+          "Repo",
+          "Mode",
+          "Lane: DIRECT",
+          "File",
+          "Success criteria"
+        ],
+        "allowed_only_when": [
+          "risk score is 0",
+          "exactly 1 file to modify",
+          "no sensitive path is touched",
+          "change is trivial (typo, comment, log, config value)"
+        ]
+      },
+      "fast_lane_abbreviated_format": {
+        "enabled": true,
+        "field_count": 8,
+        "fields": [
+          "Repo",
+          "Mode",
+          "Lane",
+          "Risk score",
+          "Autonomy budget",
+          "Likely files",
+          "Success criteria",
+          "Major risks"
+        ],
+        "allowed_only_when": [
+          "lane is FAST",
+          "default model is used",
+          "no helper delegation",
+          "no sensitive path is touched",
+          "no extra approval boundary is expected"
+        ]
+      }
+    },
+    "approval_batching": {
+      "enabled": true,
+      "syntax": "Approved, batch next <N> steps",
+      "lane_scope": [
+        "STANDARD"
+      ],
+      "max_steps": 3,
+      "allowed_steps": [
+        "/implement",
+        "/gates",
+        "/review",
+        "/checkpoint"
+      ],
+      "expires_on": [
+        "scope expansion",
+        "lane escalation",
+        "sensitive-path escalation",
+        "dirty-tree risk",
+        "separate approval boundary"
+      ]
+    },
+    "progress_signals": {
+      "enabled": true,
+      "style": "phase-based",
+      "labels": [
+        "Preflight done",
+        "Plan done",
+        "Implementing",
+        "Gates running",
+        "Review running",
+        "Checkpoint ready"
+      ],
+      "percentages_enabled": false,
+      "eta_enabled": false
+    }
+  },
+  "execution_lanes": {
+    "selection": {
+      "0": "DIRECT",
+      "1-2": "FAST",
+      "3-5": "STANDARD",
+      "6+": "HIGH-RISK"
+    },
+    "forced_high_risk": [
+      "auth",
+      "payment",
+      "schema",
+      "migration",
+      "cryptography",
+      "destructive action",
+      "user data",
+      "state model rewrite",
+      "ambiguous implementation",
+      "vague performance optimization",
+      "unsafe security bypass request"
+    ],
+    "budgets": {
+      "DIRECT": {
+        "max_files_edited": 1,
+        "max_commands_before_summary": 4,
+        "max_gate_retries_per_root_cause": 0,
+        "max_touchlist_expansions": 0,
+        "plan_required": false,
+        "branch": "current_only"
+      },
+      "FAST": {
+        "max_files_edited": 2,
+        "max_commands_before_summary": 8,
+        "max_gate_retries_per_root_cause": 1,
+        "max_touchlist_expansions": 1,
+        "plan_optional": true,
+        "skip_plan_when": [
+          "scope is obvious (clear spec, ≤3 files, single repo)",
+          "no cross-module dependencies",
+          "no sensitive path is touched",
+          "user has given explicit approval for the change"
+        ]
+      },
+      "STANDARD": {
+        "max_files_edited": 6,
+        "max_commands_before_summary": 16,
+        "max_gate_retries_per_root_cause": 2,
+        "max_touchlist_expansions": 1
+      },
+      "HIGH-RISK": {
+        "max_files_edited": 10,
+        "max_commands_before_summary": 20,
+        "max_gate_retries_per_root_cause": 2,
+        "max_touchlist_expansions_without_approval": 0
+      }
+    },
+    "verification_profiles": {
+      "direct": [
+        "lint"
+      ],
+      "docs-config": [
+        "format",
+        "lint",
+        "targeted sanity check"
+      ],
+      "ui-surface": [
+        "lint",
+        "typecheck",
+        "build",
+        "browser verification"
+      ],
+      "logic-backend": [
+        "lint",
+        "typecheck",
+        "targeted tests",
+        "build when applicable"
+      ],
+      "stateful-sensitive": [
+        "lint",
+        "typecheck",
+        "full tests",
+        "build",
+        "security review"
+      ],
+      "hotfix": [
+        "reproduce",
+        "targeted verification",
+        "regression check"
+      ]
+    },
+    "multi_repo": {
+      "enabled": true,
+      "max_repos_per_plan": 5,
+      "partial_failure_policy": "halt_and_report",
+      "commit_strategy": "per_repo_with_primary_reference",
+      "execution_order": "primary_first_then_dependents"
+    },
+    "failure_classification": {
+      "required_labels": [
+        "TARGETED_FAILURE",
+        "BROAD_BASELINE_FAILURE",
+        "FLAKY_OR_INFRA_FAILURE",
+        "NOT_RUN",
+        "ACCEPTED_NON_BLOCKING",
+        "BLOCKING_UNKNOWN"
+      ],
+      "TARGETED_FAILURE": "Changed area, touched path, or declared success criterion failed; blocks commit and ship.",
+      "BROAD_BASELINE_FAILURE": "Unrelated pre-existing broad-suite failure; may validate protocol-only work when documented, but blocks product-code commit unless owner explicitly accepts risk.",
+      "FLAKY_OR_INFRA_FAILURE": "Network/service/browser/port/temp-file/flaky-test failure; retry exactly once, then document both attempts, commands, exit codes, and evidence.",
+      "NOT_RUN": "Gate skipped or unavailable; include reason, risk, and missing confidence.",
+      "ACCEPTED_NON_BLOCKING": "Only valid after explicit owner approval; cite approval in completion or ship summary.",
+      "BLOCKING_UNKNOWN": "Default when unclear; blocks commit and ship.",
+      "retry_policy": {
+        "flaky_or_infra_retries_required": 1,
+        "do_not_retry_targeted_without_fix": true
+      }
+    },
+    "dirty_workspace_inventory": {
+      "required": true,
+      "groups": [
+        "OpenCode protocol files",
+        "vault protocol/eval files",
+        "product-code files",
+        "unrelated pre-existing changes",
+        "unknown/risky changes"
+      ],
+      "rule": "Before completion, review, ship, or checkpoint, report dirty workspace inventory by group and do not hide dirty state behind a generic done summary."
+    },
+    "browser_verification_preflight": {
+      "required_for_ui_surface": true,
+      "checks": [
+        "Playwright MCP enabled or disabled",
+        "Python Playwright import and launch usability",
+        "required browser binary installed or missing",
+        "agent-browser usability when configured",
+        "selected fallback route"
+      ],
+      "route_preference": [
+        "Playwright MCP when enabled and healthy",
+        "Python Playwright fallback",
+        "agent-browser when usable",
+        "NOT_RUN with reason and risk"
+      ],
+      "no_install_without_owner_approval": true
+    }
+  },
+  "skill_maturity": {
+    "stable": [
+      "security/SKILL.md",
+      "testing-validation/SKILL.md",
+      "webapp-testing/SKILL.md",
+      "database/SKILL.md",
+      "systematic-debugging/SKILL.md",
+      "dependency-hygiene/SKILL.md",
+      "verification-before-completion/SKILL.md",
+      "ci-cd-pipeline/SKILL.md",
+      "deployment/SKILL.md",
+      "rust/SKILL.md"
+    ],
+    "beta": [
+      "ui-ux-pro-max/SKILL.md",
+      "frontend-design/SKILL.md",
+      "technical-debt-prevention/SKILL.md",
+      "runtime-wiring-audit/SKILL.md",
+      "contract-touchlist-audit/SKILL.md",
+      "implementation-readiness-gate/SKILL.md",
+      "plan-correction-discipline/SKILL.md",
+      "playbooks/SKILL.md",
+      "github-pr-automation/SKILL.md",
+      "database-migration/SKILL.md",
+      "performance-profiling/SKILL.md",
+      "technical-debt-assessment/SKILL.md",
+      "cross-repo-dependencies/SKILL.md",
+      "pencil-design/SKILL.md",
+      "pencil-pen-format/SKILL.md",
+      "token-optimization/SKILL.md",
+      "runtime-optimization/SKILL.md"
+    ],
+    "experimental": [
+      "ecosystem-scan/SKILL.md",
+      "interrogation/SKILL.md"
+    ],
+    "usage_rules": {
+      "stable": "Trusted for all lanes. No extra verification required.",
+      "beta": "Require Reviewer verification when used in HIGH-RISK lane.",
+      "experimental": "Agent should note: 'Using experimental skill — verify output carefully.'"
+    }
+  },
+  "resource_guardrails": {
+    "token_budget_policy": {
+      "mode": "telemetry-first",
+      "hard_caps_enabled": false,
+      "soft_warning_thresholds": {
+        "FAST": 50000,
+        "STANDARD": 150000,
+        "HIGH-RISK": 300000
+      },
+      "summary_rule": "When the runtime exposes token usage, report threshold crossings in summary/checkpoint output and resynthesize before continuing blindly."
+    },
+    "cost_telemetry": {
+      "enabled": true,
+      "warning_only": true,
+      "log_when_available": "Summarize model/cost usage in chat or checkpoint output when the runtime exposes it.",
+      "fabrication_forbidden": true
+    },
+    "context_cache_policy": {
+      "enabled": true,
+      "version": "4.17.0",
+      "cache_location": ".opencode/.session-cache/cache.json",
+      "invalidation_mechanism": "mtime or digest invalidation — file changes detected via hash mismatch on re-read",
+      "invalidation": [
+        "file modified on disk (hash mismatch)",
+        "git checkout/switch/reset",
+        "session restart",
+        "package.json or lockfile changed",
+        "gate definition changed"
+      ],
+      "cacheable_files": [
+        "AGENTS.md",
+        "NOW.md",
+        "PLAN.md",
+        "WORKSPACE_MAP.md",
+        ".opencode/AGENTS.md",
+        ".opencode/rules.md",
+        ".opencode/helper-roster.md",
+        "skills/*/SKILL.md"
+      ],
+      "gate_cache": {
+        "enabled": true,
+        "skip_rule": "Skip gate if passed in this session AND no source files changed since",
+        "always_rerun": [
+          "first invocation per session",
+          "after git operations",
+          "release lane (always run full suite)",
+          "auth/security/RLS changes"
+        ]
+      },
+      "browser_preflight_cache": {
+        "enabled": true,
+        "skip_rule": "Cache browser preflight result for session duration"
+      },
+      "note": "v4.17.0: Context cache enabled with hash-based invalidation. Session-level only, not persisted across sessions."
+    },
+    "model_efficiency_policy": {
+      "status": "active_m1_7_soak_hardening",
+      "cheap_first": "Use Explorer or Budget on opencode-go/deepseek-v4-flash for routine read-only discovery, quota/cost checks, and simple repo lookup before premium synthesis.",
+      "premium_reasoning": "Reserve opencode-go/qwen3.7-plus for Owner orchestration, architecture, ambiguity handling, complex planning, long-context synthesis, rescue, and high-risk decisions. Fallback: opencode-go/qwen3.6-plus.",
+      "implementation_route": "Use opencode-go/qwen3.7-plus for bounded implementation on an approved touch list (v1.1-production); Implementer must not redo planning or expand scope. Fallback: opencode-go/qwen3.6-plus.",
+      "reviewer_cost_guard": "Use opencode-go/glm-5.1 only for risk score 4+, sensitive paths, auth/security/payment/data/secrets changes, 4+ files, release/ship gates, unclear implementation quality, or explicit owner request.",
+      "handoff_digest_required": [
+        "Objective",
+        "Files inspected or changed",
+        "Key findings",
+        "Decision/recommendation",
+        "Risks/blockers",
+        "Next recommended agent/action"
+      ],
+      "quota_low_behavior": [
+        "prefer Budget/Explorer for read-only work",
+        "avoid GLM reviewer unless high-risk",
+        "defer challenger models",
+        "use Alibaba/Bailian only as an explicit fallback path"
+      ],
+      "summary_fields": [
+        "models/helpers used",
+        "reason each was used",
+        "token/cost/latency if exposed by runtime",
+        "whether a cheaper route would have been sufficient in hindsight"
+      ]
+    }
+  },
+  "discipline": {
+    "rollback_policy": {
+      "structured_recipe_required": true,
+      "fields": [
+        "Type",
+        "Scope",
+        "Preconditions",
+        "Action",
+        "Verify"
+      ],
+      "types": [
+        "discard-working-tree",
+        "revert-commit",
+        "drop-branch-or-worktree",
+        "disable-flag-or-config",
+        "restore-previous-deployment",
+        "other"
+      ],
+      "high_risk_test_when_feasible": true
+    },
+    "branch_worktree_lifecycle": {
+      "states": [
+        "created",
+        "active",
+        "blocked",
+        "merged",
+        "archived",
+        "deleted"
+      ],
+      "stale_review_days": 14,
+      "cleanup_rule": "State-driven cleanup. Prefer delete after merge when no rollback or audit value remains."
+    },
+    "compaction": {
+      "anchors_enabled": true,
+      "anchors": [
+        "repo",
+        "current_task",
+        "lane",
+        "touch_list_digest",
+        "blockers",
+        "latest_decision",
+        "next_step"
+      ],
+      "lessons_injection_policy": "relevance-only",
+      "continuity_check": "Inject anchors before compaction. Verify continuity on the next resumptive message when possible, then confirm or surface uncertainty at checkpoint.",
+      "continuity_statuses": [
+        "OK",
+        "SUSPECT",
+        "UNKNOWN"
+      ]
+    },
+    "behavioral_drift": {
+      "enabled": true,
+      "tracking_fields": [
+        "protocol_compliance_pct",
+        "steps_skipped",
+        "gates_run_count",
+        "gates_skipped_count",
+        "reviewer_spawned",
+        "plan_required_but_skipped"
+      ],
+      "warning_threshold": "80% compliance for 3+ consecutive sessions",
+      "report_location": "vault/projects/<repo>/progress.md",
+      "checkpoint_integration": "Append drift status to each checkpoint. Flag if threshold breached."
+    }
+  },
+  "security": {
+    "secret_scanning": {
+      "enabled": true,
+      "tool": "gitleaks",
+      "pre_commit": true,
+      "pre_push": true
+    },
+    "sast": {
+      "enabled": true,
+      "tools": [
+        "semgrep",
+        "codeql"
+      ],
+      "owasp_top_10": true
+    },
+    "dependency_audit": {
+      "enabled": true,
+      "auto_fix": false,
+      "block_on_critical": true
+    },
+    "lane_enforcement": {
+      "FAST": [
+        "secret scan remains installed via hooks"
+      ],
+      "STANDARD": [
+        "dependency audit when dependencies change"
+      ],
+      "HIGH-RISK": [
+        "secret scan",
+        "dependency audit",
+        "sast",
+        "reviewer mandatory",
+        "rollback note mandatory"
+      ]
+    }
+  },
+  "orchestrator": {
+    "model": "umans-ai-coding-plan/umans-glm-5.2",
+    "model_authority": "metadata mirror only — active OpenCode runtime routing is .opencode/opencode.json model plus orchestrator_mode.default_model; qwen3.6-plus is fallback/hard-solver during v1.1-production.",
+    "responsibilities": [
+      "Classify task into HOTFIX/FEATURE/REFACTOR/RESEARCH/DEPLOY/DESIGN",
+      "Score complexity (1-10+)",
+      "Route to appropriate model",
+      "Collect subagent results",
+      "Classify important claims as VERIFIED/INFERRED/OUT-OF-SCOPE",
+      "Separate contract blockers from deployment gaps and polish",
+      "Run gate checks",
+      "Escalate blockers to user"
+    ],
+    "never_do": [
+      "Write implementation code",
+      "Switch models for own use",
+      "Skip classification step",
+      "Merge results without validation",
+      "Invent routes, commands, or validation steps not grounded in the repo",
+      "Call something a release blocker without citing the governing contract",
+      "Ignore a missing NOW.md when a repo is still on legacy PHASE_STATE.md",
+      "Treat inferred behaviour as verified evidence"
+    ],
+    "escalation_triggers": [
+      "Missing credentials or external config",
+      "Security-sensitive unplanned change",
+      "Same gate fails 3x with different causes",
+      "SOFT_ISSUES loop ran 2x without APPROVED",
+      "Change required outside approved touch list"
+    ]
+  },
+  "subagents": {
+    "parallel_execution": {
+      "enabled": true,
+      "max_parallel": 2,
+      "max_parallel_readers": 2,
+      "max_parallel_writers": 1,
+      "writer_isolation_required": true,
+      "shared_branch_writers_forbidden": true,
+      "triggers": {
+        "touch_list_files_gt": 5,
+        "complexity_score_gt": 7,
+        "cross_module_changes": true
+      },
+      "note": "Parallelism is for read-only exploration/review and bounded isolated implementation. The owner remains the single authority and no two writer agents may share a branch or worktree."
+    },
+    "routing_policy": "v1.5.2 (2026-06-22): Umans capacity-first. Orchestrator: umans-glm-5.2 (routine/medium-risk). Planner/Implementer: umans-coder. Reviewer/Judge: umans-glm-5.1. Explorer/Budget: umans-flash. Architect: opencode-go/qwen3.7-plus (premium reserve). Compaction: umans-kimi-k2.7. OpenCode Go is premium reserve for high-risk architecture, hard debugging, final review, and emergency fallback.",
+    "output_contract": [
+      "task",
+      "scope",
+      "evidence",
+      "files_touched",
+      "blockers",
+      "next_step",
+      "confidence"
+    ],
+    "roster": {
+      "core": {
+        "explorer": {
+          "model": "umans-ai-coding-plan/umans-flash",
+          "purpose": "Codebase discovery, runtime-path mapping, dependency search",
+          "when": "Before planning unfamiliar or cross-module work",
+          "output": "Structured repo map with hotspots and suggested touch areas"
+        },
+        "planner": {
+          "model": "umans-ai-coding-plan/umans-coder",
+          "purpose": "Feature planning, plan correction, implementation-readiness checks",
+          "when": "All planning and re-planning work",
+          "output": "PLAN.md-ready contract or correction memo"
+        },
+        "implementer": {
+          "model": "umans-ai-coding-plan/umans-coder",
+          "purpose": "Bounded implementation on an approved touch list, reviewer-gated",
+          "when": "Clearly scoped, parallelisable implementation work after approval and reviewer gate",
+          "output": "Code changes + execution.md",
+          "note": "v1.1-production (Action 4D): switched from qwen3.6-plus to qwen3.7-plus. Fallback: qwen3.6-plus."
+        },
+        "reviewer": {
+          "model": "umans-ai-coding-plan/umans-glm-5.1",
+          "purpose": "Reviewer/failure-classification candidate, safety second-pass, risk verdicts",
+          "when": "All review tasks",
+          "output": "APPROVED/SOFT_ISSUES/HARD_BLOCKER with evidence",
+          "note": "v4.8.0: Reviewer/failure-classification candidate with Phase 6B signal (4.67 avg, 0 hard-fails). One-repeat / informational caveat. Owner remains final authority. Escalate to GPT-5.5 manually for high-risk ambiguity or disagreement. Watch for over-hardline tendency."
+        }
+      },
+      "specialized": {
+        "architect": {
+          "model": "opencode-go/qwen3.7-plus",
+          "purpose": "Architecture decisions, design trade-offs",
+          "when": "High ambiguity, auth/schema/state-model decisions"
+        },
+        "budget": {
+          "model": "umans-ai-coding-plan/umans-flash",
+          "purpose": "Cost-efficient read-only alternative for review, planning, and quota/cost routing summaries",
+          "when": "Routine read-only tasks, bulk classification, cheap second-pass verdict"
+        },
+        "visual-reviewer": {
+          "model": "umans-ai-coding-plan/umans-kimi-k2.7",
+          "purpose": "Screenshot analysis, UI/UX review, accessibility visual audit using Kimi K2.7 vision capability",
+          "when": "After any UI implementation is complete, before showing output to user, when visual QA is needed",
+          "note": "v4.15.2: Promoted from opencode-go/minimax-m3, which returned Insufficient balance during protected-repo canary. umans-kimi-k2.7 produced non-empty structured visual review output. minimax-m3 remains a manual specialist option once OpenCode Go quota is restored."
+        },
+        "visual-reviewer-fallback": {
+          "model": "opencode-go/kimi-k2.6",
+          "purpose": "Fallback screenshot analysis using Kimi K2.6 vision capability via OpenCode Go (premium reserve). Provides provider+model diversity from primary Umans Kimi K2.7.",
+          "when": "Owner explicitly wants a second visual pass or primary visual-reviewer is unavailable",
+          "note": "v4.16: Cross-provider fallback to OpenCode Go kimi-k2.6 (eval-passed Phase 3B: 6/6 PASS, 4.8/5.0). Restores true provider+model diversity from primary Umans kimi-k2.7. Canary required before seal."
+        }
+      },
+      "specialist_routing": {
+        "visual_debugging": "Use /debug with kimi-k2.5 escalation when screenshots or visual regressions drive the investigation.",
+        "security_sensitive_review": "Use the security skill plus Reviewer when auth, payment, schema, crypto, or user-data changes are involved.",
+        "performance_optimization": "Use the performance skill or verification profile rather than a dedicated performance subagent.",
+        "deployment_readiness": "Use /ship and deploy commands under explicit approval rather than a dedicated deployment subagent.",
+        "cheap_second_pass_review": "Use orchestrator_mode.bulk_review (glm-5) only when the Owner explicitly wants a secondary verdict."
+      }
+    },
+    "workflow": {
+      "spawn": "owner agent spawns Explorer / Planner / Implementer / Reviewer / Architect via .opencode/agents/ helpers",
+      "merge": "owner agent synthesizes helper findings — helper output is advisory, owner decides"
+    }
+  },
+  "orchestrator_mode": {
+    "description": "Owner agent — OpenCode Go orchestrator; v1.1-production (Action 4D, 2026-06-05); qwen3.7-plus primary, qwen3.6-plus fallback/hard-solver; Claude/Hermes/direct API deferred",
+    "enabled": true,
+    "default_model": "umans-ai-coding-plan/umans-glm-5.2",
+    "fallback_orchestrator": "opencode-go/qwen3.6-plus",
+    "fast_tasks": {
+      "primary": "opencode-go/qwen3.7-plus",
+      "mimo_v2_5_pro": "blocked_from_auto_routing_until_empty_response_root_cause_resolved",
+      "note": "v0.2 eval (2026-06-05): mimo-v2.5-pro produced 2 empty responses on debugging and feature implementation tasks. Blocked from automatic FAST/DIRECT routing until root cause resolved."
+    },
+    "blocked_orchestrators": [
+      "opencode-go/deepseek-v4-pro",
+      "opencode-go/mimo-v2.5-pro",
+      "opencode-go/minimax-m2.7"
+    ],
+    "blocked_orchestrator_reason": "v0.2 eval (2026-06-05): deepseek-v4-pro produces empty content on debugging/build recovery tasks; mimo-v2.5-pro produces empty content on debugging/feature implementation tasks; minimax-m2.7 too weak for implementation (2.59/10). qwen3.6-plus and qwen3.7-plus are reliable for production routing.",
+    "empty_response_guardrail": {
+      "enabled": true,
+      "action": "retry_once_with_qwen3.6-plus",
+      "log_fields": [
+        "model",
+        "task_type",
+        "prompt_hash",
+        "latency",
+        "token_usage",
+        "failure_reason"
+      ],
+      "rule": "Never allow empty response to pass as successful task completion. If any model returns empty content, retry once with qwen3.6-plus (stable fallback) and log the failure."
+    },
+    "escalation": {
+      "complex_long_context": "opencode-go/qwen3.7-plus",
+      "architecture_or_rescue": "opencode-go/qwen3.7-plus",
+      "direct_implementation": "opencode-go/qwen3.7-plus",
+      "debug_visual_ui": "opencode-go/kimi-k2.6",
+      "bulk_review": "umans-ai-coding-plan/umans-flash",
+      "reviewer_judge": "opencode-go/glm-5.1",
+      "hard_deep_repo_solver": "opencode-go/qwen3.6-plus",
+      "cheap_coding_worker_candidate": "opencode-go/qwen3.7-plus",
+      "fallback_during_soak": "opencode-go/qwen3.6-plus"
+    },
+    "escalation_trigger": "complex_long_context — large context, multi-module, or tool-heavy tasks; qualitative — architecture weight, ambiguity, rescue conditions",
+    "note": "v1.1-canary (Action 4C, 2026-06-05). qwen3.7-plus is primary canary (10.0/10 benchmark, 100% pass, 0 empty). qwen3.6-plus retained as fallback/hard-solver. After 3 clean canary tasks, promote to production v1.1."
+  },
+  "production_baseline": {
+    "version": "v1.1-production",
+    "status": "qwen3_7_plus_production_ready",
+    "sealed_date": "2026-06-05",
+    "sealed_by": "Action 4D — Qwen3.7 Plus Production v1.1 Seal",
+    "previous_version": "v1.1-canary (Action 4C, 2026-06-05)",
+    "evidence": [
+      "v0.4 benchmark (qwen3.6-plus): 9.9/10 average, 100% pass rate, 0 empty responses",
+      "Action 4B benchmark (qwen3.7-plus): 10.0/10 average, 100% pass rate, 0 empty responses",
+      "qwen3.7-plus pricing: -20% input, -47% output, +30% rate limit vs qwen3.6-plus",
+      "Empty-response guardrail conformance: 30/30 PASS",
+      "Workspace protocol guard: 602/602 PASS",
+      "Canary Task 1: sync script thin-shell fix (PASS)",
+      "Canary Task 2: conformance/reporting integration (PASS)",
+      "Canary Task 3: real utility implementation (PASS)",
+      "3/3 canary tasks clean, 0 empty responses, 0 protocol violations"
+    ],
+    "routing_table": {
+      "primary_orchestrator": "opencode-go/qwen3.7-plus",
+      "fallback_orchestrator": "opencode-go/qwen3.6-plus",
+      "fast_direct": "opencode-go/qwen3.7-plus",
+      "implementer": "opencode-go/qwen3.7-plus",
+      "hard_solver": "opencode-go/qwen3.6-plus",
+      "reviewer": "opencode-go/glm-5.1",
+      "explorer": "opencode-go/deepseek-v4-flash",
+      "budget": "opencode-go/deepseek-v4-flash"
+    },
+    "canary_rules": {
+      "status": "canary_complete_production_active",
+      "canary_model": "opencode-go/qwen3.7-plus",
+      "canary_roles": [
+        "primary_orchestrator",
+        "fast_direct",
+        "implementer"
+      ],
+      "canary_tasks_completed": 3,
+      "canary_tasks": [
+        "Task 1: sync script thin-shell fix (PASS)",
+        "Task 2: conformance/reporting integration (PASS)",
+        "Task 3: real utility implementation (PASS)"
+      ],
+      "rollback_model": "opencode-go/qwen3.6-plus",
+      "rollback_roles": [
+        "fallback_orchestrator",
+        "hard_solver"
+      ],
+      "promotion_requirements": [
+        "3 clean real development tasks with 0 empty responses",
+        "0 protocol violations during canary",
+        "0 unauthorized global/routing drift",
+        "All relevant conformance checks pass",
+        "Evidence reports produced for each canary task",
+        "Explicit owner approval before production v1.1 seal"
+      ],
+      "promotion_status": "all_requirements_met_sealed"
+    },
+    "blocked_from_auto_routing": [
+      "opencode-go/mimo-v2.5-pro",
+      "opencode-go/deepseek-v4-pro",
+      "opencode-go/minimax-m2.7"
+    ],
+    "promotion_gate": {
+      "rule": "No blocked model may be promoted to automatic production routing without ALL of the following:",
+      "requirements": [
+        "0 empty responses across all assigned roles",
+        "Real OpenCode runtime benchmark pass (not API-only simulation)",
+        "Empty-response guardrail conformance test pass",
+        "0 protocol violations",
+        "Explicit owner approval"
+      ]
+    },
+    "rollback_to_v1": {
+      "description": "If future model experiments destabilize routing, restore these files to their v1-sealed state",
+      "authoritative_files": [
+        ".opencode/opencode.json",
+        ".opencode/brain-config.json",
+        ".opencode/model-registry.yaml",
+        ".opencode/helper-roster.md",
+        ".opencode/rules.md"
+      ],
+      "verify_command": "bash .opencode/conformance/tests/empty-response-guardrail.sh && bash .opencode/scripts/workspace-protocol-guard.sh"
+    }
+  },
+  "command_surface": {
+    "bootstrap_policy": "opencode.json loads minimal bootstrap only. Command discovery is native. Do not inject command bodies into session instructions.",
+    "commands": [
+      "/advise",
+      "/analyze",
+      "/auto-test-generation",
+      "/bootstrap-repo",
+      "/checkpoint",
+      "/debug",
+      "/deploy-preview",
+      "/deploy-rollback",
+      "/deploy-vercel",
+      "/deploy-workers",
+      "/gate-fast",
+      "/gate-release",
+      "/gate-ui",
+      "/gates",
+      "/git-guard",
+      "/implement",
+      "/map-repo",
+      "/memory-audit",
+      "/memory-save",
+      "/memory-status",
+      "/model-router-report",
+      "/model-snapshot",
+      "/phase",
+      "/plan-feature",
+      "/postmortem",
+      "/promote-lesson",
+      "/protocol-capabilities",
+      "/protocol-doctor",
+      "/quick",
+      "/quick-ship",
+      "/research-pipeline",
+      "/recover",
+      "/review",
+      "/review-ui",
+      "/ship",
+      "/status",
+      "/stop-ship",
+      "/test-intelligence",
+      "/update-roadmap",
+      "/verify-alignment"
+    ]
+  },
+  "repo_registry": {
+    "path": ".opencode/registry.yaml",
+    "authoritative": true,
+    "generated_views": [
+      "WORKSPACE_MAP.md"
+    ],
+    "legacy_snapshot_paths": [],
+    "legacy_paths_allowed_for_execution": false,
+    "auto_detect": true,
+    "port_conflicts_resolved": true,
+    "sync_rule": "Update .opencode/registry.yaml first, then WORKSPACE_MAP.md in the same patch."
+  },
+  "second_brain": {
+    "vault_path": "vault",
+    "auto_read": {
+      "session_start": [],
+      "on_demand": [
+        "vault/subjects/<relevant>.md"
+      ],
+      "on_task_overlap": [
+        "vault/projects/<repo>/lessons.md"
+      ]
+    },
+    "auto_read_note": "Progressive context loading (v4.0): mandatory startup reads AGENTS.md + NOW.md only. Vault subjects and lessons load on demand when task overlaps. Canonical plan is <repo>/PLAN.md (repo-root), not vault/projects/<repo>/plan.md (deprecated per ADR-001).",
+    "auto_write": {
+      "checkpoint": "progress updates happen via /checkpoint only",
+      "confirmed_lesson": "persist only through /promote-lesson or explicit owner confirmation",
+      "durable_decision": "persist only through /checkpoint when the decision is architectural, expensive to reverse, or likely to matter cross-session",
+      "cross_repo_linking": "allowed only when the owner explicitly marks the pattern reusable"
+    },
+    "failure_capture_policy": "Failures may be summarized in-session, but lessons are not persisted automatically until confirmed.",
+    "lesson_freshness_policy": "Checkpoint reviews are relevance-driven. Refresh older lessons only when the current task materially overlaps them; mark refreshed, refresh-needed, or obsolete rather than mass-pruning.",
+    "subjects": [
+      "Security",
+      "Testing",
+      "Architecture",
+      "TypeScript",
+      "Performance",
+      "Deployment",
+      "Process"
+    ]
+  },
+  "mcp_servers": {
+    "authoritative_source": "Runtime MCP configuration for this workspace is the checked-in .opencode/opencode.json. This section is advisory metadata for protocol reasoning and must stay aligned with that file.",
+    "context7": {
+      "enabled": true,
+      "activation_policy": "manual_per_query_only",
+      "purpose": "Library documentation lookup — activate per query only when repo context is insufficient or API behavior depends on library version"
+    },
+    "exa": {
+      "enabled": true,
+      "transport": "stdio",
+      "command": "npx -y exa-mcp-server",
+      "activation_policy": "manual_per_query_only",
+      "purpose": "Approved external research via real-time web search and code-context retrieval for technical questions and grounded page lookup",
+      "allowed_for": [
+        "library and framework research",
+        "GitHub/docs/example retrieval",
+        "general web lookup with direct source citations"
+      ],
+      "blocked_for": [
+        "broad social sentiment synthesis",
+        "unsourced community consensus claims",
+        "vendor pricing/business-term claims without direct citations"
+      ]
+    },
+    "sequential-thinking": {
+      "enabled": true,
+      "transport": "stdio",
+      "activation_policy": "manual_per_query_only",
+      "purpose": "Structured stepwise reasoning for high-ambiguity analysis and problem decomposition"
+    },
+    "github": {
+      "enabled": true,
+      "transport": "stdio",
+      "activation_policy": "explicit_opt_in_only",
+      "purpose": "GitHub API access for PR, issue, and repo operations when explicitly needed; runtime package is enabled in .opencode/opencode.json"
+    },
+    "playwright": {
+      "enabled": false,
+      "transport": "stdio",
+      "activation_policy": "explicit_opt_in_only",
+      "purpose": "Optional browser automation and UI verification when enabled in the runtime config"
+    },
+    "firecrawl": {
+      "enabled": false,
+      "transport": "remote",
+      "url": "https://api.firecrawl.dev/mcp",
+      "activation_policy": "explicit_opt_in_only",
+      "purpose": "Alibaba-recommended web crawl and deep search — enable when Exa coverage is insufficient for complex crawl tasks",
+      "note": "Requires FIRECRAWL_API_KEY. Enable only when deep web crawling is needed."
+    },
+    "pencil": {
+      "enabled": false,
+      "transport": "stdio",
+      "activation_policy": "unavailable_in_checked_in_runtime",
+      "purpose": "Pencil design skills remain filesystem-maintained, but no Pencil MCP is configured in .opencode/opencode.json; do not claim live Pencil runtime availability until restored"
+    }
+  }
+}

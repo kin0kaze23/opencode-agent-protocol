@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# proj — multi-repo status CLI wrapper
+# Delegates to .opencode/scripts/proj.py
+# Usage: proj status | proj digest
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$SCRIPT_DIR/proj.py" "$@"

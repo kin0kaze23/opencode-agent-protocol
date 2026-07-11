@@ -1,0 +1,195 @@
+# Repo Profile Registry — v4.17.0
+# Authority: workspace canonical
+# Purpose: Define repo profiles by type for bootstrap and gate selection
+# Used by: /bootstrap-repo, /gates, session-cache.sh
+
+version: "4.17.0"
+
+# Repo type detection rules
+detection:
+  react_vite:
+    detect:
+      - "package.json contains vite dependency"
+      - "vite.config.ts or vite.config.js exists"
+    stack: "React + Vite"
+    examples: [protected-repo-prod, example-app, demo-project, StableVault]
+
+  nextjs:
+    detect:
+      - "package.json contains next dependency"
+      - "next.config.js or next.config.mjs exists"
+    stack: "Next.js"
+    examples: [example-toolchainMissionControl]
+
+  node_backend:
+    detect:
+      - "package.json exists without vite/next"
+      - "express, hono, or fastify in dependencies"
+    stack: "Node.js backend"
+    examples: [sample-service, example-dashboard, paperclip-PROD]
+
+  python:
+    detect:
+      - "requirements.txt or pyproject.toml exists"
+      - "setup.py or setup.cfg exists"
+    stack: "Python"
+    examples: [example-platform, example-analyzer, ProjectTracker, example-agent]
+
+  rust:
+    detect:
+      - "Cargo.toml exists"
+    stack: "Rust"
+    examples: [example-cli]
+
+  docs_only:
+    detect:
+      - "no package.json, no Cargo.toml, no requirements.txt"
+      - "only .md files"
+    stack: "Documentation only"
+    examples: [vault, career-ops]
+
+  protocol_repo:
+    detect:
+      - "path is .opencode/ itself"
+      - "contains AGENTS.md and rules.md"
+    stack: "Protocol repository"
+    examples: [workspace-root]
+
+  unknown:
+    detect:
+      - "no detection pattern matched"
+    stack: "Unknown"
+    examples: []
+
+# Profile definitions
+profiles:
+  react_vite:
+    package_manager: pnpm
+    gate_commands:
+      lint: "pnpm lint"
+      typecheck: "pnpm typecheck"
+      test: "pnpm test"
+      build: "pnpm build"
+    dev_server:
+      command: "pnpm dev"
+      port_range: "3000-3005"
+    deploy_targets: [vercel, cloudflare]
+    default_lane: STANDARD
+    default_verification_profile: ui-surface
+    browser_verification_required: true
+
+  nextjs:
+    package_manager: pnpm
+    gate_commands:
+      lint: "pnpm lint"
+      typecheck: "pnpm typecheck"
+      test: "pnpm test"
+      build: "pnpm build"
+    dev_server:
+      command: "pnpm dev"
+      port_range: "3000-3005"
+    deploy_targets: [vercel]
+    default_lane: STANDARD
+    default_verification_profile: ui-surface
+    browser_verification_required: true
+
+  node_backend:
+    package_manager: pnpm
+    gate_commands:
+      lint: "pnpm lint"
+      typecheck: "pnpm typecheck"
+      test: "pnpm test"
+      build: "pnpm build"
+    dev_server:
+      command: "pnpm dev"
+      port_range: "3000-3010"
+    deploy_targets: [docker, self-hosted]
+    default_lane: STANDARD
+    default_verification_profile: logic-backend
+    browser_verification_required: false
+
+  python:
+    package_manager: pip
+    gate_commands:
+      lint: "ruff check . || pylint src/ || flake8 src/"
+      typecheck: "mypy src/ || pyright src/ || echo 'no typecheck configured'"
+      test: "pytest || python -m pytest"
+      build: "echo 'no build step for python'"
+    dev_server:
+      command: "python -m uvicorn app:app || python main.py"
+      port_range: "8000-8010"
+    deploy_targets: [docker, self-hosted]
+    default_lane: STANDARD
+    default_verification_profile: logic-backend
+    browser_verification_required: false
+
+  rust:
+    package_manager: cargo
+    gate_commands:
+      lint: "cargo clippy -- -D warnings"
+      typecheck: "cargo check"
+      test: "cargo test"
+      build: "cargo build --release"
+    dev_server:
+      command: "cargo run"
+      port_range: "N/A"
+    deploy_targets: [local]
+    default_lane: STANDARD
+    default_verification_profile: logic-backend
+    browser_verification_required: false
+
+  docs_only:
+    package_manager: none
+    gate_commands:
+      lint: "echo 'no lint for docs'"
+      typecheck: "echo 'no typecheck for docs'"
+      test: "echo 'no test for docs'"
+      build: "echo 'no build for docs'"
+    dev_server:
+      command: "obsidian ."
+      port_range: "N/A"
+    deploy_targets: []
+    default_lane: DIRECT
+    default_verification_profile: docs-config
+    browser_verification_required: false
+
+  protocol_repo:
+    package_manager: none
+    gate_commands:
+      lint: "bash .opencode/scripts/workspace-protocol-guard.sh"
+      typecheck: "echo 'protocol repo — no typecheck'"
+      test: "bash .opencode/conformance/tests/run-all.sh"
+      build: "echo 'protocol repo — no build'"
+    dev_server:
+      command: "N/A"
+      port_range: "N/A"
+    deploy_targets: []
+    default_lane: HIGH-RISK
+    default_verification_profile: stateful-sensitive
+    browser_verification_required: false
+
+  unknown:
+    package_manager: detect
+    gate_commands:
+      lint: "echo 'unknown repo type — configure gate commands'"
+      typecheck: "echo 'unknown repo type — configure gate commands'"
+      test: "echo 'unknown repo type — configure gate commands'"
+      build: "echo 'unknown repo type — configure gate commands'"
+    dev_server:
+      command: "unknown"
+      port_range: "unknown"
+    deploy_targets: []
+    default_lane: STANDARD
+    default_verification_profile: default
+    browser_verification_required: false
+
+# Bootstrap verification checklist
+bootstrap_verification:
+  - "global config is thin and valid (config-authority-guard)"
+  - "workspace policy is canonical (workspace-protocol-guard)"
+  - "repo overlay does not duplicate global/workspace authority (repo-exception-guard)"
+  - "gates are discoverable (gate commands resolve)"
+  - "MCP profile is correct for repo type"
+  - "AGENTS.md exists and is non-empty"
+  - "NOW.md exists with status field"
+  - "GitGuard hook installed (if .git exists)"

@@ -1,0 +1,63 @@
+# Fleet Repos Manifest — v5.0.0 (Public Sample)
+#
+# Defines the repos managed by the release gate harness.
+# Used by generate-fleet-dashboard.sh and record-fleet-snapshot.sh.
+# This is a public sample — replace with your own repos.
+
+repos:
+  - name: example-app
+    path: example-app
+    github: your-org/example-app
+    branch: main
+    status: active
+    release_gate: installed
+    codeowners: verified
+    trust_policy: installed
+    branch_protection: unknown_permission_limited
+    known_baseline_failures: []
+    protection_notes: "Private repo — branch protection API returns 403 without GitHub Pro"
+    owner_next_action:
+      - "Configure branch protection manually in Settings → Branches"
+      - "Require Release Gate check"
+      - "Require Gitleaks, contract-gate, risk-policy-gate"
+      - "Require CODEOWNERS review"
+      - "Dismiss stale approvals"
+      - "Block force pushes to main"
+
+  - name: sample-service
+    path: sample-service
+    github: your-org/sample-service
+    branch: main
+    status: active
+    release_gate: installed
+    codeowners: verified
+    trust_policy: installed
+    branch_protection: unknown_permission_limited
+    known_baseline_failures:
+      - check: deploy-preview
+        reason: "Missing VERCEL_TOKEN secret"
+        classification: BROAD_BASELINE_FAILURE
+        recommendation: "Do not require until VERCEL_TOKEN is configured"
+    protection_notes: "Private repo — branch protection API returns 403 without GitHub Pro"
+    owner_next_action:
+      - "Configure branch protection manually in Settings → Branches"
+      - "Require Release Gate, build, Gitleaks, label"
+      - "Do NOT require deploy-preview until VERCEL_TOKEN is configured"
+      - "Require CODEOWNERS review"
+      - "Dismiss stale approvals"
+      - "Block force pushes to main"
+
+  - name: protected-repo
+    path: protected-repo
+    github: your-org/protected-repo
+    branch: main
+    status: excluded
+    exclusion_reason: do_not_touch
+    exclusion_note: "This repo is archived. Do not touch."
+    release_gate: not_installed
+    codeowners: not_checked
+    trust_policy: not_installed
+    branch_protection: not_checked
+    known_baseline_failures: []
+    protection_notes: "Excluded from fleet — do not touch"
+    owner_next_action: []

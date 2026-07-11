@@ -1,0 +1,89 @@
+# Cross-Model Run Plan — v4.47 Benchmark Expansion
+#
+# Defines which tasks should be run across which models/agents
+# to build cross-model comparison data for routing recommendations.
+#
+# Safety:
+# - protected-repo is never included
+# - Default mode is dry-run (no repo mutation)
+# - Missing models are recorded as unavailable, not failed
+
+version: "1.0.0"
+created: "2026-07-09"
+description: "Cross-model benchmark run plan for routing calibration"
+
+# ─── Tasks to run ───────────────────────────────────────────────────────
+tasks:
+  - TR-001
+  - TR-002
+  - TR-003
+  - TR-005
+  - TR-006
+  - TR-007
+  - TR-008
+  - TR-009
+
+# ─── Models/agents to evaluate ──────────────────────────────────────────
+models:
+  - id: "umans-glm-5.2"
+    agent: "owner"
+    available: true
+    notes: "Primary orchestrator model — already validated"
+
+  - id: "umans-coder"
+    agent: "implementer"
+    available: true
+    notes: "Implementation helper — capacity lane primary"
+
+  - id: "opencode-go/qwen3.7-plus"
+    agent: "architect"
+    available: true
+    notes: "Premium reserve — high-risk architecture"
+
+  - id: "opencode-go/deepseek-v4-flash"
+    agent: "explorer"
+    available: true
+    notes: "Budget/explorer model — cheap-first routing"
+
+  - id: "umans-glm-5.1"
+    agent: "reviewer"
+    available: true
+    notes: "Reviewer/judge model"
+
+# ─── Run matrix ──────────────────────────────────────────────────────────
+# Each task × model combination is a run entry
+# Missing model runs are recorded as unavailable, not failed
+
+run_matrix:
+  - task_id: "TR-001"
+    models: ["umans-glm-5.2", "umans-coder", "opencode-go/deepseek-v4-flash"]
+
+  - task_id: "TR-002"
+    models: ["umans-glm-5.2", "umans-coder", "opencode-go/deepseek-v4-flash"]
+
+  - task_id: "TR-003"
+    models: ["umans-glm-5.2", "umans-coder", "opencode-go/deepseek-v4-flash"]
+
+  - task_id: "TR-005"
+    models: ["umans-glm-5.2", "umans-coder"]
+
+  - task_id: "TR-006"
+    models: ["umans-glm-5.2", "umans-coder"]
+
+  - task_id: "TR-007"
+    models: ["umans-glm-5.2", "opencode-go/qwen3.7-plus"]
+    notes: "HIGH-RISK — requires reviewer model"
+
+  - task_id: "TR-008"
+    models: ["umans-glm-5.2", "opencode-go/deepseek-v4-flash"]
+
+  - task_id: "TR-009"
+    models: ["umans-glm-5.2", "opencode-go/deepseek-v4-flash"]
+
+# ─── Safety constraints ─────────────────────────────────────────────────
+safety:
+  protected-repo_excluded: true
+  default_mode: "dry-run"
+  no_production_mutation: true
+  forbidden_files_enforced: true
+  reviewer_required_for_high_risk: true

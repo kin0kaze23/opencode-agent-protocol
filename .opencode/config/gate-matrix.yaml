@@ -1,0 +1,196 @@
+# Risk-Based Gate Matrix — v4.17.0
+# Authority: workspace canonical
+# Purpose: Map task types to minimum required gates per lifecycle stage
+# Rule: Gate selection should be based on what changed in the diff, not just which files were touched
+
+version: "4.17.0"
+
+# Diff classification patterns
+diff_classifications:
+  text_only:
+    description: "Only string/text content changed in source files"
+    patterns:
+      - "changed lines contain only string literals, JSX text, or comments"
+    skip_gates: [browser_verification, a11y, responsive, visual_regression, build]
+    reason: "No structural, semantic, or layout change"
+
+  css_color_spacing:
+    description: "Only CSS color or spacing properties changed (no layout properties)"
+    patterns:
+      - "changed lines in .css/.scss files contain only color, padding, margin, border-radius"
+    skip_gates: [a11y_semantics, keyboard, aria, responsive_matrix]
+    keep_gates: [visual_regression, screenshot]
+    reason: "Only visual appearance changed, not structure"
+
+  css_layout:
+    description: "CSS layout properties changed (flex, grid, position, display)"
+    patterns:
+      - "changed lines in .css/.scss files contain layout properties"
+    skip_gates: [a11y_semantics]
+    keep_gates: [responsive_matrix, visual_regression, screenshot]
+    reason: "Layout changed but semantics unaffected"
+
+  import_paths:
+    description: "Only import path changes"
+    patterns:
+      - "changed lines contain only import/from/require statements"
+    skip_gates: [full_test_suite, browser_verification, build]
+    keep_gates: [lint, typecheck, targeted_test]
+    reason: "No behavior change, just module resolution"
+
+  type_annotations:
+    description: "Only type annotation changes"
+    patterns:
+      - "changed lines contain only type/interface/annotation syntax"
+    skip_gates: [test, build, browser_verification]
+    keep_gates: [lint, typecheck]
+    reason: "No runtime behavior change"
+
+  comments_docs:
+    description: "Only comments or documentation changed"
+    patterns:
+      - "changed lines are all comments or .md files"
+    skip_gates: [typecheck, test, build, browser_verification]
+    keep_gates: [lint]
+    reason: "No code behavior change"
+
+  test_files_only:
+    description: "Only test files changed"
+    patterns:
+      - "changed files match *.test.* or *.spec.* or tests/ or e2e/"
+    skip_gates: [build]
+    keep_gates: [lint, typecheck, test]
+    reason: "Tests don't affect production bundle"
+
+  config_non_runtime:
+    description: "Config files changed but not runtime config"
+    patterns:
+      - "changed files are .eslintrc, .prettierrc, tsconfig.json (non-runtime)"
+    skip_gates: [test, browser_verification, build]
+    keep_gates: [lint, typecheck]
+    reason: "Config doesn't affect runtime behavior"
+
+# Task type gate matrix
+task_types:
+  copy_content_only:
+    description: "Text/string content changes only"
+    dev_loop_gates: [lint_targeted]
+    pre_commit_gates: [lint]
+    pre_deploy_gates: []
+    prod_release_gates: []
+    diff_classification: text_only
+
+  css_ui_polish:
+    description: "CSS/UI polish only, no layout/structure change"
+    dev_loop_gates: [lint, typecheck]
+    pre_commit_gates: [lint, typecheck, screenshot_single_viewport]
+    pre_deploy_gates: [screenshot_diff]
+    prod_release_gates: [visual_diff_comparison]
+    diff_classification: css_color_spacing
+
+  isolated_component:
+    description: "Single component change, no shared deps"
+    dev_loop_gates: [lint, typecheck, targeted_test]
+    pre_commit_gates: [lint, typecheck, targeted_test, screenshot_two_viewports]
+    pre_deploy_gates: [screenshot, smoke]
+    prod_release_gates: [visual_diff, targeted_a11y]
+    diff_classification: component_change
+
+  shared_component_design_system:
+    description: "Shared component or design-system change"
+    dev_loop_gates: [lint, typecheck, full_test]
+    pre_commit_gates: [lint, typecheck, full_test, visual_regression]
+    pre_deploy_gates: [visual_regression, smoke]
+    prod_release_gates: [full_a11y, visual_diff, contract_check]
+    diff_classification: shared_change
+
+  data_model_logic:
+    description: "Data/model/business logic change"
+    dev_loop_gates: [lint, typecheck, targeted_test]
+    pre_commit_gates: [lint, typecheck, targeted_test, build]
+    pre_deploy_gates: [build, smoke]
+    prod_release_gates: [full_test, api_contract_validation]
+    diff_classification: logic_change
+
+  auth_security_rls:
+    description: "Auth/security/RLS change"
+    dev_loop_gates: [lint, typecheck, targeted_test]
+    pre_commit_gates: [lint, typecheck, full_test, sast, reviewer]
+    pre_deploy_gates: [sast, smoke, auth_flow_test]
+    prod_release_gates: [full_security_review, threat_model, reviewer_signoff]
+    diff_classification: security_change
+    force_high_risk: true
+
+  routing_navigation:
+    description: "Routing/navigation change"
+    dev_loop_gates: [lint, typecheck, build]
+    pre_commit_gates: [lint, typecheck, build, route_smoke]
+    pre_deploy_gates: [route_smoke, 404_check]
+    prod_release_gates: [e2e_navigation, console_clean]
+    diff_classification: routing_change
+
+  deployment_config_env:
+    description: "Deployment/config/env change"
+    dev_loop_gates: [lint, config_validate]
+    pre_commit_gates: [lint, config_validate, build]
+    pre_deploy_gates: [deploy_preview, env_smoke]
+    prod_release_gates: [infra_validation, rollback_check, reviewer]
+    diff_classification: config_change
+    force_high_risk: true
+
+  large_cross_surface:
+    description: "Large cross-surface feature"
+    dev_loop_gates: [lint, typecheck, targeted_test]
+    pre_commit_gates: [full_gates_per_profile]
+    pre_deploy_gates: [full_gates, preview, smoke]
+    prod_release_gates: [full_release_gates, reviewer, a11y, visual_qa]
+    diff_classification: cross_surface
+
+# Parallel execution groups
+parallel_groups:
+  phase1_static:
+    description: "Independent static analysis — run in parallel"
+    gates: [lint, typecheck, unit_tests]
+    can_parallelize: true
+
+  phase2_build:
+    description: "Build after typecheck passes"
+    gates: [build]
+    depends_on: [typecheck]
+    can_parallelize_with: [unit_tests]
+
+  phase3_ui_specialist:
+    description: "UI specialist gates — run in parallel after build"
+    gates: [a11y_audit, visual_regression, console_clean, responsive_audit]
+    can_parallelize: true
+    depends_on: [build]
+
+  phase4_deploy_review:
+    description: "Deploy preview and reviewer — run in parallel"
+    gates: [deploy_preview, reviewer]
+    can_parallelize: true
+    depends_on: [phase3_ui_specialist]
+
+# Gate cache rules
+gate_cache:
+  description: "Skip gate if passed in this session AND no source files changed since"
+  enabled: true
+  cache_location: ".opencode/.gate-cache.json"
+  invalidation_triggers:
+    - "any source file modified (not .md docs)"
+    - "git checkout/switch/reset"
+    - "package.json or lockfile changed"
+    - "gate definition changed"
+    - "session restart"
+  always_rerun:
+    - "first invocation per session"
+    - "after git operations"
+    - "release lane (always run full suite)"
+    - "auth/security/RLS changes (always run full verification)"
+
+# Release escalation trigger
+release_escalation:
+  description: "If 3+ fast-lane commits accumulate without a release gate, flag for release gate"
+  threshold_commits: 3
+  action: "flag_for_release_gate"
+  message: "3+ fast-lane commits accumulated — run release gate before next promotion"

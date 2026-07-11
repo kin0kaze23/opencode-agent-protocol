@@ -1,0 +1,54 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1a1a2e', 'primaryTextColor': '#e0e0e0', 'lineColor': '#7f8c8d'}}}%%
+flowchart TD
+    subgraph Protocol_Truth
+        AGENTS[AGENTS.md<br/>workspace router]
+        RULES[rules.md<br/>OpenCode guardrails]
+        BRAIN[brain-config.json<br/>orchestration policy]
+        NOW[NOW.md<br/>current state]
+        PLAN[PLAN.md<br/>active plan]
+    end
+
+    subgraph Release_Governance
+        RG[validate-release-gate.sh]
+        SCC[sensitive-change-classifier.sh]
+        RDR[release-decision-report.sh]
+        RED[reviewer-evidence-detector.sh]
+        PRC[post-release-gate-comment.sh]
+        INST[install-release-gate.sh]
+        RTP[reviewer-trust-policy.yaml]
+    end
+
+    subgraph Fleet
+        FD[generate-fleet-dashboard.sh]
+        FT[generate-fleet-trends.sh]
+        EF[evidence-freshness-report.sh]
+        RFS[record-fleet-snapshot.sh]
+    end
+
+    subgraph Eval
+        TY[tasks.yaml]
+        RTR[run-task-replay-eval.sh]
+        SCT[score-task-replay.sh]
+        GEN[generate-task-replay-scorecard.sh]
+        RLC[run-loop-controller.sh]
+        RCM[run-cross-model-evals.sh]
+        NMP[normalize-model-performance.sh]
+        AMR[analyze-model-roi.sh]
+        GRR[generate-routing-recommendations.sh]
+    end
+
+    subgraph Reports
+        R1[reports/task-replay/]
+        R2[reports/model-roi-scorecard.*]
+        R3[reports/routing-recommendations.*]
+        R4[reports/fleet-dashboard.*]
+        R5[reports/fleet-trends.*]
+        R6[reports/loop-controller/]
+    end
+
+    subgraph Config
+        C1[model-routing-policy.recommended.yaml]
+        C2[reviewer-trust-policy.yaml]
+        C3[gate-matrix.yaml]
+        C4[repo-profiles.yaml]
+    end

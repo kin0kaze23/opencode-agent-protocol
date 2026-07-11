@@ -1,0 +1,1182 @@
+# Productivity Gains Registry — Machine-Readable Index
+# Version: v0.2
+# Created: 2026-06-12
+# Status: Advisory only (no runtime integration)
+# Authority: .opencode/ is canonical; vault/ is advisory reference
+
+version: "0.2"
+created: "2026-06-12"
+last_updated: "2026-06-13"
+status: advisory
+total_active: 20
+total_planned: 0
+total_canary: 2
+total_maintenance: 1
+total_references: 8
+total_deprecated: 2
+
+# Phase 2.5 defaults — apply to all entries unless overridden per-entry
+defaults:
+  selection_priority: 50
+  activation_confidence: 0.7
+  requires_owner_approval: false
+  risk_level: low
+  budget_mode: any
+  quota_or_availability_risk: none
+  provider_preflight_required: false
+
+# Operating Contract v0.3 — agent lookup/update rules
+operating_contract:
+  max_active_gains: 25
+  max_canary_gains: 5
+  stale_threshold_days: 90
+  deprecated_retention_days: 30
+  max_context_files_per_gain: 3
+  max_total_context_files: 8
+  lookup_order: [trigger_phrase, status, maturity, selection_priority]
+  update_preference: update_existing_over_create_new
+  evidence_required_for_active: 2_successful_uses
+  consult_when: "scenario matches known workflow type"
+  skip_when: "DIRECT lane, approved PLAN.md exists, or agent already knows workflow"
+
+categories:
+  runtime_maintenance:
+    description: "CLI, protocol doctor, runtime sync, workspace hygiene"
+  model_lifecycle:
+    description: "model routing, canary testing, upgrades, blocked models"
+  project_bootstrap:
+    description: "new repo/app/project setup"
+  implementation_workflow:
+    description: "executing planned, scoped implementation"
+  development_workflow:
+    description: "debugging, planning, design approach"
+  release_deployment:
+    description: "preview, deploy, rollback, ship"
+  safety_guardrails:
+    description: "GitGuard, pre-edit classifier, empty response guard"
+  validation_quality:
+    description: "conformance, protocol guard, UI gates, test gates"
+  session_continuity:
+    description: "checkpoint, recover, compaction safeguard"
+  operations:
+    description: "automation jobs, vault keeper, maintenance"
+  knowledge_reference:
+    description: "lessons learned, changelog, historical references"
+
+gains:
+  # === CORE ACTIVE GAINS (20 items) ===
+
+  - id: "PGR-001"
+    name: "Protocol Doctor Health Check"
+    type: active_workflow
+    category: runtime_maintenance
+    scenario: "Quick health check of workspace protocol state"
+    trigger_phrases:
+      - "check protocol health"
+      - "protocol status"
+      - "is everything aligned"
+      - "health check"
+    use_when:
+      - "Starting a new session"
+      - "After protocol changes"
+      - "Before claiming completion"
+      - "When drift is suspected"
+    do_not_use_when:
+      - "Mid-task with clear context"
+      - "When protocol guard already passed recently"
+    files:
+      runtime:
+        - ".opencode/scripts/protocol-doctor.sh"
+        - ".opencode/commands/protocol-doctor.md"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "9-section health check with GREEN/YELLOW/ORANGE/RED classification"
+    risks:
+      - "May miss new conformance tests added after last verification"
+    related_gains:
+      - "PGR-002"
+      - "PGR-020"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-002"
+    name: "Workspace Protocol Guard"
+    type: active_workflow
+    category: validation_quality
+    scenario: "Before/after workspace-level agent/runtime edits"
+    trigger_phrases:
+      - "protocol guard"
+      - "validate workspace"
+      - "run guard"
+      - "workspace validation"
+    use_when:
+      - "Editing workspace-level agent/runtime files"
+      - "Before claiming protocol changes are complete"
+    do_not_use_when:
+      - "Repo-only changes that don't touch .opencode/"
+    files:
+      runtime:
+        - ".opencode/scripts/workspace-protocol-guard.sh"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "16 conformance checks covering JSON syntax, registry, submodule, hook drift, environment, runtime, alignment, brain config, MCP, protocol coherence, stabilization, capabilities, owner memory, git-guard, helper, implementation readiness, model routing, smoke"
+    risks:
+      - "New conformance tests must be added to guard script manually"
+    related_gains:
+      - "PGR-001"
+      - "PGR-020"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-003"
+    name: "Bootstrap New Repo"
+    type: active_workflow
+    category: project_bootstrap
+    scenario: "After cloning or initializing a new repo"
+    trigger_phrases:
+      - "new repo"
+      - "bootstrap"
+      - "initialize repo"
+      - "set up repo"
+      - "clone and setup"
+    use_when:
+      - "A new repo is added to the workspace and needs protocol state files"
+    do_not_use_when:
+      - "Repo already has NOW.md and AGENTS.md"
+      - "Repo is a nested sub-repo"
+    files:
+      runtime:
+        - ".opencode/commands/bootstrap-repo.md"
+        - ".opencode/git-guard/install-hook.sh"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "Creates NOW.md, AGENTS.md, installs GitGuard hook, sets up docs/ and vault/ structure"
+    risks:
+      - "Templates may need updating for new repo types"
+    related_gains:
+      - "PGR-021"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-004"
+    name: "Safe Deployment Rollback"
+    type: active_workflow
+    category: release_deployment
+    scenario: "Production incident or failed deploy requiring immediate rollback"
+    trigger_phrases:
+      - "rollback"
+      - "deploy failed"
+      - "revert deployment"
+      - "urgent rollback"
+      - "roll back"
+    use_when:
+      - "A deployment needs to be reverted"
+      - "Production incident requires immediate action"
+    do_not_use_when:
+      - "Data migration has already run"
+      - "User wants to fix forward instead of rollback"
+    files:
+      runtime:
+        - ".opencode/commands/deploy-rollback.md"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "Supports Vercel, Wrangler, Docker; includes smoke test verification; structured rollback strategies (auto, version, urgent, flag)"
+    risks:
+      - "Data migrations cannot be rolled back; requires manual intervention"
+    related_gains:
+      - "PGR-005"
+      - "PGR-006"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-005"
+    name: "Release Ship Workflow"
+    type: active_workflow
+    category: release_deployment
+    scenario: "Ready to create PR and prepare release"
+    trigger_phrases:
+      - "ship"
+      - "create PR"
+      - "release"
+      - "prepare release"
+      - "ship it"
+    use_when:
+      - "Implementation is complete"
+      - "Gates pass"
+      - "PR creation is needed"
+    do_not_use_when:
+      - "Mid-implementation"
+      - "Gates have not passed"
+      - "Reviewer required but not yet run"
+    files:
+      runtime:
+        - ".opencode/commands/ship.md"
+        - ".opencode/runbooks/production-release-gate.md"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "Includes gate classifications, reviewer rule, GitGuard check, rollback recipe, branch lifecycle, deployment automation suggestions"
+    risks:
+      - "Gate classifications must be accurate; reviewer required for risk 4+"
+    related_gains:
+      - "PGR-004"
+      - "PGR-006"
+      - "PGR-007"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-006"
+    name: "Session Checkpoint"
+    type: active_workflow
+    category: session_continuity
+    scenario: "End of session, phase completion, or interruption"
+    trigger_phrases:
+      - "checkpoint"
+      - "save progress"
+      - "end session"
+      - "wrap up"
+      - "save state"
+    use_when:
+      - "Session is ending"
+      - "Phase is complete"
+      - "Session was interrupted"
+    do_not_use_when:
+      - "Mid-task with clear next step"
+      - "Active work is pending and should continue"
+    files:
+      runtime:
+        - ".opencode/commands/checkpoint.md"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "Fast Final Gate (8 items), vault persistence (ADR-002), benchmark telemetry, branch lifecycle, compaction continuity, ROADMAP.md review, native token stats"
+    risks:
+      - "Vault persistence depends on clean vault state; deferred patches written to /tmp/"
+    related_gains:
+      - "PGR-008"
+      - "PGR-012"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-007"
+    name: "Scoped Implementation"
+    type: active_workflow
+    category: implementation_workflow
+    scenario: "Executing an approved plan with touch list"
+    trigger_phrases:
+      - "implement"
+      - "execute plan"
+      - "code the plan"
+      - "build this"
+      - "start coding"
+    use_when:
+      - "PLAN.md exists with status APPROVED"
+      - "Touch list is complete"
+      - "Preflight passes"
+    do_not_use_when:
+      - "No PLAN.md"
+      - "PLAN.md is PENDING USER REVIEW"
+      - "Phase M1 classifier returns ambiguous/unsafe"
+      - "Scope is unclear"
+    files:
+      runtime:
+        - ".opencode/commands/implement.md"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "Phase M1 pre-edit classifier, DIRECT/FAST lanes, contract-first synthesis, skill activation, browser verification, traceability verification, Reviewer gate"
+    risks:
+      - "DIRECT/FAST shortcuts blocked by Phase M1 classifier; touch list expansion requires re-approval"
+    related_gains:
+      - "PGR-009"
+      - "PGR-010"
+    last_verified: "2026-06-12"
+    status: active
+    # Phase 2.5 overrides (defaults apply for omitted fields)
+    selection_priority: 95
+    activation_confidence: 0.95
+    risk_level: medium
+    expected_gain:
+      time_saved: "30–120 minutes per feature slice"
+      failure_reduction: "Prevents scope creep and untested implementations"
+      cost_impact: "Reduces wasted tokens from rework"
+    context_pack:
+      read_first:
+        - "PLAN.md"
+        - "NOW.md"
+      max_context_files: 8
+      avoid_loading:
+        - ".opencode/archive/"
+        - "vault/archive/"
+
+  - id: "PGR-008"
+    name: "Session Recovery"
+    type: active_workflow
+    category: session_continuity
+    scenario: "Drifted session or 'where were we?'"
+    trigger_phrases:
+      - "recover"
+      - "where were we"
+      - "what's left"
+      - "session drifted"
+      - "context lost"
+    use_when:
+      - "Session context is lost or confused"
+      - "After long break"
+      - "Plan diverged from implementation"
+    do_not_use_when:
+      - "Fresh session with clear context"
+      - "Mid-task with clear next step"
+      - "NOW.md and PLAN.md are current"
+    files:
+      runtime:
+        - ".opencode/commands/recover.md"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "Recovers original goal, current state, completed items, remaining gaps, contradictions, plan validity; recommends Continue/Pivot/Stop"
+    risks:
+      - "Relies on NOW.md and PLAN.md being current"
+    related_gains:
+      - "PGR-006"
+      - "PGR-011"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-009"
+    name: "Structured Debugging"
+    type: active_workflow
+    category: development_workflow
+    scenario: "Bug triage with root-cause analysis"
+    trigger_phrases:
+      - "debug"
+      - "fix bug"
+      - "investigate"
+      - "root cause"
+      - "triage"
+    use_when:
+      - "A bug needs to be diagnosed"
+      - "User reports a failure"
+      - "Tests are failing"
+    do_not_use_when:
+      - "Issue is already understood"
+      - "Fix is obvious"
+      - "This is a feature request, not a bug"
+    files:
+      runtime:
+        - ".opencode/commands/debug.md"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "Hypothesis-driven debugging, causal-confidence rule, triage budget (4 hypotheses, 12 commands, 20 minutes), skill activation for domain-specific debugging"
+    risks:
+      - "Triage budget may be insufficient for complex multi-system failures"
+    related_gains:
+      - "PGR-010"
+      - "PGR-011"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-010"
+    name: "Feature Planning"
+    type: active_workflow
+    category: development_workflow
+    scenario: "Creating a feature plan with risk assessment"
+    trigger_phrases:
+      - "plan feature"
+      - "create plan"
+      - "design approach"
+      - "plan this"
+    use_when:
+      - "Starting new feature work"
+      - "Scope needs structure"
+      - "Risk assessment is needed"
+    do_not_use_when:
+      - "Task is trivial (DIRECT lane)"
+      - "Plan already exists and is approved"
+      - "Mid-implementation"
+    files:
+      runtime:
+        - ".opencode/commands/plan-feature.md"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "Risk-scored planning, lane selection (DIRECT/FAST/STANDARD/HIGH-RISK), template gates (PRD, Design Brief, QA Plan, Threat Model, ADR), dependency scanning, plan correction discipline"
+    risks:
+      - "Product Brief and UI Design Brief required for net-new/UI work"
+    related_gains:
+      - "PGR-007"
+      - "PGR-009"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-011"
+    name: "Quality Gate Sequence"
+    type: active_workflow
+    category: validation_quality
+    scenario: "Running validation gates before commit or ship"
+    trigger_phrases:
+      - "run gates"
+      - "quality gates"
+      - "validate"
+      - "gates"
+      - "pass gates"
+    use_when:
+      - "Before commit"
+      - "Before ship"
+      - "After implementation"
+      - "When verification profile requires it"
+    do_not_use_when:
+      - "DIRECT lane (lint only)"
+      - "No verification profile and trivial change"
+    files:
+      runtime:
+        - ".opencode/commands/gates.md"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "Profile-based gate selection, gate script validation (VERIFIED/PLACEHOLDER/SKIPPED), failure classification (v4.6.1), browser route preflight, specialist gate mapping, gate failure escalation"
+    risks:
+      - "Gate failure escalation after 2 failures triggers postmortem before third attempt"
+    related_gains:
+      - "PGR-005"
+      - "PGR-007"
+      - "PGR-015"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-012"
+    name: "Compaction Safeguard"
+    type: active_workflow
+    category: session_continuity
+    scenario: "High token usage triggers compaction"
+    trigger_phrases:
+      - "compaction"
+      - "context full"
+      - "session dying"
+    use_when:
+      - "Token usage approaches compaction zone"
+      - "Session appears unresponsive after compaction"
+    do_not_use_when:
+      - "Token usage is in safe zone"
+      - "Session is responsive"
+    files:
+      runtime:
+        - ".opencode/COMPACTION-SAFEGUARD.md"
+        - ".opencode/rules.md"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "Model-specific token budgets (MiMo: 40K safe, 60K compaction; Qwen: 60K safe, 80K compaction; DeepSeek: 30K safe, 50K compaction), proactive checkpointing at thresholds, recovery from compaction failure"
+    risks:
+      - "MiMo V2.5 has weaker post-compaction reconstruction; schema-valid reserved key set to 40000"
+    related_gains:
+      - "PGR-006"
+      - "PGR-008"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-013"
+    name: "GitGuard Safety System"
+    type: active_workflow
+    category: safety_guardrails
+    scenario: "Any git operation (commit, push)"
+    trigger_phrases:
+      - "git guard"
+      - "safe commit"
+      - "safe push"
+    use_when:
+      - "Every git commit or push operation"
+    do_not_use_when:
+      - "Never bypass; always active"
+    files:
+      runtime:
+        - ".opencode/git-guard/git-guard.sh"
+        - ".opencode/git-guard/pre-push-hook.sh"
+        - ".opencode/git-guard/install-hook.sh"
+        - ".opencode/git-guard/doctor.sh"
+        - ".opencode/git-guard/repair-hooks.sh"
+        - ".opencode/git-guard/override-audit.sh"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "Blocks --no-verify, --force, direct main push, HEAD:main, reset --hard, clean -fd; doctor validates installation; override audit tracks bypasses"
+    risks:
+      - "Hooks must match canonical source; doctor validates installation"
+    related_gains:
+      - "PGR-014"
+      - "PGR-015"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-014"
+    name: "Empty Response Guardrail"
+    type: active_workflow
+    category: safety_guardrails
+    scenario: "Model returns empty/whitespace-only response"
+    trigger_phrases:
+      - "empty response"
+      - "no response"
+      - "model failed"
+    use_when:
+      - "Any model response is empty or whitespace-only after consuming tokens"
+    do_not_use_when:
+      - "Never bypass; always active"
+    files:
+      runtime:
+        - ".opencode/scripts/empty-response-guard.sh"
+        - ".opencode/rules.md"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "Retry once with qwen3.6-plus fallback; blocked models: mimo-v2.5-pro, deepseek-v4-pro, minimax-m2.7; runtime script, plugin validation, conformance test (30/30 PASS)"
+    risks:
+      - "Blocked models may not be re-evaluated automatically"
+    related_gains:
+      - "PGR-013"
+      - "PGR-016"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-015"
+    name: "Phase M1 Pre-Edit Safety Classifier"
+    type: active_workflow
+    category: safety_guardrails
+    scenario: "Before any file edit in /implement"
+    trigger_phrases:
+      - "pre-edit check"
+      - "safety check"
+    use_when:
+      - "Every /implement invocation before first file edit"
+    do_not_use_when:
+      - "Never bypass; mandatory before edits"
+    files:
+      runtime:
+        - ".opencode/rules.md"
+        - ".opencode/brain-config.json"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: active
+    evidence: "Classifies requests as clear_implementation, ambiguous_implementation, ambiguous_performance, unsafe_security, plan_only; blocks ambiguous/unsafe before edits"
+    risks:
+      - "Targeted eval tests C-TEST-004, C-TEST-006, C-TEST-002 not yet passed"
+    related_gains:
+      - "PGR-007"
+      - "PGR-014"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-016"
+    name: "Global Runtime Sync"
+    type: active_workflow
+    category: runtime_maintenance
+    scenario: "After any agent spec or orchestrator prompt change"
+    trigger_phrases:
+      - "sync runtime"
+      - "update prompts"
+      - "agent spec changed"
+      - "sync global"
+    use_when:
+      - "Canonical agent specs in .opencode/agents/ are modified"
+      - "Orchestrator prompt is edited"
+    do_not_use_when:
+      - "No agent spec changes"
+      - "Mid-task"
+      - "Before verifying changes are correct"
+    files:
+      runtime:
+        - ".opencode/scripts/sync-global-opencode-runtime.sh"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "Generates runtime prompt mirrors from canonical agent specs; preserves global config as thin shell; creates backup before sync; copies prompts to installed runtime"
+    risks:
+      - "Global config must remain thin shell; backup created automatically"
+    related_gains:
+      - "PGR-001"
+      - "PGR-002"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-017"
+    name: "Model Upgrade Evaluation"
+    type: active_workflow
+    category: model_lifecycle
+    scenario: "Evaluating a new model for production use"
+    trigger_phrases:
+      - "evaluate new model"
+      - "model canary"
+      - "upgrade model"
+      - "test model"
+    use_when:
+      - "A new provider/model may replace or supplement current routing"
+    do_not_use_when:
+      - "User only wants a quick subjective model comparison"
+      - "No new model is being evaluated"
+    files:
+      runtime:
+        - ".opencode/model-registry.yaml"
+      documentation:
+        - "vault/protocols/opencode/RUNBOOKS/model-upgrade-evaluation.md"
+    source_role: both
+    authority_level: advisory
+    maturity: production
+    evidence: "Structured workflow: candidate onboarding, paired benchmark, canary tasks, production seal, rollback path; evidence ladder is mandatory"
+    risks:
+      - "Must be followed for any model promotion; vault reference may drift from runtime config"
+      - "Reasoning models (MiMo-V2.5, o1, o3) may consume output budget as reasoning tokens before visible content; future evals must use sufficient max_tokens (MiMo-V2.5 requires max_tokens>=500 per 2026-06-13 text-only eval)"
+    related_gains:
+      - "PGR-014"
+      - "PGR-015"
+    last_verified: "2026-06-12"
+    status: active
+    # Phase 2.5 overrides (defaults apply for omitted fields)
+    selection_priority: 80
+    activation_confidence: 0.9
+    requires_owner_approval: true
+    approval_reason: "Model promotion affects all agent routing and daily execution cost"
+    risk_level: high
+    quota_or_availability_risk: high
+    provider_preflight_required: true
+    expected_gain:
+      time_saved: "2–4 hours per model evaluation cycle"
+      failure_reduction: "Prevents premature promotion of unreliable models"
+      cost_impact: "Right model can save 30–70% on daily API spend"
+
+  - id: "PGR-018"
+    name: "Gate Failure Triage"
+    type: active_workflow
+    category: validation_quality
+    scenario: "When any validation gate fails (pre-commit hooks, protocol guards, conformance tests, prompt-mirror drift, protocol-doctor issues)"
+    trigger_phrases:
+      - "gate failed"
+      - "guard failed"
+      - "validation failed"
+      - "conformance failed"
+      - "protocol guard failed"
+      - "protocol doctor issue"
+      - "pre-commit failure"
+      - "hook failed"
+      - "CAG failure"
+      - "MRC failure"
+      - "PMD failure"
+    use_when:
+      - "Any gate returns non-zero exit code or FAIL status"
+      - "Workspace protocol guard fails"
+      - "Prompt mirror drift test fails"
+      - "Protocol doctor reports issues"
+      - "Pre-commit hook returns non-zero exit code"
+    do_not_use_when:
+      - "All gates passed"
+      - "No gate failure"
+      - "Gate failure is already understood and has an approved fix"
+    files:
+      runtime:
+        - ".opencode/scripts/workspace-protocol-guard.sh"
+        - ".opencode/conformance/tests/prompt-mirror-drift.sh"
+        - ".opencode/scripts/protocol-doctor.sh"
+        - ".opencode/commands/gates.md"
+      documentation:
+        - "vault/protocols/opencode/RUNBOOKS/pre-commit-failure-triage.md"
+    source_role: both
+    authority_level: advisory
+    maturity: production
+    evidence: "Classification taxonomy (GUARD_RULE_TOO_BROAD, REAL_STALE_REFERENCE, ACCEPTED_ARCHIVE_REFERENCE, GENERATED_TREE_FALSE_POSITIVE, REGISTRY_CONTENT_DRIFT, UNKNOWN_BLOCKER), fix/defer/escalate decision framework, loop ledger preservation, evidence from Pilot #2 triage and commit 2ec1660 guard-drift remediation"
+    risks:
+      - "Must reference current guard script paths; vault reference may drift"
+      - "Classification taxonomy may need expansion as new failure types emerge"
+    related_gains:
+      - "PGR-001"
+      - "PGR-002"
+      - "PGR-011"
+      - "PGR-013"
+    last_verified: "2026-06-14"
+    status: active
+    selection_priority: 75
+    budget_mode: cheap_first
+
+  - id: "PGR-019"
+    name: "Prompt Change Acceptance"
+    type: active_workflow
+    category: runtime_maintenance
+    scenario: "Making prompt changes with proper evidence and acceptance"
+    trigger_phrases:
+      - "prompt change"
+      - "update prompt"
+      - "baseline refresh"
+      - "drift registration"
+    use_when:
+      - "Modifying agent prompts or orchestrator prompt"
+      - "Refreshing prompt baseline"
+    do_not_use_when:
+      - "Prompt changes are not being made"
+      - "v0.2 work in progress"
+    files:
+      documentation:
+        - "vault/protocols/opencode/RUNBOOKS/prompt-change-acceptance.md"
+    source_role: vault_reference
+    authority_level: advisory
+    maturity: production
+    evidence: "Every prompt change needs evidence; baseline changes require formal acceptance; known-drift entries must be temporary; v0.2 work must remain separate"
+    risks:
+      - "Vault reference may drift from runtime prompt management"
+    related_gains:
+      - "PGR-016"
+    last_verified: "2026-06-12"
+    status: active
+
+  - id: "PGR-020"
+    name: "Daily UI Agent Workflow"
+    type: active_workflow
+    category: validation_quality
+    scenario: "Starting any UI/visual/component task"
+    trigger_phrases:
+      - "UI task"
+      - "visual work"
+      - "component work"
+      - "layout"
+      - "UI workflow"
+    use_when:
+      - "Task involves UI, frontend, pages, components, CSS, views, screens"
+    do_not_use_when:
+      - "Task is non-UI (text, config, backend-only)"
+    files:
+      runtime:
+        - ".opencode/runbooks/daily-ui-agent-workflow.md"
+    source_role: runtime_implementation
+    authority_level: runtime_authoritative
+    maturity: production
+    evidence: "Tier-based gate selection (Tier 1/2/3), design system reading, touch list, component decision rule, gate running, evidence production, commit"
+    risks:
+      - "Tier selection depends on accurate task classification"
+    related_gains:
+      - "PGR-011"
+      - "PGR-015"
+    last_verified: "2026-06-12"
+    status: active
+
+  # === MAINTENANCE CAPABILITIES (1 item) ===
+
+  - id: "PGR-M01"
+    name: "Vault Keeper Maintenance Agent"
+    type: maintenance_capability
+    category: operations
+    scenario: "Proactive vault maintenance (daily/weekly)"
+    trigger_phrases:
+      - "vault maintenance"
+      - "vault health"
+      - "vault cleanup"
+      - "vault keeper"
+    use_when:
+      - "Daily or weekly maintenance cycle"
+      - "Vault health is suspected"
+    do_not_use_when:
+      - "Mid-task"
+      - "Vault is clean"
+      - "No maintenance schedule active"
+    files:
+      documentation:
+        - "vault/scripts/vault-keeper.sh"
+    source_role: vault_reference
+    authority_level: advisory
+    maturity: production
+    evidence: "12 maintenance tasks: active-runs, queue-check, git-hygiene, staleness, dashboard, project-status-sync, lessons-consolidate, vault-integrity, context-refresh, full-audit, cleanup-runs, compliance, dependencies, sync-registry, backup-vault"
+    risks:
+      - "References .agent/ paths that may be legacy; verify current path structure"
+    related_gains:
+      - "PGR-M02"
+    last_verified: "2026-06-12"
+    status: active
+
+  # === SUPPORTING REFERENCES (8 items) ===
+
+  - id: "PGR-R01"
+    name: "Protocol Changelog"
+    type: historical_reference
+    category: knowledge_reference
+    scenario: "Understanding protocol evolution and version decisions"
+    trigger_phrases:
+      - "protocol history"
+      - "what changed in v4.x"
+      - "version decision"
+    use_when:
+      - "Researching protocol evolution"
+      - "Understanding why a decision was made"
+    do_not_use_when:
+      - "Checking current protocol state (use CURRENT.md instead)"
+    files:
+      documentation:
+        - "vault/protocols/opencode/CHANGELOG.md"
+    source_role: vault_reference
+    authority_level: advisory
+    maturity: sealed
+    evidence: "Complete version history from v4.0 to v4.12.0 with decision rationale"
+    risks:
+      - "Contains superseded information; always check CURRENT.md first"
+    related_gains:
+      - "PGR-R02"
+      - "PGR-R03"
+    last_verified: "2026-06-12"
+    status: reference_only
+
+  - id: "PGR-R02"
+    name: "Model Routing Documentation"
+    type: knowledge_reference
+    category: model_lifecycle
+    scenario: "Understanding current routing, blocked models, efficiency rules"
+    trigger_phrases:
+      - "model routing"
+      - "which model"
+      - "blocked models"
+      - "token efficiency"
+    use_when:
+      - "Researching routing decisions"
+      - "Understanding blocked models"
+      - "Applying efficiency rules"
+    do_not_use_when:
+      - "Checking current routing config (use model-registry.yaml instead)"
+    files:
+      documentation:
+        - "vault/protocols/opencode/MODEL-ROUTING.md"
+    source_role: vault_reference
+    authority_level: advisory
+    maturity: production
+    evidence: "Single source of truth for routing decisions, blocked models, M1.7 rules"
+    risks:
+      - "Must stay aligned with .opencode/model-registry.yaml and brain-config.json"
+    related_gains:
+      - "PGR-R01"
+      - "PGR-R03"
+    last_verified: "2026-06-12"
+    status: reference_only
+
+  - id: "PGR-R03"
+    name: "Conformance Guards Documentation"
+    type: knowledge_reference
+    category: validation_quality
+    scenario: "Understanding the 7 conformance guards, 320 assertions, failure triage"
+    trigger_phrases:
+      - "conformance guard"
+      - "guard failure"
+      - "CAG failure"
+      - "MRC failure"
+    use_when:
+      - "Debugging guard failures"
+      - "Understanding what each guard checks"
+    do_not_use_when:
+      - "Running guards (use conformance test scripts instead)"
+    files:
+      documentation:
+        - "vault/protocols/opencode/CONFORMANCE-GUARDS.md"
+    source_role: vault_reference
+    authority_level: advisory
+    maturity: production
+    evidence: "Explains each guard's purpose, assertions, failure meaning, and resolution"
+    risks:
+      - "Guard scripts may evolve; always check .opencode/conformance/tests/ for current implementation"
+    related_gains:
+      - "PGR-002"
+      - "PGR-R01"
+    last_verified: "2026-06-12"
+    status: reference_only
+
+  - id: "PGR-R04"
+    name: "Consolidated Lessons"
+    type: knowledge_reference
+    category: knowledge_reference
+    scenario: "Learning from past mistakes across 15+ repos"
+    trigger_phrases:
+      - "lessons learned"
+      - "past mistakes"
+      - "patterns"
+      - "prevention"
+    use_when:
+      - "Starting work in a domain where lessons exist"
+      - "Debugging a known failure pattern"
+    do_not_use_when:
+      - "Task has no overlap with lesson categories"
+      - "Lessons are stale"
+    files:
+      documentation:
+        - "vault/knowledge/consolidated-lessons.md"
+        - "vault/knowledge/lessons.md"
+    source_role: vault_reference
+    authority_level: advisory
+    maturity: production
+    evidence: "50+ lessons across architecture, process, tooling, security, performance"
+    risks:
+      - "Some lessons may reference deprecated tools; cross-reference with current tooling"
+    related_gains:
+      - "PGR-R01"
+    last_verified: "2026-06-12"
+    status: reference_only
+
+  - id: "PGR-R05"
+    name: "Daily Workflow Runbook (Vault)"
+    type: knowledge_reference
+    category: runtime_maintenance
+    scenario: "Daily startup sequence, model selection, common commands, safety rules"
+    trigger_phrases:
+      - "daily workflow"
+      - "startup sequence"
+      - "daily routine"
+    use_when:
+      - "Quick reference for daily operations"
+    do_not_use_when:
+      - "UI-specific work (use PGR-020 instead)"
+    files:
+      documentation:
+        - "vault/protocols/opencode/RUNBOOKS/daily-workflow.md"
+    source_role: vault_reference
+    authority_level: advisory
+    maturity: production
+    evidence: "Quick reference for startup, model selection, commands, safety rules, rollback"
+    risks:
+      - "Overlaps with .opencode/runbooks/daily-ui-agent-workflow.md; vault version is more general"
+    related_gains:
+      - "PGR-020"
+      - "PGR-R01"
+    last_verified: "2026-06-12"
+    status: reference_only
+
+  - id: "PGR-021"
+    name: "Protocol Replication Guide"
+    type: supporting_reference
+    category: project_bootstrap
+    scenario: "Replicating the v4.12.0 protocol to a new workspace"
+    trigger_phrases:
+      - "replicate protocol"
+      - "new workspace"
+      - "setup workspace"
+      - "clone protocol"
+    use_when:
+      - "Setting up a new workspace that needs the full OpenCode protocol"
+    do_not_use_when:
+      - "Workspace already has protocol"
+      - "User only needs partial setup"
+    files:
+      documentation:
+        - "vault/protocols/opencode/REPLICATION_GUIDE.md"
+    source_role: vault_reference
+    authority_level: advisory
+    maturity: production
+    evidence: "Complete checklist: required files, skills, commands, gates, conformance tests"
+    risks:
+      - "Must be updated when new skills/commands are added"
+    related_gains:
+      - "PGR-003"
+    last_verified: "2026-06-12"
+    status: reference_only
+
+  - id: "PGR-022"
+    name: "New Device Setup"
+    type: supporting_reference
+    category: project_bootstrap
+    scenario: "Setting up the workspace on a new device"
+    trigger_phrases:
+      - "new device"
+      - "setup workspace"
+      - "clone workspace"
+      - "device bootstrap"
+    use_when:
+      - "Moving to a new machine"
+      - "Setting up development environment"
+    do_not_use_when:
+      - "Device is already configured"
+      - "Only need repo-specific setup"
+    files:
+      documentation:
+        - "vault/protocols/opencode/RUNBOOKS/new-device-setup.md"
+        - "vault/protocols/opencode/DEVICE-BOOTSTRAP.md"
+    source_role: vault_reference
+    authority_level: advisory
+    maturity: production
+    evidence: "Quick checklist: clone, install, configure Doppler, verify config, verify secrets, run conformance, validate routing, validate MCP, validate prompts"
+    risks:
+      - "Must reference current Doppler config and provider setup"
+    related_gains:
+      - "PGR-003"
+      - "PGR-021"
+    last_verified: "2026-06-12"
+    status: reference_only
+
+  - id: "PGR-M02"
+    name: "Automation Jobs Registry"
+    type: supporting_reference
+    category: operations
+    scenario: "Understanding all active automation jobs and their health"
+    trigger_phrases:
+      - "automation jobs"
+      - "cron jobs"
+      - "scheduled tasks"
+      - "job health"
+    use_when:
+      - "Checking operational health"
+      - "Debugging scheduled task issues"
+      - "Onboarding new team member"
+    do_not_use_when:
+      - "Mid-task"
+      - "No automation issues suspected"
+    files:
+      documentation:
+        - "vault/automation/automation-jobs-consolidation.md"
+    source_role: vault_reference
+    authority_level: advisory
+    maturity: production
+    evidence: "Central registry: 3 system cron, 4 Hermes cron, 2 Launchd services with health status"
+    risks:
+      - "Job health may change; verify with hermes cron list and crontab -l"
+    related_gains:
+      - "PGR-M01"
+    last_verified: "2026-06-12"
+    status: reference_only
+
+  # === PLANNED / EXPERIMENTAL (1 item) ===
+
+  - id: "PGR-023"
+    name: "Provider Availability / Quota Preflight"
+    type: active_workflow
+    category: model_lifecycle
+    scenario: "Before model evals, routing changes, or long agent tasks"
+    trigger_phrases:
+      - "check quota"
+      - "provider available"
+      - "API reachability"
+      - "quota check"
+      - "can we reach the provider"
+      - "provider status"
+    use_when:
+      - "Starting model evaluation"
+      - "Changing model routing"
+      - "Running long-running agent task"
+      - "After HTTP 429 or connection failure"
+      - "Before committing to a model-dependent workflow"
+    do_not_use_when:
+      - "Task doesn't depend on external API"
+      - "Provider already confirmed reachable this session"
+      - "Using local-only model"
+    files:
+      runtime:
+        - ".opencode/scripts/provider-preflight.sh"
+      documentation:
+        - ".opencode/model-registry.yaml"
+    source_role: runtime_implementation
+    authority_level: advisory
+    maturity: canary
+    evidence: "v0.1 implemented (2026-06-13): OpenCode Go reachability-only mode. Motivated by MiMo-V2.5 eval blocked by HTTP 429 quota exhaustion. Smoke completion deferred. No routing changes."
+    risks:
+      - "v0.1 supports OpenCode Go only; other providers not yet supported"
+      - "Quota headers may not be exposed by provider; quota_status may be unknown"
+      - "Script is advisory/canary — not wired into orchestrator or commands yet"
+    related_gains:
+      - "PGR-017"
+      - "PGR-014"
+      - "PGR-016"
+    last_verified: "2026-06-13"
+    status: canary
+    # Phase 2.5 overrides
+    selection_priority: 85
+    activation_confidence: 0.5
+    provider_preflight_required: false
+    expected_gain:
+      time_saved: "5–15 minutes (avoids wasted eval attempts)"
+      failure_reduction: "Prevents API 429 failures during evals and long tasks"
+      cost_impact: "Avoids burning tokens on requests that will fail"
+
+  - id: "PGR-024"
+    name: "Scoped Commit-Readiness Check"
+    type: active_workflow
+    category: safety_guardrails
+    scenario: "Before committing protocol or workspace-level patches in dirty workspaces, verify only intended files will be staged"
+    trigger_phrases:
+      - "commit readiness"
+      - "scoped commit"
+      - "dirty workspace commit"
+      - "verify staging"
+      - "check before commit"
+    use_when:
+      - "Workspace has many dirty files (>10)"
+      - "Committing protocol or workspace-level changes"
+      - "Risk of accidental staging exists"
+      - "Only a subset of changed files should be committed"
+    do_not_use_when:
+      - "Workspace is clean (no dirty files)"
+      - "DIRECT lane one-file obvious commit"
+      - "Staging was already verified in the same session"
+    files:
+      runtime:
+        - "git status --short"
+        - "git diff --name-only -- <target files>"
+        - "git diff --check -- <target files>"
+        - "git diff --stat -- <target files>"
+    source_role: runtime_implementation
+    authority_level: advisory
+    maturity: canary
+    evidence: "Used successfully twice in PGR Advisory Wiring session (2026-06-13). Prevented accidental staging of 173 dirty files. Verified scoped diff contained only intended changes both times."
+    risks:
+      - "Adds 2-3 commands before each commit (minor overhead)"
+      - "May be unnecessary for clean workspaces"
+      - "Does not replace GitGuard safety (complementary)"
+    related_gains:
+      - "PGR-013"
+      - "PGR-005"
+      - "PGR-006"
+      - "PGR-018"
+    last_verified: "2026-06-13"
+    status: canary
+    selection_priority: 75
+    activation_confidence: 0.8
+
+  # === DEPRECATED / ROADMAP (2 items) ===
+
+  - id: "PGR-D01"
+    name: "Legacy Capability Registry"
+    type: deprecated_reference
+    category: knowledge_reference
+    scenario: "Historical reference for pre-v4.7.0 skill organization"
+    trigger_phrases: []
+    use_when:
+      - "Never (historical research only)"
+    do_not_use_when:
+      - "Always (superseded by .opencode/skills/registry.md)"
+    files:
+      documentation:
+        - "vault/capabilities/Skills.md"
+        - "vault/capabilities/registry/"
+    source_role: legacy
+    authority_level: advisory
+    maturity: deprecated
+    evidence: "References legacy skill paths that are no longer active"
+    risks:
+      - "Will cause confusion if used as current reference"
+    related_gains: []
+    last_verified: "2026-06-12"
+    status: deprecated
+
+  - id: "PGR-D02"
+    name: "Development Lifecycle Gap Analysis"
+    type: roadmap_input
+    category: knowledge_reference
+    scenario: "Understanding missing capabilities in the development lifecycle"
+    trigger_phrases: []
+    use_when:
+      - "Planning roadmap improvements"
+      - "Identifying tool gaps"
+    do_not_use_when:
+      - "Executing current workflows"
+    files:
+      documentation:
+        - "vault/operations/development-lifecycle-gaps.md"
+    source_role: vault_reference
+    authority_level: advisory
+    maturity: advisory
+    evidence: "Prioritized list: ruff, mypy, Mermaid, Linear, Dependabot"
+    risks:
+      - "Some gaps may have been addressed; verify against current tooling"
+    related_gains: []
+    last_verified: "2026-06-12"
+    status: roadmap_only

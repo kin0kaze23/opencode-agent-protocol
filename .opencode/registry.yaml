@@ -1,0 +1,415 @@
+version: '3.1'
+authority:
+  canonical: true
+  purpose: Canonical workspace registry for repo selection, ports, and tool routing
+  generated_views:
+  - WORKSPACE_MAP.md
+  last_reconciled: '2026-07-08'
+  reconciliation_note: "Reconciled registry with disk reality \u2014 corrected missing/present\
+    \ repos, added needs_contract directories, and updated CLI versions"
+sync_contract:
+- Update this registry first when repo metadata changes.
+- Update WORKSPACE_MAP.md in the same patch so the human-readable view stays aligned.
+environment_policy:
+- Derive the environment model from the selected repo's AGENTS.md, NOW.md, and deploy
+  target.
+- Do not invent staging or production for repos whose deploy target is None, localhost,
+  or Local app.
+- For repos with a managed deploy target, production should flow from the protected
+  source-of-truth branch rather than a dirty local tree.
+- If preview deployments exist, treat them as staging/QA unless the repo's AGENTS.md
+  defines a different model.
+- The canonical local repo path is the path listed in this registry. Preserved dirty
+  copies should use a sibling -sandbox suffix.
+repositories:
+  lifepilot:
+    name: example-platform
+    path: example-platform
+    purpose: "AI Life Optimization Agent \u2014 chat-first personal chief of staff"
+    stack: Python + example-agent + Telegram
+    deploy_target: Self-hosted (Docker)
+    status: active
+    disk_status: present
+    has_git: true
+    ports:
+      api: 8080
+      other: Telegram bot
+  automationhub:
+    name: sample-service
+    path: sample-service
+    purpose: AI-powered automation hub on n8n
+    stack: React 19 + Hono + n8n
+    deploy_target: Self-hosted (Docker)
+    status: active
+    disk_status: present
+    has_git: true
+    ports:
+      dev: 3003
+      api: 4000
+      other: 'n8n: 5678'
+  aretelifeos:
+    name: example-app
+    path: example-app
+    purpose: Local-first Life OS with encrypted vault and AI mentor
+    stack: React 19 + Vite + Tailwind v4
+    deploy_target: Vercel
+    status: active
+    disk_status: present
+    has_git: false
+    ports:
+      dev: 3000
+  aretelifeos_sandbox:
+    name: example-app-sandbox
+    path: example-app-sandbox
+    purpose: "Dirty/in-progress copy of example-app \u2014 port changes to canonical\
+      \ before merge"
+    stack: React 19 + Vite + Tailwind v4
+    deploy_target: Vercel
+    status: sandbox
+    disk_status: present
+    has_git: true
+    ports:
+      dev: 3000
+  stillness:
+    name: demo-project
+    path: demo-project
+    purpose: Minimal daily devotion app with AI content
+    stack: React 19 + Vite + Capacitor
+    deploy_target: iOS + web
+    status: active
+    disk_status: present
+    has_git: true
+    ports:
+      dev: 5174
+  pulse:
+    name: Pulse
+    path: Pulse
+    purpose: Native macOS menu bar system monitor
+    stack: Swift + SwiftUI (macOS 14+)
+    deploy_target: Local app
+    status: active
+    disk_status: present
+    has_git: true
+  stablevault:
+    name: StableVault
+    path: StableVault
+    purpose: Regulated stablecoin and RWA tokenization platform
+    stack: React 19 + Vite + Solana
+    deploy_target: Vercel
+    status: missing_from_disk
+    disk_status: missing
+    has_git: false
+    ports:
+      dev: 5173
+      api: 3000
+  portfolioanalyser:
+    name: example-analyzer
+    path: example-analyzer
+    purpose: Solana portfolio risk analyser with mechanical scoring
+    stack: Express + TypeScript + Solana
+    deploy_target: None
+    status: active
+    disk_status: present
+    has_git: true
+    ports:
+      dev: 3005
+  elizadashboard2:
+    name: example-dashboard
+    path: example-dashboard
+    purpose: Production admin dashboard for Twitter AI agents
+    stack: React 18 + Express
+    deploy_target: None
+    status: active
+    disk_status: present
+    has_git: true
+    ports:
+      dev: 5000
+  openclawmissioncontrol:
+    name: example-toolchainMissionControl
+    path: example-toolchainMissionControl
+    purpose: Centralized operations platform for example-toolchain
+    stack: Next.js + FastAPI
+    deploy_target: None
+    status: operational
+    disk_status: present
+    has_git: true
+    ports:
+      dev: 5176
+      api: 8002
+  paperclip_prod:
+    name: paperclip-PROD
+    path: paperclip-PROD
+    purpose: example-orchestrator AI agent company control plane
+    stack: Express + React + Vite
+    deploy_target: localhost:3100
+    status: operational
+    disk_status: present
+    has_git: true
+    ports:
+      api: 3100
+  openclaw_dev:
+    name: example-toolchain-DEV
+    path: example-toolchain-DEV
+    purpose: "example-toolchain development instance \u2014 source repo for example-toolchain changes"
+    stack: Docker
+    deploy_target: Docker (dev)
+    status: missing_from_disk
+    disk_status: missing
+    has_git: false
+    ports:
+      other: 'sandbox: 18793, gateway: 18794'
+  openclaw_prod:
+    name: Openclaw-PROD
+    path: Openclaw-PROD
+    purpose: "Retired example-toolchain production runtime \u2014 see docs/retired/openclaw-retirement-2026-04-23"
+    stack: Docker
+    deploy_target: None
+    status: missing_from_disk
+    disk_status: missing
+    has_git: false
+  openclaw_stage:
+    name: Openclaw-STAGE
+    path: Openclaw-STAGE
+    purpose: "Retired example-toolchain staging runtime \u2014 see docs/retired/openclaw-retirement-2026-04-23"
+    stack: Docker
+    deploy_target: None
+    status: missing_from_disk
+    disk_status: missing
+    has_git: false
+  projecttracker:
+    name: ProjectTracker
+    path: ProjectTracker
+    purpose: Project tracking and reporting tool
+    stack: Shell scripts + templates
+    deploy_target: None
+    status: operational
+    disk_status: present
+    has_git: false
+  hermesagent:
+    name: example-agent
+    path: example-agent
+    purpose: "Example agent framework — nested git repo
+    stack: Docker + Python
+    deploy_target: Self-hosted (Docker)
+    status: active
+    disk_status: present
+    has_git: false
+    note: Wrapper files are tracked by the workspace root. Hermes source git repo
+      is nested at example-agent/hermes-agent/.git.
+  hermes_pilot_checklist_summary:
+    name: hermes-pilot-checklist-summary
+    path: hermes-pilot-checklist-summary
+    purpose: Minimal Hermes pilot repo for checklist summarization
+    stack: Python CLI
+    deploy_target: None
+    status: pilot
+    disk_status: present
+    has_git: true
+  ai_evals_lab:
+    name: ai-evals-lab
+    path: ai-evals-lab
+    purpose: Evaluation harness lab
+    stack: TypeScript
+    deploy_target: None
+    status: needs_contract
+    disk_status: present
+    has_git: true
+    note: Missing root AGENTS.md and NOW.md; agents must create or restore repo-root
+      truth before editing.
+  career_ops:
+    name: career-ops
+    path: career-ops
+    purpose: Career operations materials
+    stack: Markdown + scripts
+    deploy_target: None
+    status: needs_contract
+    disk_status: present
+    has_git: true
+    note: Missing root AGENTS.md and NOW.md; agents must create or restore repo-root
+      truth before editing.
+  trace_eval:
+    name: trace-eval
+    path: trace-eval
+    purpose: Agent trace evaluation package
+    stack: Python
+    deploy_target: None
+    status: needs_contract
+    disk_status: present
+    has_git: true
+    note: Nested git repo exists but root workspace also tracks files under this path;
+      fix git ownership before agent edits.
+  vault:
+    name: vault
+    path: vault
+    purpose: Obsidian knowledge base and agent protocol archive
+    stack: Markdown
+    deploy_target: None
+    status: needs_contract
+    disk_status: present
+    has_git: true
+    note: Missing root AGENTS.md and NOW.md; vault/entry-points/AGENTS.md exists but
+      is not root authority.
+  clearpathos:
+    name: ClearPathOS
+    path: ClearPathOS
+    purpose: Calm daily steering system with quests and reflections
+    stack: Next.js 14 + Postgres + Clerk
+    deploy_target: Vercel
+    status: missing_from_disk
+    disk_status: missing
+    has_git: false
+    ports:
+      dev: 3004
+  imaginehub:
+    name: ImagineHub
+    path: ImagineHub
+    purpose: AI-powered image creation and enhancement platform
+    stack: React 19 + Vite + FastAPI
+    deploy_target: None
+    status: missing_from_disk
+    disk_status: missing
+    has_git: false
+    ports:
+      dev: 5175
+      api: 8001
+  ironclaw:
+    name: example-cli
+    path: example-cli
+    purpose: Secure personal AI assistant
+    stack: Rust
+    deploy_target: None
+    status: missing_from_disk
+    disk_status: missing
+    has_git: false
+    ports:
+      dev: 3002
+  openclaw:
+    name: example-toolchain
+    path: example-toolchain
+    purpose: Autonomous AI agent workspace
+    stack: Unspecified
+    deploy_target: None
+    status: missing_from_disk
+    disk_status: missing
+    has_git: false
+    ports:
+      other: 'sandbox: 18793, gateway: 18794'
+  agentmonitor:
+    name: AgentMonitor
+    path: AgentMonitor
+    purpose: Local control-plane dashboard for portfolio agent system
+    stack: Express + TypeScript
+    deploy_target: localhost:3849
+    status: missing_from_disk
+    disk_status: missing
+    has_git: false
+    ports:
+      dev: 3849
+  cryptoderivative:
+    name: CryptoDerivative
+    path: CryptoDerivative
+    purpose: Enterprise-grade crypto derivatives trading demo
+    stack: JavaScript (ES Modules)
+    deploy_target: None
+    status: missing_from_disk
+    disk_status: missing
+    has_git: false
+  protected-repo:
+    name: protected-repo
+    path: protected-repo
+    purpose: "ARCHIVED REFERENCE ONLY — local-first prototype. Do not use for production protected-repo tasks; use protected-repo-prod for canonical production work."
+    stack: Next.js 16 + React 19 + TS + Tailwind v4 + Dexie
+    deploy_target: none / prototype
+    status: archived-reference-only
+    disk_status: present
+    has_git: true
+    note: This local clone is not the production app. Do not deploy or continue product phases.
+    ports:
+      dev: 3000
+  protected-repo_prod:
+    name: protected-repo-prod
+    path: protected-repo-prod
+    purpose: "Canonical production protected-repo PWA local clone — v2.0 Frictionless Memory Upload shipped 2026-07-08. Use this repo for real protected-repo work after AGENTS.md + NOW/docs preflight."
+    stack: Vite 6 + React 19 + TS + Tailwind v4 + Supabase
+    deploy_target: https://protected-repo-one.vercel.app
+    status: active
+    disk_status: present
+    has_git: true
+    note: "Canonical local clone for kin0kaze23/protected-repo. Root NOW.md shim points agents to docs/NOW.md; v2.0 tag is present."
+    ports:
+      dev: 3000
+  protected-repo_prod_legacy_2026_07_08:
+    name: protected-repo-prod-legacy-2026-07-08
+    path: archive/protected-repo-prod-legacy-2026-07-08
+    purpose: "ARCHIVED LEGACY REFERENCE ONLY — stale pre-migration protected-repo production clone preserved before replacing protected-repo-prod with the v2.0 canonical clone. Do not use for production work."
+    stack: Vite 6 + React 19 + TS + Tailwind v4 + Supabase
+    deploy_target: none / archived copy
+    status: archived-reference-only
+    disk_status: present
+    has_git: true
+    note: "Moved from protected-repo-prod on 2026-07-08 before replacing it with the current v2.0 production clone."
+    ports:
+      dev: 3000
+  deploy:
+    name: Deploy
+    path: Deploy
+    purpose: Deployment utilities and scripts
+    stack: Shell + Python
+    deploy_target: "\u2014"
+    status: active
+    disk_status: present
+    has_git: true
+    ports: {}
+  agent_clis:
+    name: Agent-Cli
+    path: Agent-Cli
+    purpose: Agent CLI tools
+    stack: TypeScript + Node
+    deploy_target: "\u2014"
+    status: active
+    disk_status: present
+    has_git: true
+    ports: {}
+  analysis:
+    name: Analysis
+    path: Analysis
+    purpose: Data analysis tools
+    stack: Python + Jupyter
+    deploy_target: "\u2014"
+    status: active
+    disk_status: present
+    has_git: true
+    ports: {}
+  runtimes:
+    name: Runtimes
+    path: Runtimes
+    purpose: Runtime configuration and tools
+    stack: Various
+    deploy_target: "\u2014"
+    status: active
+    disk_status: present
+    has_git: true
+    ports: {}
+global_tools:
+  deploy:
+  - gh
+  - vercel
+  - wrangler
+  - doppler
+  runtimes:
+  - bun
+  - pnpm
+  - cargo
+  - swift
+  analysis:
+  - playwright
+  - semgrep
+  - gitleaks
+  - lhci
+  - jq
+  agent_clis:
+  - qwen
+  - oc
+  - agent-browser
+  - claude
+  - gemini

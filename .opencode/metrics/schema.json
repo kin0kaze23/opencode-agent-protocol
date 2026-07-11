@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OpenCode Performance Metric Event",
+  "description": "Privacy-safe, passive performance tracking for OpenCode agent/model routes. Does NOT log prompts, responses, secrets, file contents, or private data.",
+  "type": "object",
+  "required": ["timestamp", "workspace", "git_sha", "agent", "task_type", "model_route", "status"],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the event"
+    },
+    "workspace": {
+      "type": "string",
+      "description": "Workspace or repo name (e.g., PersonalProjects, protected-repo)"
+    },
+    "git_sha": {
+      "type": "string",
+      "description": "Git commit SHA at the time of the event"
+    },
+    "agent": {
+      "type": "string",
+      "enum": ["orchestrator", "explorer", "planner", "implementer", "reviewer", "architect", "budget"],
+      "description": "Agent/helper that handled the task"
+    },
+    "task_type": {
+      "type": "string",
+      "enum": ["orchestration", "exploration", "planning", "implementation", "review", "architecture", "budget", "conformance", "unknown"],
+      "description": "Type of task performed"
+    },
+    "model_route": {
+      "type": "string",
+      "description": "Model used for the task (e.g., opencode-go/qwen3.6-plus)"
+    },
+    "fallback_escalation": {
+      "type": ["string", "null"],
+      "description": "Fallback or escalation model used, if any"
+    },
+    "latency_ms": {
+      "type": ["integer", "null"],
+      "description": "Task execution time in milliseconds"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["success", "fail", "timeout", "cancelled"],
+      "description": "Task outcome"
+    },
+    "tokens_in": {
+      "type": ["integer", "null"],
+      "description": "Input tokens consumed (if provider exposes it)"
+    },
+    "tokens_out": {
+      "type": ["integer", "null"],
+      "description": "Output tokens consumed (if provider exposes it)"
+    },
+    "tokens_source": {
+      "type": ["string", "null"],
+      "enum": ["provider_usage", "cli_output", "estimate", "unknown", null],
+      "description": "Source of token data"
+    },
+    "estimated_cost": {
+      "type": ["number", "null"],
+      "description": "Estimated cost in USD (if reliable data available)"
+    },
+    "cost_source": {
+      "type": ["string", "null"],
+      "enum": ["provider_usage", "configured_rate_card", "estimate", "unknown", null],
+      "description": "Source of cost data"
+    },
+    "cost_confidence": {
+      "type": ["string", "null"],
+      "enum": ["exact", "estimated", "unknown", null],
+      "description": "Confidence level of cost estimate"
+    },
+    "currency": {
+      "type": ["string", "null"],
+      "description": "Currency code (e.g., USD)"
+    },
+    "rate_card_version": {
+      "type": ["string", "null"],
+      "description": "Version of local rate card used for estimation"
+    },
+    "error_category": {
+      "type": ["string", "null"],
+      "enum": ["none", "timeout", "rate_limit", "auth_failure", "model_error", "conformance_failure", "unknown"],
+      "description": "Error category if task failed"
+    },
+    "conformance_status": {
+      "type": ["string", "null"],
+      "description": "Conformance result if relevant (e.g., 0 FAIL, 0 WARN, 319 PASS)"
+    }
+  },
+  "additionalProperties": false,
+  "privacy_rules": {
+    "forbidden_fields": [
+      "prompt",
+      "response",
+      "secrets",
+      "file_contents",
+      "api_keys",
+      "user_data",
+      "customer_data",
+      "raw_command_output"
+    ],
+    "allowed_fields": [
+      "timestamp",
+      "workspace",
+      "git_sha",
+      "agent",
+      "task_type",
+      "model_route",
+      "fallback_escalation",
+      "latency_ms",
+      "status",
+      "tokens_in",
+      "tokens_out",
+      "estimated_cost",
+      "error_category",
+      "conformance_status"
+    ]
+  }
+}

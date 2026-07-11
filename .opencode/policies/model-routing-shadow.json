@@ -1,0 +1,171 @@
+{
+  "version": "1.0.0",
+  "created": "2026-05-24",
+  "phase": "M2A",
+  "status": "shadow_only",
+  "description": "Shadow router spec for task-aware model routing. Does NOT change production routing yet.",
+  "task_taxonomy": {
+    "orchestration_planning": {
+      "description": "Multi-step planning, strategy, cross-repo coordination",
+      "production_model": "opencode-go/qwen3.6-plus",
+      "challenger_model": "opencode-go/qwen3-max-2026-01-23",
+      "fallback_model": "opencode-go/qwen3.6-plus",
+      "confidence_threshold": 0.8,
+      "escalation_rules": [
+        "If task involves auth/security/payment/data/secrets → escalate to qwen3.6-plus",
+        "If task involves 4+ files or sensitive paths → escalate to qwen3.6-plus",
+        "If task is ambiguous or vague → escalate to qwen3.6-plus (plan-first)"
+      ]
+    },
+    "architecture_long_context": {
+      "description": "Auth, schema, state-model, cross-surface design decisions",
+      "production_model": "opencode-go/qwen3.6-plus",
+      "challenger_model": "opencode-go/deepseek-v4-pro",
+      "fallback_model": "opencode-go/qwen3.6-plus",
+      "confidence_threshold": 0.8,
+      "escalation_rules": [
+        "If task involves auth/security/payment/data/secrets → escalate to qwen3.6-plus",
+        "If task involves long-context synthesis → keep qwen3.6-plus"
+      ]
+    },
+    "bounded_implementation": {
+      "description": "Approved code changes on explicit touch list",
+      "production_model": "opencode-go/qwen3.5-plus",
+      "challenger_model": "opencode-go/kimi-k2.6",
+      "fallback_model": "opencode-go/qwen3.6-plus",
+      "confidence_threshold": 0.7,
+      "escalation_rules": [
+        "If task involves auth/security/payment/data/secrets → escalate to qwen3.6-plus",
+        "If task involves 4+ files or sensitive paths → escalate to qwen3.6-plus",
+        "If touch list is incomplete → escalate to qwen3.6-plus (plan-first)"
+      ]
+    },
+    "read_only_exploration": {
+      "description": "Fast repo mapping, runtime-path search, dependency search",
+      "production_model": "opencode-go/deepseek-v4-flash",
+      "challenger_model": "opencode-go/qwen3.5-plus",
+      "fallback_model": "opencode-go/qwen3.6-plus",
+      "confidence_threshold": 0.5,
+      "escalation_rules": [
+        "If task requires edits → escalate to qwen3.6-plus (implementation route)",
+        "If task is ambiguous → escalate to qwen3.6-plus"
+      ]
+    },
+    "ui_ux_visual_implementation": {
+      "description": "Frontend component/state/responsive/accessibility changes",
+      "production_model": "opencode-go/qwen3.5-plus",
+      "challenger_model": "opencode-go/kimi-k2.6",
+      "fallback_model": "opencode-go/qwen3.6-plus",
+      "confidence_threshold": 0.7,
+      "escalation_rules": [
+        "If task involves browser gate → must run Playwright verification",
+        "If visual quality regresses → escalate to qwen3.6-plus"
+      ]
+    },
+    "review_risk_failure": {
+      "description": "Repo-grounded review, safety second-pass, risk verdicts",
+      "production_model": "opencode-go/glm-5.1",
+      "challenger_model": "opencode-go/qwen3.6-plus",
+      "fallback_model": "opencode-go/qwen3.6-plus",
+      "confidence_threshold": 0.8,
+      "escalation_rules": [
+        "If task involves auth/security/payment/data/secrets → escalate to qwen3.6-plus",
+        "If review is inconclusive → escalate to qwen3.6-plus"
+      ]
+    },
+    "budget_summarization": {
+      "description": "Cheap read-only alternative for review, planning, routing summaries",
+      "production_model": "opencode-go/deepseek-v4-flash",
+      "challenger_model": "opencode-go/MiniMax-M2.5",
+      "fallback_model": "opencode-go/qwen3.6-plus",
+      "confidence_threshold": 0.5,
+      "escalation_rules": [
+        "If task requires reasoning beyond summarization → escalate to qwen3.6-plus"
+      ]
+    },
+    "release_conformance": {
+      "description": "Conformance suite execution, gate validation, protocol enforcement",
+      "production_model": "opencode-go/qwen3.6-plus",
+      "challenger_model": "opencode-go/qwen3.5-plus",
+      "fallback_model": "opencode-go/qwen3.6-plus",
+      "confidence_threshold": 0.8,
+      "escalation_rules": [
+        "If conformance fails → escalate to qwen3.6-plus for analysis",
+        "If protocol decisions needed → escalate to qwen3.6-plus"
+      ]
+    }
+  },
+  "model_evidence": {
+    "opencode-go/qwen3.6-plus": {
+      "phase_3_score": 4.30,
+      "phase_3_hard_fails": 0,
+      "strengths": ["complex tasks", "long-context", "planning", "architecture"],
+      "weaknesses": ["cost", "latency for simple tasks"],
+      "classification": "production"
+    },
+    "opencode-go/qwen3.5-plus": {
+      "phase_3_score": 4.29,
+      "phase_3_hard_fails": 0,
+      "strengths": ["balanced speed/cost", "bounded implementation"],
+      "weaknesses": ["UI fixture needs more eval"],
+      "classification": "production"
+    },
+    "opencode-go/deepseek-v4-flash": {
+      "phase_3_score": null,
+      "phase_3_hard_fails": 0,
+      "strengths": ["fast", "cheap", "read-only exploration"],
+      "weaknesses": ["not for complex reasoning"],
+      "classification": "production"
+    },
+    "opencode-go/glm-5.1": {
+      "phase_6b_score": 4.67,
+      "phase_6b_hard_fails": 0,
+      "strengths": ["review", "failure classification", "risk verdicts"],
+      "weaknesses": ["over-hardline tendency"],
+      "classification": "production"
+    },
+    "opencode-go/qwen3-coder-plus": {
+      "phase_6a_score": 3.73,
+      "phase_6a_hard_fails": 1,
+      "strengths": ["backend/API implementation"],
+      "weaknesses": ["frontend UI fixture failed"],
+      "classification": "challenger"
+    },
+    "opencode-go/qwen3-max-2026-01-23": {
+      "phase_3_score": null,
+      "phase_3_hard_fails": 0,
+      "strengths": ["complex tasks (public claim)"],
+      "weaknesses": ["no internal eval yet"],
+      "classification": "challenger"
+    },
+    "opencode-go/kimi-k2.6": {
+      "phase_3_score": null,
+      "phase_3_hard_fails": 0,
+      "strengths": ["long-horizon coding (public claim)", "UI/UX (public claim)"],
+      "weaknesses": ["no internal eval yet"],
+      "classification": "challenger"
+    },
+    "opencode-go/deepseek-v4-pro": {
+      "phase_3_score": null,
+      "phase_3_hard_fails": 0,
+      "strengths": ["1M context (public claim)", "thinking mode (public claim)"],
+      "weaknesses": ["no internal eval yet"],
+      "classification": "challenger"
+    },
+    "opencode-go/MiniMax-M2.5": {
+      "phase_3_score": null,
+      "phase_3_hard_fails": 0,
+      "strengths": ["cost-effective coding (public claim)"],
+      "weaknesses": ["no internal eval yet"],
+      "classification": "challenger"
+    }
+  },
+  "m2b_canary": {
+    "route": "read_only_exploration",
+    "current_model": "opencode-go/qwen3.6-plus",
+    "proposed_model": "opencode-go/deepseek-v4-flash",
+    "rationale": "Lowest risk route: read-only, no edits, no sensitive paths. deepseek-v4-flash is already configured as small_model.",
+    "rollback_plan": "Revert to qwen3.6-plus if quality/latency regresses",
+    "monitoring_period": "1-2 sessions"
+  }
+}

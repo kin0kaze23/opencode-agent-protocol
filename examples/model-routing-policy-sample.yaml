@@ -1,0 +1,39 @@
+# Model Routing Policy (Sample) — Advisory Only
+#
+# Copy to .opencode/config/model-routing-policy.recommended.yaml
+# Customize based on your eval data.
+# This file is advisory only — never auto-applied.
+
+version: "1.0.0"
+advisory: true
+auto_applied: false
+
+routing:
+  - task_type: "bug_fix"
+    risk_lane: FAST
+    recommended_model: "umans-glm-5.2"
+    confidence: insufficient
+    requires_reviewer: false
+    reason: "no eval data yet — default model used"
+    cost_classification: cost_tracked
+  - task_type: "docs_only"
+    risk_lane: DIRECT
+    recommended_model: "umans-glm-5.2"
+    confidence: insufficient
+    requires_reviewer: false
+    reason: "no eval data for docs_only tasks"
+    cost_classification: cost_tracked
+  - task_type: "test_improvement"
+    risk_lane: FAST
+    recommended_model: "umans-glm-5.2"
+    confidence: insufficient
+    requires_reviewer: false
+    reason: "no eval data for test_improvement tasks"
+    cost_classification: cost_tracked
+
+guardrails:
+  protected_repo_excluded: true
+  no_self_attested_promotion: true
+  no_production_route_change_without_approval: true
+  no_high_risk_downgrade_for_cost: true
+  stale_eval_warning_threshold_days: 30

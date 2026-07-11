@@ -1,0 +1,29 @@
+# Reviewer Trust Policy (Sample) — Advisory Only
+#
+# Copy to .opencode/config/reviewer-trust-policy.yaml
+# Customize based on your reviewer calibration data.
+# This file is advisory only — never auto-applied.
+
+version: "1.0.0"
+advisory: true
+auto_applied: false
+
+guardrails:
+  high_risk_always_required: true
+  security_auth_deployment_conservative: true
+  no_auto_change: true
+  protected_repo_excluded: true
+
+policy:
+  - task_type: "bug_fix"
+    risk_lane: FAST
+    reviewer_setting: optional
+    reason: "low risk — reviewer optional"
+  - task_type: "bug_fix"
+    risk_lane: STANDARD
+    reviewer_setting: recommended
+    reason: "medium risk — reviewer recommended"
+  - task_type: "security_fix"
+    risk_lane: HIGH-RISK
+    reviewer_setting: required
+    reason: "HIGH-RISK lane always requires reviewer"

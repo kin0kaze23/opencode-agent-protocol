@@ -1,0 +1,158 @@
+{
+  "version": "1.1.0",
+  "created": "2026-05-23",
+  "updated": "2026-06-28",
+  "phase": "v1.5.2-capacity-first",
+  "description": "Agent roster policy defining all approved agents, their expected models, prompts, permissions, and boundaries. Used by agent-roster-guard.sh. Updated for v1.5.2 capacity-first routing with Umans primary and OpenCode Go premium reserve.",
+  "agents": {
+    "orchestrator": {
+      "model": "umans-ai-coding-plan/umans-glm-5.2",
+      "mode": "primary",
+      "prompt_source": ".opencode/global-runtime/prompts/orchestrator.md",
+      "prompt_global": "${HOME}/.config/opencode/prompts/orchestrator.md",
+      "permission": {
+        "edit": "ask",
+        "bash": "ask",
+        "task": {
+          "explorer": "allow",
+          "planner": "allow",
+          "implementer": "allow",
+          "reviewer": "allow",
+          "architect": "allow",
+          "budget": "allow"
+        }
+      },
+      "temperature": 0.2,
+      "steps": 120,
+      "color": "#7C3AED",
+      "description": "Primary owner agent for the Personal Projects workspace. v1.5.2: umans-glm-5.2 production_active_for_orchestrator_routine_medium."
+    },
+    "explorer": {
+      "model": "umans-ai-coding-plan/umans-flash",
+      "mode": "all",
+      "prompt_source": ".opencode/agents/explorer.md",
+      "prompt_global": "${HOME}/.config/opencode/prompts/explorer.md",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": "deny_all"
+      },
+      "temperature": 0.1,
+      "steps": 80,
+      "color": "#2563EB",
+      "description": "Read-only codebase discovery and runtime-path search. v1.5.2: umans-flash production_active_for_explorer_budget."
+    },
+    "planner": {
+      "model": "umans-ai-coding-plan/umans-coder",
+      "mode": "all",
+      "prompt_source": ".opencode/agents/planner.md",
+      "prompt_global": "${HOME}/.config/opencode/prompts/planner.md",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": "deny_all"
+      },
+      "temperature": 0.2,
+      "steps": 100,
+      "color": "#059669",
+      "description": "Plan creation, correction, and implementation-readiness checks. v1.5.2: umans-coder production_active_soak_monitoring."
+    },
+    "implementer": {
+      "model": "umans-ai-coding-plan/umans-coder",
+      "mode": "all",
+      "prompt_source": ".opencode/agents/implementer.md",
+      "prompt_global": "${HOME}/.config/opencode/prompts/implementer.md",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "ask"
+        },
+        "task": "deny_all"
+      },
+      "temperature": 0.1,
+      "steps": 300,
+      "color": "#DC2626",
+      "description": "Bounded code changes on approved touch list only. edit=allow because sub-agent context cannot obtain user approval for ask-gated edits; orchestrator touch-list approval is the gate. v1.5.2: umans-coder production_active_soak_monitoring."
+    },
+    "reviewer": {
+      "model": "umans-ai-coding-plan/umans-glm-5.1",
+      "mode": "all",
+      "prompt_source": ".opencode/agents/reviewer.md",
+      "prompt_global": "${HOME}/.config/opencode/prompts/reviewer.md",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": "deny_all"
+      },
+      "temperature": 0.1,
+      "steps": 90,
+      "color": "#D97706",
+      "description": "Risk review, regression check, and next-step recommendation. v1.5.2: umans-glm-5.1 production_active_for_reviewer_judge."
+    },
+    "architect": {
+      "model": "opencode-go/qwen3.7-plus",
+      "mode": "all",
+      "prompt_source": ".opencode/agents/architect.md",
+      "prompt_global": "${HOME}/.config/opencode/prompts/architect.md",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": "deny_all"
+      },
+      "temperature": 0.2,
+      "steps": 140,
+      "color": "#9333EA",
+      "description": "High-ambiguity auth, schema, state-model, cross-surface design. v1.1-production: qwen3.7-plus premium reserve."
+    },
+    "budget": {
+      "model": "umans-ai-coding-plan/umans-flash",
+      "mode": "all",
+      "prompt_source": ".opencode/agents/budget.md",
+      "prompt_global": "${HOME}/.config/opencode/prompts/budget.md",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": "deny_all"
+      },
+      "temperature": 0.1,
+      "steps": 60,
+      "color": "#6B7280",
+      "description": "Cheap read-only alternative for review and routing summaries. v1.5.2: umans-flash production_active_for_explorer_budget."
+    }
+  },
+  "helper_roster": [
+    "explorer",
+    "planner",
+    "implementer",
+    "reviewer",
+    "architect",
+    "budget",
+    "visual-reviewer",
+    "visual-reviewer-fallback"
+  ],
+  "permission_task_allowed": [
+    "explorer",
+    "planner",
+    "implementer",
+    "reviewer",
+    "architect",
+    "budget",
+    "visual-reviewer",
+    "visual-reviewer-fallback"
+  ],
+  "internal_agents": {
+    "summary": {
+      "model": "umans-ai-coding-plan/umans-kimi-k2.7",
+      "mode": "subagent",
+      "description": "Internal system agent for session summarization. NOT delegatable by orchestrator. Used by runtime for context compaction.",
+      "delegatable": false
+    },
+    "compaction": {
+      "model": "umans-ai-coding-plan/umans-kimi-k2.7",
+      "mode": "subagent",
+      "description": "Internal system agent for context compaction. NOT delegatable by orchestrator. Used by runtime when sessions exceed token threshold.",
+      "delegatable": false
+    }
+  },
+  "notes": "v1.5.2 capacity-first routing. Umans AI primary capacity provider, OpenCode Go premium reserve. Summary and compaction are internal system agents (mode=subagent) and are NOT in the delegatable helper roster or permission_task_allowed list. Visual-reviewer agents are part of v4.15.0 production core."
+}

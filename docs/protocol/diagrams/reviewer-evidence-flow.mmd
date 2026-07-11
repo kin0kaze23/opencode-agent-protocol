@@ -1,0 +1,31 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1a1a2e', 'primaryTextColor': '#e0e0e0', 'lineColor': '#7f8c8d'}}}%%
+flowchart TD
+    Start[PR opened/updated] --> Detect[Reviewer Evidence Detector v4.35]
+
+    Detect --> Q1{Reviewer evidence found?}
+
+    Q1 -->|Yes| Q2{Evidence type?}
+    Q1 -->|No| Q3{Reviewer required?}
+
+    Q2 -->|reviewer_comment| Trust1[Trust: comment]
+    Q2 -->|reviewer_approval| Trust2[Trust: approval]
+    Q2 -->|reviewer_review| Trust3[Trust: review]
+    Q2 -->|code_review| Trust4[Trust: code review]
+
+    Trust1 --> Policy[Trust Policy v4.36]
+    Trust2 --> Policy
+    Trust3 --> Policy
+    Trust4 --> Policy
+
+    Q3 -->|HIGH-RISK| Block[Gate BLOCKED]
+    Q3 -->|STANDARD| Warn[Warning: no reviewer evidence]
+    Q3 -->|FAST| Skip[Skip: not required]
+    Q3 -->|DIRECT| Skip
+
+    Policy --> Q4{Trusted?}
+
+    Q4 -->|Yes| Pass[Gate passes reviewer check]
+    Q4 -->|No| Block
+
+    Warn --> Pass
+    Skip --> Pass

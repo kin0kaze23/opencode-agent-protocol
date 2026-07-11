@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# v4.37.2a — Safe Autopilot Launch Script
+#
+# Wraps the canonical safe launch script with --auto flag.
+# This auto-approves all permission requests that are not explicitly
+# denied in opencode.json. Safety boundaries are enforced by explicit
+# "deny" rules, not by "ask" prompts.
+#
+# Usage:
+#   bash .opencode/bin/autopilot              # start Autopilot Daily
+#   bash .opencode/bin/autopilot --fresh       # fresh Autopilot session
+#   bash .opencode/bin/autopilot /path/to/repo # start in specific repo
+#
+# For push, deploy, schema, package, CI, protocol, or secrets changes,
+# use Manual Ship mode instead:
+#   oc-manual         # or: bash .opencode/scripts/opencode-safe-launch.sh
+#
+# See: .opencode/AGENTS.md — Safe Autopilot Permission Profile
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SAFE_LAUNCH="$SCRIPT_DIR/../scripts/opencode-safe-launch.sh"
+
+exec bash "$SAFE_LAUNCH" --auto "$@"

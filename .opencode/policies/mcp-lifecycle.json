@@ -1,0 +1,130 @@
+{
+  "version": "1.0.0",
+  "created": "2026-07-01",
+  "description": "MCP Lifecycle Manager v1 — declares lifecycle state for every MCP server, rules for each state, and per-MCP configuration. This policy is the authoritative source for MCP lifecycle decisions. Conformance guards enforce it.",
+  "lifecycle_states": {
+    "enabled": {
+      "description": "MCP is enabled in the baseline (global + workspace) config and expected to be connected at runtime.",
+      "allowed_in_global": true,
+      "allowed_in_workspace": true,
+      "allowed_in_repo": true,
+      "runtime_expectation": "connected"
+    },
+    "disabled": {
+      "description": "MCP is disabled in all configs. Not expected to be running.",
+      "allowed_in_global": true,
+      "allowed_in_workspace": true,
+      "allowed_in_repo": true,
+      "runtime_expectation": "disabled"
+    },
+    "requires_service": {
+      "description": "MCP requires an external service (local or remote) to function. Disabled until the service is restored. Must not be globally enabled without a health check.",
+      "allowed_in_global": true,
+      "allowed_in_workspace": true,
+      "allowed_in_repo": true,
+      "runtime_expectation": "disabled_until_service_restored",
+      "health_check_required": true
+    },
+    "deprecated": {
+      "description": "MCP is formally deprecated and should not be used. May be removed from config in a future cleanup.",
+      "allowed_in_global": false,
+      "allowed_in_workspace": false,
+      "allowed_in_repo": false,
+      "runtime_expectation": "absent"
+    },
+    "repo_only": {
+      "description": "MCP is NOT in the baseline (global/workspace) config. Enabled only via repo-level .opencode/opencode.json overlay for repos that need it.",
+      "allowed_in_global": false,
+      "allowed_in_workspace": false,
+      "allowed_in_repo": true,
+      "runtime_expectation": "connected_in_ui_ux_repos, absent_elsewhere"
+    }
+  },
+  "mcp_servers": {
+    "context7": {
+      "lifecycle_state": "enabled",
+      "scope": "baseline",
+      "purpose": "Library documentation lookup",
+      "notes": "Universally useful, safe, always enabled."
+    },
+    "exa": {
+      "lifecycle_state": "enabled",
+      "scope": "baseline",
+      "purpose": "Web search for grounded research",
+      "notes": "Universally useful, always enabled."
+    },
+    "sequential-thinking": {
+      "lifecycle_state": "enabled",
+      "scope": "baseline",
+      "purpose": "Structured stepwise reasoning",
+      "notes": "Universally useful, always enabled."
+    },
+    "github": {
+      "lifecycle_state": "enabled",
+      "scope": "baseline",
+      "purpose": "GitHub API access for PR, issue, and repo operations",
+      "notes": "Core to agent delivery workflow."
+    },
+    "playwright": {
+      "lifecycle_state": "repo_only",
+      "scope": "ui_ux",
+      "purpose": "Browser automation for UI verification, visual QA, screenshot evidence",
+      "notes": "Disabled in baseline. Enabled via repo-level overlay in ui_ux repos: protected-repo-prod, example-app, paperclip-PROD, demo-project, example-dashboard. Must NOT appear in global config."
+    },
+    "pencil": {
+      "lifecycle_state": "repo_only",
+      "scope": "ui_ux",
+      "purpose": "Pencil design tool for UI/UX design iteration",
+      "notes": "Not in baseline config. Enabled via repo-level overlay in ui_ux repos. Must NOT appear in global config."
+    },
+    "firecrawl": {
+      "lifecycle_state": "disabled",
+      "scope": "baseline",
+      "purpose": "Heavy web crawl and deep search",
+      "notes": "Disabled everywhere. May be enabled task-based for research profile in the future."
+    },
+    "web-tools": {
+      "lifecycle_state": "deprecated",
+      "scope": "baseline",
+      "purpose": "Formerly: workspace remote web-tools MCP at http://127.0.0.1:8787/mcp",
+      "reason": "No service code, no MCP endpoint, no unique capability, no startup script. Port 8787 was originally the demo-project API server default port, not a dedicated web-tools MCP port. The demo-project server has no /mcp endpoint. web-tools was a misconfiguration that produced a startup failure on every OpenCode launch.",
+      "decision_date": "2026-07-01",
+      "replacement_capabilities": ["exa", "webfetch", "context7", "github", "playwright"],
+      "notes": "DEPRECATED (2026-07-01). Removed from all active config/profile/guard surfaces. Capabilities fully covered by exa (web search + page fetch), webfetch (OpenCode built-in URL fetcher), context7 (library docs), github (code search), and playwright (browser automation)."
+    }
+  },
+  "drift_rules": {
+    "global_config": {
+      "description": "Rules for what MCPs are allowed in the global config (~/.config/opencode/opencode.json).",
+      "fail_conditions": [
+        {
+          "rule": "repo_only_mcp_in_global",
+          "description": "A repo_only MCP (playwright, pencil) appears in the global config.",
+          "repair": "Run: bash .opencode/scripts/sync-opencode-runtime.sh"
+        },
+        {
+          "rule": "requires_service_mcp_enabled_without_health",
+          "description": "A requires_service MCP (web-tools) is enabled in global config without a running service health check.",
+          "repair": "Run: bash .opencode/scripts/sync-opencode-runtime.sh to disable. Then either restore the service or formally deprecate."
+        }
+      ]
+    },
+    "workspace_config": {
+      "description": "Rules for what MCPs are allowed in the workspace config (.opencode/opencode.json).",
+      "fail_conditions": [
+        {
+          "rule": "deprecated_mcp_in_workspace",
+          "description": "A deprecated MCP appears in the workspace config.",
+          "repair": "Remove the MCP from .opencode/opencode.json and run sync-opencode-runtime.sh"
+        }
+      ]
+    }
+  },
+  "clone_onboarding": {
+    "description": "Rules for when a repo is cloned and mapped to a profile.",
+    "ui_ux_repos_require_opencode_json": true,
+    "warning_message": "Repo '{repo}' is mapped to ui_ux profile but lacks .opencode/opencode.json. Playwright and pencil MCPs will NOT be available. Create .opencode/opencode.json with playwright + pencil enabled. See demo-project/.opencode/opencode.json for the template.",
+    "pre_registered_repos": ["example-app-sandbox", "StableVault", "example-toolchainMissionControl"],
+    "pre_registered_note": "These repos are pre-registered in the profile registry but not yet cloned locally. They will need .opencode/opencode.json created when cloned."
+  }
+}

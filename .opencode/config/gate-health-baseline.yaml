@@ -1,0 +1,58 @@
+# Gate Health Baseline — v4.18.2
+# Authority: workspace canonical
+# Purpose: Per-repo known gate health state for telemetry failure classification
+# Used by: benchmark-telemetry.sh (failure_classification), telemetry-integrity.sh (conformance)
+#
+# A gate listed here as "known_failing" means:
+#   - The failure is pre-existing (not caused by any current change)
+#   - The failure is accepted as a warning (not a blocker for telemetry patches)
+#   - The failure must NOT be counted as healthy routing evidence
+#   - The failure must be classified as fail_pre_existing in telemetry records
+#
+# A gate NOT listed here that fails on a clean working tree means:
+#   - The failure is environmental (dependency drift, config issue, etc.)
+#   - The failure must be classified as fail_environment
+#   - The failure requires investigation before being accepted
+
+version: "4.18.2"
+
+repos:
+  protected-repo-prod:
+    type: react_vite
+    expected_healthy_gates:
+      - lint
+      - build
+    known_failing_gates:
+      - gate: typecheck
+        reason: "Pre-existing TypeScript errors in codebase"
+        first_observed: "2026-07-01"
+        owner_action: "accepted_warning"
+        usable_for_routing: false
+      - gate: test
+        reason: "Pre-existing test failures in codebase"
+        first_observed: "2026-07-01"
+        owner_action: "accepted_warning"
+        usable_for_routing: false
+
+  demo-project:
+    type: react_vite
+    expected_healthy_gates:
+      - lint
+      - typecheck
+      - test
+      - build
+    known_failing_gates: []
+
+  example-agent:
+    type: python
+    expected_healthy_gates: []
+    known_failing_gates: []
+    note: "Python repo with no standard gate commands at root level. All gates are not_run/skipped_unsupported."
+
+# Rules for failure classification:
+# 1. If gate passes → failure_classification = "pass", usable_for_routing = true
+# 2. If gate fails AND is in known_failing_gates → failure_classification = "fail_pre_existing", usable_for_routing = false
+# 3. If gate fails AND working tree is clean AND gate is NOT in known_failing_gates → failure_classification = "fail_environment", usable_for_routing = false
+# 4. If gate fails AND working tree is dirty → failure_classification = "fail_new", usable_for_routing = true
+# 5. If gate command is empty/placeholder → failure_classification = "not_run", usable_for_routing = false
+# 6. If gate was served from cache → failure_classification = "cached_pass" or "cached_stale", usable_for_routing = true (if cached_pass)

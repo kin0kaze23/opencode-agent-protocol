@@ -1,0 +1,35 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1a1a2e', 'primaryTextColor': '#e0e0e0', 'lineColor': '#7f8c8d'}}}%%
+stateDiagram-v2
+    [*] --> Intake: User submits task
+    Intake --> RiskClassification
+    RiskClassification --> LaneSelection: risk score 0-6+
+
+    LaneSelection --> DIRECT: risk 0, 1 file
+    LaneSelection --> FAST: risk 1-2, ≤3 files
+    LaneSelection --> STANDARD: risk 3-5, ≤6 files
+    LaneSelection --> HIGHRISK: risk 6+, or auth/payment/schema
+
+    DIRECT --> Implement: no plan needed
+    FAST --> Plan: inline bullets
+    STANDARD --> Plan: PLAN.md required
+    HIGHRISK --> Plan: PLAN.md + ADR required
+
+    Implement --> Test
+    Test --> Review
+
+    Review --> Pass: tests pass
+    Review --> Repair: issues found
+    Repair --> Implement: cycle < max_cycles
+    Repair --> Stopped: max_cycles reached
+
+    Pass --> ReleaseGate
+    Stopped --> [*]: stop condition triggered
+
+    ReleaseGate --> Merged: gate passes
+    ReleaseGate --> Blocked: gate fails
+    Blocked --> Repair
+
+    Merged --> Score
+    Score --> LessonExtraction
+    LessonExtraction --> ROIUpdate
+    ROIUpdate --> [*]: routing improved

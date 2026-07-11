@@ -1,0 +1,70 @@
+# Branch Protection Evidence — v4.41
+#
+# Manual evidence for branch protection when GitHub API verification
+# is blocked by private repo permissions (403 without GitHub Pro).
+#
+# This file is stored in the control-plane, not in target repos,
+# to prevent PR-local manipulation of protection evidence.
+#
+# Owner workflow:
+#   1. Configure branch protection manually in GitHub Settings
+#   2. Record evidence in this file
+#   3. Run verify-manual-branch-protection-evidence.sh to validate
+#   4. Dashboard will classify repos as manually_verified
+
+repos:
+  - name: sample-service
+    github: kin0kaze23/automation-hub
+    branch: main
+    evidence_status: manually_verified
+    recorded_by: "kin0kaze23"
+    recorded_at: "2026-07-08T15:10:00Z"
+    evidence_source: manual_github_settings
+    evidence_notes: "Branch protection configured manually in GitHub Settings. Release Gate, Gitleaks, contract-gate, risk-policy-gate required. CODEOWNERS review required. Stale approvals dismissed. Force pushes blocked. Admin enforcement enabled."
+    release_gate_required: true
+    required_checks:
+      - name: Release Gate
+        required: true
+      - name: Gitleaks
+        required: true
+      - name: contract-gate
+        required: true
+      - name: risk-policy-gate
+        required: true
+    approving_reviews_required: true
+    required_review_count: 1
+    codeowners_review_required: true
+    stale_approvals_dismissed: true
+    direct_push_restricted: true
+    force_pushes_blocked: true
+    deletions_blocked: true
+    admin_bypass_disabled: true
+
+  - name: demo-project
+    github: kin0kaze23/stillness-daily-devotion
+    branch: main
+    evidence_status: manually_verified
+    recorded_by: "kin0kaze23"
+    recorded_at: "2026-07-08T15:10:00Z"
+    evidence_source: manual_github_settings
+    evidence_notes: "Branch protection configured manually in GitHub Settings. Release Gate, build, Gitleaks, label required. CODEOWNERS review required. Stale approvals dismissed. Force pushes blocked. Admin enforcement enabled. deploy-preview NOT required (VERCEL_TOKEN missing)."
+    release_gate_required: true
+    required_checks:
+      - name: Release Gate
+        required: true
+      - name: build
+        required: true
+      - name: Gitleaks
+        required: true
+      - name: label
+        required: true
+    approving_reviews_required: true
+    required_review_count: 1
+    codeowners_review_required: true
+    stale_approvals_dismissed: true
+    direct_push_restricted: true
+    force_pushes_blocked: true
+    deletions_blocked: true
+    admin_bypass_disabled: true
+    deploy_preview_required: false
+    deploy_preview_note: "Do NOT require deploy-preview until VERCEL_TOKEN is configured (known BROAD_BASELINE_FAILURE)"

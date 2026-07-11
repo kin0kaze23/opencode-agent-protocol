@@ -1,0 +1,114 @@
+{
+  "version": "1.0.0",
+  "created": "2026-05-23",
+  "phase": "C0",
+  "description": "Configuration authority model defining what each layer is allowed to contain. Used by config-authority-guard.sh.",
+  "layers": {
+    "global": {
+      "path": "~/.config/opencode/opencode.json",
+      "allowed_keys": [
+        "provider",
+        "plugin",
+        "autoupdate",
+        "share",
+        "snapshot",
+        "compaction",
+        "watcher",
+        "lsp",
+        "permission"
+      ],
+      "allowed_provider_keys": [
+        "bailian-coding-plan",
+        "openrouter",
+        "groq",
+        "xai",
+        "nvidia"
+      ],
+      "description": "Machine/provider/auth layer only. Provider auth, Doppler/env references, machine-local plugin/auth plumbing, fallback provider.",
+      "forbidden_after_c4": [
+        "agent",
+        "model",
+        "small_model",
+        "default_agent",
+        "mcp",
+        "instructions"
+      ],
+      "notes": "After C4 migration, global should NOT contain agent definitions, model routing, MCP policy, or behavioral config."
+    },
+    "workspace": {
+      "path": ".opencode/opencode.json",
+      "allowed_keys": [
+        "model",
+        "small_model",
+        "default_agent",
+        "agent",
+        "mcp",
+        "permission",
+        "compaction",
+        "instructions",
+        "provider",
+        "plugin",
+        "autoupdate",
+        "share",
+        "snapshot",
+        "watcher",
+        "lsp",
+        "shell"
+      ],
+      "description": "Behavioral runtime authority. Agents, model routing, MCP policy, permissions, compaction, default agent, prompts.",
+      "required_after_c3": [
+        "agent",
+        "model",
+        "small_model",
+        "default_agent",
+        "mcp",
+        "permission",
+        "compaction"
+      ],
+      "notes": "After C3 migration, workspace MUST declare all agents, models, MCPs, and permissions."
+    },
+    "brain_config": {
+      "path": ".opencode/brain-config.json",
+      "allowed_keys": [
+        "version",
+        "name",
+        "description",
+        "bootstrap_authority",
+        "prompt_source_of_truth",
+        "default_model",
+        "small_model",
+        "default_model_role",
+        "provider_migration",
+        "phase_m1_guardrails",
+        "helper_roles",
+        "routing",
+        "budgets",
+        "eval",
+        "model_comparison"
+      ],
+      "description": "Orchestration/routing/eval policy authority. Higher-level protocol intelligence.",
+      "notes": "Must align with workspace opencode.json on default_model, small_model, and helper roster."
+    },
+    "repo": {
+      "path": "<repo>/.opencode/",
+      "allowed_contents": [
+        "hooks/"
+      ],
+      "forbidden_contents": [
+        "opencode.json",
+        "agents/",
+        "models/",
+        "mcp/",
+        "permissions/"
+      ],
+      "description": "Exception-only. Hooks, local tools, explicit overrides.",
+      "exception_process": "To add non-hook content to a repo .opencode/, create an ADR in .opencode/adr/ with explicit approval.",
+      "notes": "Repos inherit workspace behavior by default. No repo-level agent/model/MCP declarations without ADR."
+    }
+  },
+  "enforcement": {
+    "audit_mode": "WARN on violations, document drift",
+    "enforce_mode": "FAIL on violations, block migration",
+    "switch_condition": "After C4 migration complete and all guards pass in audit mode"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "version": "2.0.0",
+  "created": "2026-05-24",
+  "phase": "C2",
+  "description": "MCP server policy for the Personal Projects workspace. Now profile-based. Each repo is mapped to an MCP profile via repo-mcp-profiles.json. The workspace default is baseline.",
+  "policy": {
+    "mode": "audit",
+    "note": "In audit mode, the guard WARNs on profile mismatches. In enforce mode (post-C5), the guard FAILs on mismatches.",
+    "default_profile": "baseline",
+    "profiles_file": ".opencode/policies/mcp-profiles.json",
+    "repo_mappings_file": ".opencode/policies/repo-mcp-profiles.json"
+  }
+}

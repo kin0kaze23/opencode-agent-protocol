@@ -1,0 +1,380 @@
+# Global .gitignore for Personal Projects
+# Last Updated: 2026-04-22
+
+# ─────────────────────────────────────────────────────────────
+# Temporary Files
+# ─────────────────────────────────────────────────────────────
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+.DS_Store
+._*
+
+# ─────────────────────────────────────────────────────────────
+# Cache Directories
+# ─────────────────────────────────────────────────────────────
+.ruff_cache/
+.pytest_cache/
+__pycache__/
+.node-gyp/
+.cache/
+.code-index/
+
+# ─────────────────────────────────────────────────────────────
+# Dependencies (all levels)
+# ─────────────────────────────────────────────────────────────
+**/node_modules/
+**/vendor/
+**/.bundle/
+
+# ─────────────────────────────────────────────────────────────
+# Build Outputs
+# ─────────────────────────────────────────────────────────────
+**/dist/
+**/build/
+**/.next/
+**/out/
+*.log
+
+# ─────────────────────────────────────────────────────────────
+# IDE Files
+# ─────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.sublime-*
+
+# ─────────────────────────────────────────────────────────────
+# Environment Files (keep .env.example)
+# ─────────────────────────────────────────────────────────────
+.env.local
+.env.*.local
+.env.production
+.env*.local
+
+# ─────────────────────────────────────────────────────────────
+# AI Agent Run Artifacts (keep structure, ignore runs)
+# ─────────────────────────────────────────────────────────────
+.agent/runs/*
+!.agent/runs/.gitkeep
+
+# v4.28.2a: Legacy .agent/ directory untracked (v2.0 AutonomousOrchestrator, 2026-03-25)
+# Files remain on disk for historical reference but are no longer tracked.
+# Protocol explicitly ignores .agent/ — see AGENTS.md "Ignore By Default".
+/.agent/
+
+# ─────────────────────────────────────────────────────────────
+# Internal Working Documents (AI scratch notes, sprint docs)
+# These should never be committed to any product repo.
+# Canonical patterns defined in .opencode/templates/block-internal-files.sh
+# ─────────────────────────────────────────────────────────────
+**/SPRINT*_DELIVERABLES.md
+**/ALPHA_*.md
+**/DOGFOOD_*.md
+**/LAUNCH_*.md
+**/PYPI_*.md
+**/FEEDBACK_*.md
+**/VALIDATION_REPORT.md
+**/TODO*.md
+**/WORKING_*.md
+**/DRAFT_*.md
+**/NOTES_*.md
+**/INTERNAL_*.md
+**/docs/superpowers/
+**/docs/agent-notes/
+**/docs/planning/
+**/docs/internal/
+**/.opencode/working/
+**/plans/
+**/working/
+
+# ─────────────────────────────────────────────────────────────
+# Logs
+# ─────────────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─────────────────────────────────────────────────────────────
+# Testing
+# ─────────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+**/wandb/
+
+# Captured real agent traces may include historical tool/env payloads.
+trace-eval/examples/claude_code_real*.jsonl
+trace-eval/examples/openclaw_*.jsonl
+
+# ─────────────────────────────────────────────────────────────
+# Misc
+# ─────────────────────────────────────────────────────────────
+*.pem
+*.key
+Thumbs.db
+
+# ─────────────────────────────────────────────────────────────
+# Runtime State & Config (moved to .local/)
+# ─────────────────────────────────────────────────────────────
+.env
+.local/
+thought-graph-state.json
+
+# ─────────────────────────────────────────────────────────────
+# CLI Tool Clutter Prevention
+# ─────────────────────────────────────────────────────────────
+.playwright-mcp/*.log
+.playwright-mcp/*.yml
+.playwright-mcp/screenshots/
+.playwright-mcp/diffs/
+.opencode/*.backup*
+.opencode/*.tmp
+.opencode/*.backup
+.opencode/conformance/results/*.md
+.claude/scheduled_tasks.lock
+
+# ─────────────────────────────────────────────────────────────
+# Hermes Runtime-Home Volatile State
+# ─────────────────────────────────────────────────────────────
+example-agent/.local/auth.lock
+example-agent/.local/.hermes_history
+example-agent/.local/.skills_prompt_snapshot.json
+example-agent/.local/.update_check
+example-agent/.local/channel_directory.json
+example-agent/.local/gateway_state.json
+example-agent/.local/processes.json
+example-agent/.local/state.db
+example-agent/.local/state.db-shm
+example-agent/.local/state.db-wal
+example-agent/.local/audio_cache/
+example-agent/.local/cache/
+example-agent/.local/checkpoints/
+example-agent/.local/cron/output/
+example-agent/.local/image_cache/
+example-agent/.local/logs/
+example-agent/.local/pastes/
+example-agent/.local/sandboxes/
+example-agent/.local/sessions/
+example-agent/.local/whatsapp/
+example-agent/.local/memories/
+example-agent/.local/migration/
+example-agent/.local/skills/
+example-agent/.local/models_dev_cache.json
+example-agent/.local/cron/jobs.json
+example-agent/.local/auth.json
+example-agent/.local/channel_directory.json
+example-agent/.local/gateway.pid
+example-agent/.local/bin/
+
+# ─────────────────────────────────────────────────────────────
+# example-toolchain Runtime State
+# ─────────────────────────────────────────────────────────────
+Openclaw-PROD/workspace/
+Openclaw-PROD/workspace.backup/
+practice-repos/example-toolchain-DEV/openclaw/.openclaw-mission-control/
+Openclaw-PROD/devices/paired.json
+Openclaw-PROD/identity/device-auth.json
+Openclaw-PROD/exec-approvals.json
+Openclaw-PROD/agents/main/sessions/*.jsonl.reset.*
+Openclaw-STAGE/agents/main/agent/auth-profiles.json
+Openclaw-STAGE/agents/main/agent/models.json
+Openclaw-STAGE/agents/main/sessions/
+Openclaw-STAGE/update-check.json
+Openclaw-STAGE/workspace/
+Openclaw-STAGE/workspace/.agent/*/state.json
+Openclaw-STAGE/workspace/.openclaw/workspace-state.json
+Openclaw-STAGE/workspace/checkpoints/checkpoint-*.json
+Openclaw-STAGE/workspace/state/orchestrator.json
+Openclaw-STAGE/workspace/tasks/.approval-requests.json
+Openclaw-STAGE/workspace/tasks/.lock.json
+Openclaw-STAGE/workspace/tasks/approval-audit.json
+Openclaw-STAGE/workspace/tasks/autonomy-state.json
+Openclaw-STAGE/workspace/sandbox/.openclaw-work-*.marker
+Openclaw-STAGE/workspace/sandbox/vercel-preview/audit-log.json
+Openclaw-STAGE/workspace/workspace/deliverables/*.json
+example-agent/.local/
+
+# ─────────────────────────────────────────────────────────────
+# Agent Evaluation & Runtime Artifacts
+# ─────────────────────────────────────────────────────────────
+.claude/evals/*.jsonl
+.claude/screenshots/
+!.claude/screenshots/.gitkeep
+# Precompiled/runtime hooks (generated, not committed)
+.claude/hooks/*.sh
+!.claude/hooks/.gitkeep
+
+# OpenCode metrics (raw logs and local summaries gitignored)
+.opencode/metrics/raw/
+.opencode/metrics/summaries/
+.opencode/metrics/rate-card.local.json
+.opencode/metrics/task-outcomes.jsonl
+!.opencode/metrics/reports/
+
+# ─────────────────────────────────────────────────────────────
+# Workspace Ignore Safety Guard (P1A-C, 2026-06-05)
+# Prevents accidental staging of Doppler secrets, fd developer
+# tooling, Hermes runtime context, auto-generated digests, and
+# other local-only artifacts that should never reach the index.
+# ─────────────────────────────────────────────────────────────
+
+# Local secret/env files (Doppler-managed; never commit)
+**/.env.doppler
+
+# Local developer tooling
+**/.fdignore
+**/.hermes.md
+
+# Generated reports / local artifacts
+ProjectTracker/reports/
+.playwright-mcp/
+.superpowers/
+
+# Optional local Hermes checkout; not required for protocol reproducibility
+example-agent/hermes-agent/
+
+# ─────────────────────────────────────────────────────────────
+# Multi-Repo Workspace Hygiene (v4.15.1, Phase 1B)
+# Added: 2026-06-29
+# Non-destructive ignore rules to make root workspace auditable.
+# Does not delete, move, or modify any files.
+# ─────────────────────────────────────────────────────────────
+
+# Product repos with their own .git (managed separately)
+/protected-repo/
+/protected-repo-prod/
+/example-platform/
+/Openclaw-PROD/
+/paperclip-PROD/
+/trace-eval/
+/agent-ready/
+/ai-agents/
+/analytics/
+/productivity/
+/web-apps/
+
+# Workspace-local Misc projects (not protocol, not product repos)
+/Misc/
+
+# Private/personal data (never commit)
+/Family Insurance/
+
+# Claude config (Release 2 track, not OpenCode protocol)
+/.claude/
+
+# OpenCode generated artifacts
+/.opencode/evals/*
+!.opencode/evals/baseline-tasks.yaml
+!.opencode/evals/task-replay
+!.opencode/evals/loop-runs
+!.opencode/evals/lessons
+/.opencode/benchmarks/benchmark-results/
+/.opencode/benchmarks/model-snapshots/
+/.opencode/benchmarks/*-evidence-report.md
+/.opencode/benchmarks/*-canary-*.md
+/.opencode/benchmarks/*-completion-summary.md
+/.opencode/benchmarks/*-production-smoke-*.md
+/.opencode/benchmarks/*-production-ready-*.md
+/.opencode/benchmarks/*-runtime-benchmark.md
+/.opencode/benchmarks/*-integrity-audit.md
+/.opencode/benchmarks/*-candidate-*.md
+/.opencode/benchmarks/*-onboarding.md
+
+# Archived/disabled local protocol artifacts
+# v4.53.1 Archive untracked (historical, not needed for protocol operation)
+# Canonical history lives in vault/protocols/opencode/
+/.opencode/archive//.opencode/plugins.disabled-*/
+
+# Local workspace inventory artifacts (not protocol)
+/AI_WORKSTATION_SUITE.md
+/DOCS_FRESHNESS.yaml
+/WORKSPACE_CATALOG.yaml
+/WORKSPACE_CLEANUP_SUMMARY.md
+/WORKSPACE_DEEP_AUDIT_REPORT.md
+/skills-analysis.json
+
+# Local git-guard runtime log (generated, not source)
+/.opencode/git-guard/override-log.jsonl
+
+# ─────────────────────────────────────────────────────────────
+# v4.15.3 Workspace Hygiene — Deferred / External / Incubator
+# See WORKSPACE_HYGIENE.md for classification and owner rationale.
+# These entries only hide artifacts that are already classified as
+# external repos, local-only, or deferred WIP. They do NOT ignore
+# tracked protocol source files.
+# ─────────────────────────────────────────────────────────────
+
+# External product repos with their own git history
+/example-agent/
+/apa-digital-asset-product/
+
+# Deferred incubator protocol assets (no tracked runtime consumers in v4.15.x)
+/.opencode/roles/
+/.opencode/skills/product-experience-review/
+
+# v4.17.1 Session cache (runtime artifact, not tracked)
+/.opencode/.session-cache/
+
+# v4.24 Pattern index cache (generated, not tracked)
+/.opencode/cache/
+.autopilot-canary/
+.opencode/evals/loop-runs/results/.forbidden-*
+.opencode/evals/loop-runs/results/.score-*
+
+# v4.52.1 Generated eval/test artifacts (not source of truth)
+.opencode/evals/loop-runs/results/loop-run-*.json
+.opencode/evals/task-replay/results/loop-TR-*.json
+.opencode/evals/task-replay/results/TR-*_*.json
+.opencode/metrics/fleet-snapshots/
+.opencode/conformance/results/
+.opencode/metrics/model-performance/performance-records.jsonl
+.opencode/evals/lessons/loop-lessons.jsonl
+
+# v4.52.1 ProjectTracker local state (generated)
+ProjectTracker/.last-run/
+
+# v4.52.1 Binary archives (not source)
+example-platform.zip
+
+# v4.52.1 Machine-local AI tool configs (not protocol source)
+/.ai/
+/.launcher/
+/.claude/settings.json
+/.claude/settings.local.json
+/.claude/memory/
+/.claude/screenshots/
+/.claude/visual-qa-output/
+/.claude/scripts/
+/.claude/workspace-optimization-CORRECTED.md
+folq/
+.qwen/
+
+# v4.53 Machine-local Claude/Gemini configs (not protocol source)
+/CLAUDE.md
+/GEMINI.md
+/.claude/MCP-CONFIG.md
+/.claude/WORKSPACE-CONFIG-GUIDE.md
+/.claude/CLI-REGISTRY.md
+/.claude/HOOKS-REFERENCE.md
+/.claude/docs/
+/.claude/validation/
+/.claude/agents/
+/.claude/screenshots/
+/.claude/visual-qa-output/
+
+# v4.53.1 Unrelated projects (not protocol source — extract to separate repos)
+/ProjectTracker/
+/trace-eval/
+/Openclaw-STAGE/
+
+# v4.53.1 Stale top-level files (replaced by docs/)
+/INSTALL.md
+/PLAN.md
+/WORKSPACE_HYGIENE.md
+
+# v4.53.1 Cross-model eval results (generated)
+.opencode/evals/loop-runs/results/cross-model-*.json
+archive/

@@ -1,0 +1,419 @@
+{
+  "version": "1.0.0",
+  "created": "2026-05-23",
+  "phase": "C0",
+  "description": "Known drift items identified during Phase C0 effective runtime proof. These are classified and accepted for audit mode. New/unclassified drift should FAIL.",
+  "drift_items": [
+    {
+      "id": "C0-DRIFT-001",
+      "category": "mcp",
+      "severity": "HIGH",
+      "check": "mcp.playwright.enabled",
+      "expected": "true (global)",
+      "actual": "false (workspace)",
+      "contexts_affected": [
+        "workspace_root",
+        "protected-repo",
+        "all_repos"
+      ],
+      "classification": "ACCIDENTAL_DRIFT",
+      "notes": "Playwright enabled globally but disabled in workspace. Workspace wins for repo sessions. Critical for UI/UX verification workflow.",
+      "resolution_phase": "C2"
+    },
+    {
+      "id": "C0-DRIFT-002",
+      "category": "mcp",
+      "severity": "MEDIUM",
+      "check": "mcp.firecrawl.enabled",
+      "expected": "true (global)",
+      "actual": "false (workspace)",
+      "contexts_affected": [
+        "workspace_root",
+        "protected-repo",
+        "all_repos"
+      ],
+      "classification": "ACCIDENTAL_DRIFT",
+      "notes": "Firecrawl enabled globally but disabled in workspace. May be intentional for research-only tool.",
+      "resolution_phase": "C2"
+    },
+    {
+      "id": "C0-DRIFT-003",
+      "category": "mcp",
+      "severity": "HIGH",
+      "check": "mcp.pencil.enabled",
+      "expected": "true (global)",
+      "actual": "missing (workspace)",
+      "contexts_affected": [
+        "workspace_root",
+        "protected-repo",
+        "all_repos"
+      ],
+      "classification": "ACCIDENTAL_DRIFT",
+      "notes": "Pencil MCP enabled globally but missing from workspace config. Critical for design iteration workflow.",
+      "resolution_phase": "C2"
+    },
+    {
+      "id": "C0-DRIFT-004",
+      "category": "compaction",
+      "severity": "MEDIUM",
+      "check": "compaction.reservedTokens",
+      "expected": "20000 (global)",
+      "actual": "10000 (workspace)",
+      "contexts_affected": [
+        "workspace_root",
+        "protected-repo",
+        "all_repos"
+      ],
+      "classification": "ACCIDENTAL_DRIFT",
+      "notes": "Global reserves 20K tokens; workspace reserves 10K. Workspace wins. Affects compaction timing for long-context planning.",
+      "resolution_phase": "C3"
+    },
+    {
+      "id": "C0-DRIFT-005",
+      "category": "compaction",
+      "severity": "LOW",
+      "check": "compaction.auto",
+      "expected": "not set (global)",
+      "actual": "true (workspace)",
+      "contexts_affected": [
+        "workspace_root",
+        "protected-repo",
+        "all_repos"
+      ],
+      "classification": "ACCIDENTAL_DRIFT",
+      "notes": "Auto compaction not set in global, enabled in workspace.",
+      "resolution_phase": "C3"
+    },
+    {
+      "id": "C0-DRIFT-006",
+      "category": "compaction",
+      "severity": "LOW",
+      "check": "compaction.prune",
+      "expected": "not set (global)",
+      "actual": "true (workspace)",
+      "contexts_affected": [
+        "workspace_root",
+        "protected-repo",
+        "all_repos"
+      ],
+      "classification": "ACCIDENTAL_DRIFT",
+      "notes": "Prune compaction not set in global, enabled in workspace.",
+      "resolution_phase": "C3"
+    },
+    {
+      "id": "C0-DRIFT-007",
+      "category": "agents",
+      "severity": "HIGH",
+      "check": "agent.definitions.location",
+      "expected": "workspace opencode.json",
+      "actual": "global opencode.json only",
+      "contexts_affected": [
+        "all"
+      ],
+      "classification": "GOVERNANCE_SMELL",
+      "notes": "All 7 agents defined in global config only. Workspace does not declare agents. Agents are resolvable via inheritance but workspace is not self-describing.",
+      "resolution_phase": "C3"
+    },
+    {
+      "id": "C0-DRIFT-008",
+      "category": "runtime",
+      "severity": "LOW",
+      "check": "runtime.autoupdate",
+      "expected": "notify (global)",
+      "actual": "not set (workspace)",
+      "contexts_affected": [
+        "all"
+      ],
+      "classification": "INHERITANCE_GAP",
+      "notes": "Inherited from global. Should be explicit in workspace for self-containment.",
+      "resolution_phase": "C3"
+    },
+    {
+      "id": "C0-DRIFT-009",
+      "category": "runtime",
+      "severity": "LOW",
+      "check": "runtime.share",
+      "expected": "disabled (global)",
+      "actual": "not set (workspace)",
+      "contexts_affected": [
+        "all"
+      ],
+      "classification": "INHERITANCE_GAP",
+      "notes": "Inherited from global. Should be explicit in workspace.",
+      "resolution_phase": "C3"
+    },
+    {
+      "id": "C0-DRIFT-010",
+      "category": "runtime",
+      "severity": "LOW",
+      "check": "runtime.snapshot",
+      "expected": "true (global)",
+      "actual": "not set (workspace)",
+      "contexts_affected": [
+        "all"
+      ],
+      "classification": "INHERITANCE_GAP",
+      "notes": "Inherited from global. Should be explicit in workspace.",
+      "resolution_phase": "C3"
+    },
+    {
+      "id": "C0-DRIFT-011",
+      "category": "runtime",
+      "severity": "LOW",
+      "check": "runtime.plugin",
+      "expected": "opencode-gemini-auth@latest (global)",
+      "actual": "not set (workspace)",
+      "contexts_affected": [
+        "all"
+      ],
+      "classification": "INHERITANCE_GAP",
+      "notes": "Inherited from global. Should be explicit in workspace.",
+      "resolution_phase": "C3"
+    },
+    {
+      "id": "C0-DRIFT-012",
+      "category": "runtime",
+      "severity": "LOW",
+      "check": "runtime.watcher.ignore",
+      "expected": "10 patterns (global)",
+      "actual": "not set (workspace)",
+      "contexts_affected": [
+        "all"
+      ],
+      "classification": "INHERITANCE_GAP",
+      "notes": "Inherited from global. Should be explicit in workspace.",
+      "resolution_phase": "C3"
+    },
+    {
+      "id": "C0-DRIFT-013",
+      "category": "runtime",
+      "severity": "LOW",
+      "check": "runtime.lsp",
+      "expected": "defined (global)",
+      "actual": "not set (workspace)",
+      "contexts_affected": [
+        "all"
+      ],
+      "classification": "INHERITANCE_GAP",
+      "notes": "Inherited from global. Should be explicit in workspace.",
+      "resolution_phase": "C3"
+    },
+    {
+      "id": "C0-DRIFT-014",
+      "category": "runtime",
+      "severity": "LOW",
+      "check": "runtime.permission.external_directory",
+      "expected": "allow (global)",
+      "actual": "not set (workspace)",
+      "contexts_affected": [
+        "all"
+      ],
+      "classification": "INHERITANCE_GAP",
+      "notes": "Inherited from global. Should be explicit in workspace.",
+      "resolution_phase": "C3"
+    },
+    {
+      "id": "C0-DRIFT-015",
+      "category": "runtime",
+      "severity": "LOW",
+      "check": "runtime.permission.obsidian_*",
+      "expected": "8 denials (global)",
+      "actual": "not set (workspace)",
+      "contexts_affected": [
+        "all"
+      ],
+      "classification": "INHERITANCE_GAP",
+      "notes": "Inherited from global. Should be explicit in workspace.",
+      "resolution_phase": "C3"
+    },
+    {
+      "id": "C0-DRIFT-016",
+      "category": "runtime",
+      "severity": "LOW",
+      "check": "runtime.permission.doom_loop",
+      "expected": "deny (global)",
+      "actual": "not set (workspace)",
+      "contexts_affected": [
+        "all"
+      ],
+      "classification": "INHERITANCE_GAP",
+      "notes": "Inherited from global. Should be explicit in workspace.",
+      "resolution_phase": "C3"
+    },
+    {
+      "id": "C0-DRIFT-017",
+      "category": "providers",
+      "severity": "LOW",
+      "check": "provider.openrouter",
+      "expected": "present (global)",
+      "actual": "not declared (workspace)",
+      "contexts_affected": [
+        "all"
+      ],
+      "classification": "INHERITANCE_GAP",
+      "notes": "Inherited from global. Machine-level provider, may stay in global.",
+      "resolution_phase": "C4"
+    },
+    {
+      "id": "C0-DRIFT-018",
+      "category": "providers",
+      "severity": "LOW",
+      "check": "provider.groq",
+      "expected": "present (global)",
+      "actual": "not declared (workspace)",
+      "contexts_affected": [
+        "all"
+      ],
+      "classification": "INHERITANCE_GAP",
+      "notes": "Inherited from global. Machine-level provider, may stay in global.",
+      "resolution_phase": "C4"
+    },
+    {
+      "id": "C0-DRIFT-019",
+      "category": "providers",
+      "severity": "LOW",
+      "check": "provider.xai",
+      "expected": "present (global)",
+      "actual": "not declared (workspace)",
+      "contexts_affected": [
+        "all"
+      ],
+      "classification": "INHERITANCE_GAP",
+      "notes": "Inherited from global. Machine-level provider, may stay in global.",
+      "resolution_phase": "C4"
+    },
+    {
+      "id": "C0-DRIFT-020",
+      "category": "providers",
+      "severity": "LOW",
+      "check": "provider.nvidia",
+      "expected": "present (global)",
+      "actual": "not declared (workspace)",
+      "contexts_affected": [
+        "all"
+      ],
+      "classification": "INHERITANCE_GAP",
+      "notes": "Inherited from global. Machine-level provider, may stay in global.",
+      "resolution_phase": "C4"
+    },
+    {
+      "id": "C0-DRIFT-021",
+      "category": "prompt-baseline",
+      "severity": "MEDIUM",
+      "check": "PMD-v0.2.orchestrator",
+      "expected": "8bf393809ce6f466feea9454003819d9",
+      "actual": "eb08c477c6d5cfab4ada54ec5782c891",
+      "contexts_affected": [
+        "PMD-002",
+        "pre-commit",
+        "prompt-mirror-drift",
+        "v0.2-candidate"
+      ],
+      "classification": "ACCEPTED_NON_BLOCKING",
+      "notes": "Pending v0.2 prompt candidate drift. This entry allows unrelated commits while v0.2 prompt work remains intentionally dirty. Covers both PMD-002 (global-vs-workspace) and PMD-003 (workspace-vs-baseline) for the same pending v0.2 change. Do not refresh prompt-baseline.json until v0.2 prompt changes are formally accepted and committed. Remove this drift entry during v0.2 resolution.",
+      "resolution_phase": "v0.2-commit"
+    },
+    {
+      "id": "C0-DRIFT-022",
+      "category": "prompt-baseline",
+      "severity": "MEDIUM",
+      "check": "PMD-v0.2.explorer",
+      "expected": "3b4bd4018af5316c182522eb368e1f69",
+      "actual": "5bca3559b43ed7dba656bd97c3862d58",
+      "contexts_affected": [
+        "PMD-002",
+        "pre-commit",
+        "prompt-mirror-drift",
+        "v0.2-candidate"
+      ],
+      "classification": "ACCEPTED_NON_BLOCKING",
+      "notes": "Pending v0.2 prompt candidate drift. This entry allows unrelated commits while v0.2 prompt work remains intentionally dirty. Covers both PMD-002 (global-vs-workspace) and PMD-003 (workspace-vs-baseline) for the same pending v0.2 change. Do not refresh prompt-baseline.json until v0.2 prompt changes are formally accepted and committed. Remove this drift entry during v0.2 resolution.",
+      "resolution_phase": "v0.2-commit"
+    },
+    {
+      "id": "C0-DRIFT-023",
+      "category": "prompt-baseline",
+      "severity": "MEDIUM",
+      "check": "PMD-v0.2.planner",
+      "expected": "5b8a5e1ba862955d0ac4f3fd2385750d",
+      "actual": "59c3486507b0fad39015ac752a202186",
+      "contexts_affected": [
+        "PMD-002",
+        "pre-commit",
+        "prompt-mirror-drift",
+        "v0.2-candidate"
+      ],
+      "classification": "ACCEPTED_NON_BLOCKING",
+      "notes": "Pending v0.2 prompt candidate drift. This entry allows unrelated commits while v0.2 prompt work remains intentionally dirty. Covers both PMD-002 (global-vs-workspace) and PMD-003 (workspace-vs-baseline) for the same pending v0.2 change. Do not refresh prompt-baseline.json until v0.2 prompt changes are formally accepted and committed. Remove this drift entry during v0.2 resolution.",
+      "resolution_phase": "v0.2-commit"
+    },
+    {
+      "id": "C0-DRIFT-024",
+      "category": "prompt-baseline",
+      "severity": "MEDIUM",
+      "check": "PMD-v0.2.implementer",
+      "expected": "0a77dd1eeeb4cbf6bf143a0955166290",
+      "actual": "fef31a5ace2ebf71438d321958c246c1",
+      "contexts_affected": [
+        "PMD-002",
+        "pre-commit",
+        "prompt-mirror-drift",
+        "v0.2-candidate"
+      ],
+      "classification": "ACCEPTED_NON_BLOCKING",
+      "notes": "Pending v0.2 prompt candidate drift. This entry allows unrelated commits while v0.2 prompt work remains intentionally dirty. Covers both PMD-002 (global-vs-workspace) and PMD-003 (workspace-vs-baseline) for the same pending v0.2 change. Do not refresh prompt-baseline.json until v0.2 prompt changes are formally accepted and committed. Remove this drift entry during v0.2 resolution.",
+      "resolution_phase": "v0.2-commit"
+    },
+    {
+      "id": "C0-DRIFT-025",
+      "category": "prompt-baseline",
+      "severity": "MEDIUM",
+      "check": "PMD-v0.2.architect",
+      "expected": "d019cae95ca4b4d2e0e9fb788340801a",
+      "actual": "7a1b7d754f3e34afaf315c74287460c8",
+      "contexts_affected": [
+        "PMD-002",
+        "pre-commit",
+        "prompt-mirror-drift",
+        "v0.2-candidate"
+      ],
+      "classification": "ACCEPTED_NON_BLOCKING",
+      "notes": "Pending v0.2 prompt candidate drift. This entry allows unrelated commits while v0.2 prompt work remains intentionally dirty. Covers both PMD-002 (global-vs-workspace) and PMD-003 (workspace-vs-baseline) for the same pending v0.2 change. Do not refresh prompt-baseline.json until v0.2 prompt changes are formally accepted and committed. Remove this drift entry during v0.2 resolution.",
+      "resolution_phase": "v0.2-commit"
+    },
+    {
+      "id": "C0-DRIFT-026",
+      "category": "prompt-baseline",
+      "severity": "MEDIUM",
+      "check": "PMD-v0.2.budget",
+      "expected": "c05dc5e55b26b12b49ad3802e6603c35",
+      "actual": "76d9b158172e89ee0ef3235409cbff58",
+      "contexts_affected": [
+        "PMD-002",
+        "pre-commit",
+        "prompt-mirror-drift",
+        "v0.2-candidate"
+      ],
+      "classification": "ACCEPTED_NON_BLOCKING",
+      "notes": "Pending v0.2 prompt candidate drift. This entry allows unrelated commits while v0.2 prompt work remains intentionally dirty. Covers both PMD-002 (global-vs-workspace) and PMD-003 (workspace-vs-baseline) for the same pending v0.2 change. Do not refresh prompt-baseline.json until v0.2 prompt changes are formally accepted and committed. Remove this drift entry during v0.2 resolution.",
+      "resolution_phase": "v0.2-commit"
+    },
+    {
+      "id": "C0-DRIFT-027",
+      "category": "prompt-baseline",
+      "severity": "MEDIUM",
+      "check": "PMD-v0.2.reviewer",
+      "expected": "de5e63de8e0bc6928525185d101bbbbb",
+      "actual": "19bb9016899b6c01f7914d33c5efd57f",
+      "contexts_affected": [
+        "PMD-002",
+        "pre-commit",
+        "prompt-mirror-drift",
+        "v0.2-candidate"
+      ],
+      "classification": "ACCEPTED_NON_BLOCKING",
+      "notes": "Pending v0.2 reviewer prompt model-routing drift from opencode-go/glm-5.1 to umans-ai-coding-plan/umans-glm-5.1 with opencode-go/glm-5.1 retained as premium reserve. This entry allows unrelated commits while v0.2 prompt work remains intentionally dirty. Covers both PMD-002 (global-vs-workspace) and PMD-003 (workspace-vs-baseline) for the same pending v0.2 change. Do not refresh prompt-baseline.json until v0.2 prompt changes are formally accepted and committed. Remove this drift entry during v0.2 resolution.",
+      "resolution_phase": "v0.2-commit"
+    }
+  ]
+}

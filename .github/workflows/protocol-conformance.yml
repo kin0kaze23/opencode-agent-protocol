@@ -1,0 +1,112 @@
+name: Protocol Conformance
+
+on:
+  pull_request:
+    paths:
+      - '.opencode/**'
+      - '.github/workflows/protocol-conformance.yml'
+      - 'scripts/**'
+      - 'docs/**'
+  workflow_dispatch:
+
+jobs:
+  protocol-conformance:
+    name: Protocol Conformance Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq python3
+
+      - name: Create results directory
+        run: mkdir -p .opencode/conformance/results
+
+      # Core protocol tests (always run, always required)
+      - name: Environment consistency
+        run: bash .opencode/conformance/tests/environment-consistency.sh
+
+      - name: Brain-config coherence
+        run: bash .opencode/scripts/brain-config-coherence.sh
+
+      - name: Protocol coherence phase 1
+        run: bash .opencode/conformance/tests/protocol-coherence-phase1.sh
+
+      - name: Protocol capabilities v4.7.0
+        run: bash .opencode/conformance/tests/protocol-capabilities-v470.sh
+
+      - name: Implementation readiness
+        run: bash .opencode/conformance/tests/implementation-readiness.sh
+
+      - name: Git-guard compliance
+        run: bash .opencode/conformance/tests/git-guard-compliance.sh
+
+      - name: Model routing coherence
+        run: bash .opencode/conformance/tests/model-routing-coherence.sh
+
+      - name: Lite delegation mode
+        run: bash .opencode/conformance/tests/lite-delegation-mode.sh
+
+      - name: Usage-aware autonomy
+        run: bash .opencode/conformance/tests/usage-aware-autonomy.sh
+
+      # Tests that require local runtime state (pattern index, code index, etc.)
+      # These are allowed to fail in CI because they depend on generated caches
+      - name: Pattern memory
+        continue-on-error: true
+        run: bash .opencode/conformance/tests/pattern-memory.sh
+
+      - name: Code intelligence + lesson retrieval
+        continue-on-error: true
+        run: bash .opencode/conformance/tests/code-intelligence-lesson-retrieval.sh
+
+      - name: Senior operator loop
+        run: bash .opencode/conformance/tests/senior-operator-loop.sh
+
+      - name: Test intelligence review
+        run: bash .opencode/conformance/tests/test-intelligence-review.sh
+
+      - name: Auto-test proactive
+        run: bash .opencode/conformance/tests/auto-test-proactive.sh
+
+      - name: Compaction safety
+        run: bash .opencode/conformance/tests/compaction-safety.sh
+
+      - name: Empty-response guardrail
+        run: bash .opencode/conformance/tests/empty-response-guardrail.sh
+
+      - name: v4.5 native alignment
+        continue-on-error: true
+        run: bash .opencode/conformance/tests/opencode-v45-native-alignment.sh
+
+      - name: Discipline ops
+        run: bash .opencode/conformance/tests/discipline-ops.sh
+
+      - name: Guardrail enforcement
+        run: bash .opencode/conformance/tests/guardrail-enforcement.sh
+
+      - name: Protocol stabilization v4.6.1
+        run: bash .opencode/conformance/tests/protocol-stabilization-v461.sh
+
+  install-verification:
+    name: Install Verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq python3
+
+      - name: Create results directory
+        run: mkdir -p .opencode/conformance/results
+
+      - name: Verify environment (workspace mode)
+        run: bash .opencode/scripts/verify-environment.sh --mode workspace

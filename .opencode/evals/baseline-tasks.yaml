@@ -1,0 +1,201 @@
+# Baseline Eval Task Set (v4.29.1)
+#
+# Representative task types for evaluating agent quality.
+# These are dry-run eval definitions — they do not modify real repos by default.
+# Use run-agent-baseline-evals.sh to validate schema and structure.
+
+evals:
+  - id: eval-001-direct-typo
+    description: "DIRECT typo/copy fix"
+    task_type: docs
+    lane: DIRECT
+    expected_files_touched: 1
+    required_gates: [lint]
+    expected_telemetry:
+      ci_first_try: "true"
+      repair_cycles: 0
+      reviewer_used: "none"
+      tests_added_or_updated: 0
+    pass_criteria: "File edited, lint passes, committed"
+
+  - id: eval-002-fast-ui-style
+    description: "FAST UI style fix"
+    task_type: feature
+    lane: FAST
+    expected_files_touched: 2
+    required_gates: [lint, typecheck]
+    expected_telemetry:
+      ci_first_try: "true"
+      repair_cycles: 0
+      reviewer_used: "none"
+      tests_added_or_updated: 0
+    pass_criteria: "Style change applied, gates pass, 5-field summary"
+
+  - id: eval-003-bugfix-regression-test
+    description: "Bugfix with regression test"
+    task_type: bugfix
+    lane: STANDARD
+    expected_files_touched: 3
+    required_gates: [lint, typecheck, test, build]
+    expected_telemetry:
+      ci_first_try: "true"
+      repair_cycles: 0
+      tests_added_or_updated: 1
+      reviewer_used: "none"
+    pass_criteria: "Bug fixed, regression test added, all gates pass"
+
+  - id: eval-004-refactor-existing-tests
+    description: "Refactor with existing tests passing"
+    task_type: refactor
+    lane: STANDARD
+    expected_files_touched: 4
+    required_gates: [lint, typecheck, test, build]
+    expected_telemetry:
+      ci_first_try: "true"
+      repair_cycles: 0
+      tests_added_or_updated: 0
+      reviewer_used: "umans-glm-5.1"
+    pass_criteria: "Refactor complete, existing tests pass, reviewer approves"
+
+  - id: eval-005-docs-only
+    description: "Documentation-only update"
+    task_type: docs
+    lane: FAST
+    expected_files_touched: 1
+    required_gates: [lint]
+    expected_telemetry:
+      ci_first_try: "true"
+      repair_cycles: 0
+      tests_added_or_updated: 0
+      reviewer_used: "none"
+    pass_criteria: "Docs updated, lint passes"
+
+  - id: eval-006-protocol-doc
+    description: "Protocol documentation update"
+    task_type: protocol
+    lane: STANDARD
+    expected_files_touched: 2
+    required_gates: [lint, protocol-conformance]
+    expected_telemetry:
+      ci_first_try: "true"
+      repair_cycles: 0
+      tests_added_or_updated: 0
+      reviewer_used: "none"
+    pass_criteria: "Protocol doc updated, conformance passes"
+
+  - id: eval-007-ci-repair
+    description: "CI failure repair"
+    task_type: infra
+    lane: FAST
+    expected_files_touched: 2
+    required_gates: [lint, ci]
+    expected_telemetry:
+      ci_first_try: "false"
+      repair_cycles: 1
+      tests_added_or_updated: 0
+      reviewer_used: "none"
+    pass_criteria: "CI failure fixed, CI passes"
+
+  - id: eval-008-pattern-memory
+    description: "Pattern memory reuse task"
+    task_type: feature
+    lane: STANDARD
+    expected_files_touched: 3
+    required_gates: [lint, typecheck, test]
+    expected_telemetry:
+      ci_first_try: "true"
+      repair_cycles: 0
+      pattern_memory_used: "true"
+      reviewer_used: "none"
+    pass_criteria: "Pattern memory consulted, feature implemented, gates pass"
+
+  - id: eval-009-test-generation
+    description: "Test generation task"
+    task_type: test
+    lane: FAST
+    expected_files_touched: 2
+    required_gates: [lint, test]
+    expected_telemetry:
+      ci_first_try: "true"
+      repair_cycles: 0
+      tests_added_or_updated: 3
+      reviewer_used: "none"
+    pass_criteria: "Tests generated, test suite passes"
+
+  - id: eval-010-high-risk-dry-run
+    description: "HIGH_RISK simulated auth/schema task (dry-run only)"
+    task_type: infra
+    lane: HIGH_RISK
+    expected_files_touched: 0
+    required_gates: [lint, typecheck, test, build, sast, reviewer]
+    expected_telemetry:
+      ci_first_try: "unknown"
+      repair_cycles: 0
+      reviewer_used: "umans-glm-5.1"
+      premium_model_used: "opencode-go/qwen3.7-plus"
+    pass_criteria: "Plan produced, threat model documented, dry-run only — no real changes"
+
+  - id: eval-011-reviewer-found-issue
+    description: "Reviewer found material issue"
+    task_type: bugfix
+    lane: STANDARD
+    expected_files_touched: 3
+    required_gates: [lint, typecheck, test, build]
+    expected_telemetry:
+      ci_first_try: "false"
+      repair_cycles: 1
+      reviewer_used: "umans-glm-5.1"
+      reviewer_found_material_issue: true
+    pass_criteria: "Reviewer found issue, fixed before commit, gates pass"
+
+  - id: eval-012-premium-model-task
+    description: "Premium model used for difficult debugging"
+    task_type: bugfix
+    lane: STANDARD
+    expected_files_touched: 2
+    required_gates: [lint, typecheck, test]
+    expected_telemetry:
+      ci_first_try: "true"
+      repair_cycles: 0
+      premium_model_used: "opencode-go/qwen3.7-plus"
+      reviewer_used: "none"
+    pass_criteria: "Difficult bug fixed using premium model, gates pass"
+
+  - id: eval-013-memory-reuse
+    description: "Project memory helped task"
+    task_type: feature
+    lane: FAST
+    expected_files_touched: 2
+    required_gates: [lint, typecheck]
+    expected_telemetry:
+      ci_first_try: "true"
+      repair_cycles: 0
+      project_memory_used: "true"
+      reviewer_used: "none"
+    pass_criteria: "Project memory consulted, feature implemented efficiently"
+
+  - id: eval-014-partial-success
+    description: "Task partially completed"
+    task_type: feature
+    lane: STANDARD
+    expected_files_touched: 4
+    required_gates: [lint, typecheck, test]
+    expected_telemetry:
+      ci_first_try: "false"
+      repair_cycles: 2
+      outcome: "partial"
+      human_acceptance: "revised"
+    pass_criteria: "Partial completion documented, owner revised approach"
+
+  - id: eval-015-reverted-task
+    description: "Task reverted after deployment issue"
+    task_type: infra
+    lane: HIGH_RISK
+    expected_files_touched: 3
+    required_gates: [lint, typecheck, test, build]
+    expected_telemetry:
+      ci_first_try: "true"
+      repair_cycles: 0
+      outcome: "reverted"
+      human_acceptance: "rejected"
+    pass_criteria: "Rollback executed, issue documented, lesson captured"

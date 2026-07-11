@@ -1,0 +1,87 @@
+{
+  "version": "1.0.0",
+  "created": "2026-05-24",
+  "phase": "C2",
+  "description": "Repo-to-MCP-profile mapping. Each repo is assigned an MCP profile. Unmapped repos default to baseline.",
+  "mappings": {
+    "protected-repo": {
+      "profile": "archived",
+      "rationale": "ARCHIVED — local-first prototype. Do not use for production. Superseded by protected-repo-prod."
+    },
+    "protected-repo-prod": {
+      "profile": "ui_ux",
+      "rationale": "Canonical production protected-repo PWA (Vite 6 + React 19 + Tailwind v4). Browser evidence, visual QA, and design iteration are critical."
+    },
+    "example-app": {
+      "profile": "ui_ux",
+      "rationale": "Local-first Life OS (React 19 + Vite + Tailwind v4). UI verification and visual QA required for encrypted vault and AI mentor surfaces."
+    },
+    "example-app-sandbox": {
+      "profile": "ui_ux",
+      "rationale": "Sandbox/worktree copy of example-app. Should match example-app MCP profile. Not yet cloned locally."
+    },
+    "StableVault": {
+      "profile": "ui_ux",
+      "rationale": "Regulated stablecoin platform (React 19 + Vite + Solana). UI verification needed for tokenization interface. Not yet cloned locally."
+    },
+    "example-toolchainMissionControl": {
+      "profile": "ui_ux",
+      "rationale": "Centralized operations platform (Next.js + FastAPI). Dashboard UI requiring visual validation. Not yet cloned locally."
+    },
+    "demo-project": {
+      "profile": "ui_ux",
+      "rationale": "UI/product app requiring visual validation and browser testing."
+    },
+    "example-dashboard": {
+      "profile": "ui_ux",
+      "rationale": "Dashboard UI requiring visual validation and browser testing."
+    },
+    "paperclip-PROD": {
+      "profile": "ui_ux",
+      "rationale": "example-orchestrator control plane (Express + React + Vite). Has React UI on localhost:3100 requiring visual validation."
+    },
+    "apa-digital-asset-product": {
+      "profile": "apa_product_factory",
+      "rationale": "Special profile for APA's domain-specific agents and factory workflow. Approved by ADR."
+    },
+    "sample-service": {
+      "profile": "automation",
+      "rationale": "Automation-heavy repo. Restricted MCP surface, no design/browser-heavy tools."
+    },
+    "career-ops": {
+      "profile": "baseline",
+      "rationale": "Career pipeline management. Minimal MCP surface needed. Has custom commands but no browser/design requirements."
+    },
+    "agent-ready": {
+      "profile": "baseline",
+      "rationale": "Agent readiness testing. Minimal MCP surface."
+    },
+    "trace-eval": {
+      "profile": "baseline",
+      "rationale": "Evaluation/tracing tool. Minimal MCP surface."
+    },
+    "example-analyzer": {
+      "profile": "baseline",
+      "rationale": "Portfolio analysis tool. Minimal MCP surface."
+    },
+    "example-platform": {
+      "profile": "baseline",
+      "rationale": "Life planning tool. Minimal MCP surface."
+    },
+    "Pulse": {
+      "profile": "baseline",
+      "rationale": "General repo. Minimal MCP surface."
+    },
+    "homebrew-pulse": {
+      "profile": "baseline",
+      "rationale": "Homebrew formula. Minimal MCP surface."
+    },
+    "vault": {
+      "profile": "baseline",
+      "rationale": "Memory vault. Minimal MCP surface."
+    }
+  },
+  "default_profile": "baseline",
+  "archived_repos": ["protected-repo"],
+  "notes": "New repos automatically get baseline profile. To assign a different profile, update this file and ensure the repo has the required MCP servers enabled. Repos marked 'Not yet cloned locally' have profile mappings pre-registered so they are correct when cloned."
+}

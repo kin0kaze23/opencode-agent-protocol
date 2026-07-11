@@ -1,0 +1,249 @@
+{
+  "version": "2.0.0",
+  "created": "2026-05-24",
+  "phase": "C2",
+  "description": "MCP profile policy for the Personal Projects workspace. Each profile defines allowed, required, disabled, and task-based MCP servers. Replaces the flat MCP policy from C1.",
+  "profiles": {
+    "baseline": {
+      "description": "Minimal safe default for normal development repos. Small tool surface, no browser/design/research-heavy tools.",
+      "risk_level": "low",
+      "mcp": {
+        "context7": {
+          "status": "required",
+          "rationale": "Documentation lookup is universally useful and safe."
+        },
+        "exa": {
+          "status": "required",
+          "rationale": "Web search for grounded research without heavy browsing."
+        },
+        "sequential-thinking": {
+          "status": "required",
+          "rationale": "Structured reasoning is universally useful."
+        },
+        "github": {
+          "status": "required",
+          "rationale": "Core to agent delivery workflow."
+        },
+        "web-tools": {
+          "status": "deprecated",
+          "rationale": "DEPRECATED (2026-07-01): No service code, no MCP endpoint, no unique capability. Removed from active config. Capabilities covered by exa, webfetch, context7, github, playwright."
+        },
+        "playwright": {
+          "status": "disabled",
+          "rationale": "Browser automation not needed for baseline development. UI repos may enable through explicit profile/override."
+        },
+        "pencil": {
+          "status": "disabled",
+          "rationale": "Design tool not needed for baseline development. Enable only through explicit design workflow approval."
+        },
+        "firecrawl": {
+          "status": "disabled",
+          "rationale": "Heavy web crawling not needed for baseline development."
+        }
+      },
+      "repo_override_allowed": false
+    },
+    "ui_ux": {
+      "description": "For repos where visual/browser validation matters: protected-repo, demo-project, example-dashboard. Supports browser evidence, visual QA, interaction testing, and design iteration.",
+      "risk_level": "medium",
+      "mcp": {
+        "context7": {
+          "status": "required",
+          "rationale": "Documentation lookup."
+        },
+        "exa": {
+          "status": "required",
+          "rationale": "Web search for design research."
+        },
+        "sequential-thinking": {
+          "status": "required",
+          "rationale": "Structured reasoning."
+        },
+        "github": {
+          "status": "required",
+          "rationale": "Core to delivery workflow."
+        },
+        "web-tools": {
+          "status": "deprecated",
+          "rationale": "DEPRECATED (2026-07-01): No service code, no MCP endpoint, no unique capability. Removed from active config. Capabilities covered by exa, webfetch, context7, github, playwright."
+        },
+        "playwright": {
+          "status": "required",
+          "rationale": "Browser automation for UI verification, visual QA, screenshot evidence, interaction testing, and layout validation. Critical for UI/UX workflow."
+        },
+        "pencil": {
+          "status": "optional",
+          "rationale": "Design tool for UI/UX design iteration. Enable if stable and useful in the OpenCode setup."
+        },
+        "firecrawl": {
+          "status": "disabled",
+          "rationale": "Heavy web crawling not needed for UI/UX work."
+        }
+      },
+      "repo_override_allowed": false
+    },
+    "research": {
+      "description": "For product research, market analysis, compliance scanning, competitor review, and institutional product work. Controlled browsing without enabling heavy tools everywhere.",
+      "risk_level": "medium",
+      "mcp": {
+        "context7": {
+          "status": "required",
+          "rationale": "Documentation lookup."
+        },
+        "exa": {
+          "status": "required",
+          "rationale": "Web search for research."
+        },
+        "sequential-thinking": {
+          "status": "required",
+          "rationale": "Structured reasoning."
+        },
+        "github": {
+          "status": "required",
+          "rationale": "Core to delivery workflow."
+        },
+        "web-tools": {
+          "status": "deprecated",
+          "rationale": "DEPRECATED (2026-07-01): No service code, no MCP endpoint, no unique capability. Removed from active config. Capabilities covered by exa, webfetch, context7, github, playwright."
+        },
+        "playwright": {
+          "status": "optional",
+          "rationale": "Browser automation for research verification when needed."
+        },
+        "pencil": {
+          "status": "disabled",
+          "rationale": "Design tool not needed for research."
+        },
+        "firecrawl": {
+          "status": "task-based",
+          "rationale": "Enable only when explicitly requested for deep web crawling research."
+        }
+      },
+      "repo_override_allowed": false
+    },
+    "automation": {
+      "description": "For automation-heavy repos. Restricted MCP surface, no design/browser-heavy tools unless explicitly required.",
+      "risk_level": "low",
+      "mcp": {
+        "context7": {
+          "status": "required",
+          "rationale": "Documentation lookup."
+        },
+        "exa": {
+          "status": "required",
+          "rationale": "Web search."
+        },
+        "sequential-thinking": {
+          "status": "required",
+          "rationale": "Structured reasoning."
+        },
+        "github": {
+          "status": "required",
+          "rationale": "Core to delivery workflow."
+        },
+        "web-tools": {
+          "status": "deprecated",
+          "rationale": "DEPRECATED (2026-07-01): No service code, no MCP endpoint, no unique capability. Removed from active config. Capabilities covered by exa, webfetch, context7, github, playwright."
+        },
+        "playwright": {
+          "status": "disabled",
+          "rationale": "Browser automation not needed unless explicitly required for E2E testing."
+        },
+        "pencil": {
+          "status": "disabled",
+          "rationale": "Design tool not needed for automation."
+        },
+        "firecrawl": {
+          "status": "disabled",
+          "rationale": "Heavy web crawling not needed for automation."
+        }
+      },
+      "repo_override_allowed": false
+    },
+    "apa_product_factory": {
+      "description": "Governed special profile for apa-digital-asset-product. APA has domain-specific agents (blockchain/stablecoin, compliance/AML, treasury ops) and custom factory commands. Approved by ADR.",
+      "risk_level": "medium",
+      "adr": ".opencode/adr/adr-apa-repo-agent-exception.md",
+      "mcp": {
+        "context7": {
+          "status": "required",
+          "rationale": "Documentation lookup."
+        },
+        "exa": {
+          "status": "required",
+          "rationale": "Web search for research."
+        },
+        "sequential-thinking": {
+          "status": "required",
+          "rationale": "Structured reasoning."
+        },
+        "github": {
+          "status": "required",
+          "rationale": "Core to delivery workflow."
+        },
+        "web-tools": {
+          "status": "deprecated",
+          "rationale": "DEPRECATED (2026-07-01): No service code, no MCP endpoint, no unique capability. Removed from active config. Capabilities covered by exa, webfetch, context7, github, playwright."
+        },
+        "playwright": {
+          "status": "task-based",
+          "rationale": "Enable only when UI deliverables or browser verification is needed."
+        },
+        "pencil": {
+          "status": "disabled",
+          "rationale": "Design tool not needed unless UI deliverables exist."
+        },
+        "firecrawl": {
+          "status": "task-based",
+          "rationale": "Enable only for research tasks (market analysis, competitor review, compliance scanning)."
+        }
+      },
+      "repo_override_allowed": false
+    },
+    "archived": {
+      "description": "For archived/excluded repos. All MCPs disabled. No active development expected.",
+      "risk_level": "none",
+      "mcp": {
+        "context7": {
+          "status": "disabled",
+          "rationale": "Archived repo — no active development."
+        },
+        "exa": {
+          "status": "disabled",
+          "rationale": "Archived repo — no active development."
+        },
+        "sequential-thinking": {
+          "status": "disabled",
+          "rationale": "Archived repo — no active development."
+        },
+        "github": {
+          "status": "disabled",
+          "rationale": "Archived repo — no active development."
+        },
+        "web-tools": {
+          "status": "disabled",
+          "rationale": "Archived repo — no active development."
+        },
+        "playwright": {
+          "status": "disabled",
+          "rationale": "Archived repo — no active development."
+        },
+        "pencil": {
+          "status": "disabled",
+          "rationale": "Archived repo — no active development."
+        },
+        "firecrawl": {
+          "status": "disabled",
+          "rationale": "Archived repo — no active development."
+        }
+      },
+      "repo_override_allowed": false
+    }
+  },
+  "default_profile": "baseline",
+  "enforcement": {
+    "audit_mode": "WARN on profile mismatches, document drift",
+    "enforce_mode": "FAIL on profile violations, block config changes",
+    "switch_condition": "After C3 migration complete and all guards pass in audit mode with 0 FAILs and 0 WARNs"
+  }
+}

@@ -1,0 +1,36 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1a1a2e', 'primaryTextColor': '#e0e0e0', 'lineColor': '#7f8c8d'}}}%%
+flowchart TD
+    Start[Task arrives] --> Q1{Risk score?}
+
+    Q1 -->|0| DIRECT[DIRECT lane]
+    Q1 -->|1-2| Q2{Files touched?}
+    Q1 -->|3-5| Q3{Sensitive path?}
+    Q1 -->|6+| HIGHRISK[FORCED HIGH-RISK]
+
+    Q2 -->|≤3| FAST[FAST lane]
+    Q2 -->|>3| STANDARD[STANDARD lane]
+
+    Q3 -->|No| STANDARD
+    Q3 -->|Yes| HIGHRISK
+
+    HIGHRISK --> HR1[PLAN.md + ADR required]
+    HR1 --> HR2[Reviewer required]
+    HR2 --> HR3[Full test suite + SAST]
+    HR3 --> HR4[Owner approval before merge]
+
+    STANDARD --> S1[PLAN.md required]
+    S1 --> S2[Full gate suite]
+    S2 --> S3[Reviewer recommended]
+
+    FAST --> F1[Inline plan]
+    F1 --> F2[Per verification profile]
+    F2 --> F3[Reviewer optional]
+
+    DIRECT --> D1[Edit directly]
+    D1 --> D2[Lint only]
+    D2 --> D3[Commit]
+
+    HR4 --> Merge[Merge / Release]
+    S3 --> Merge
+    F3 --> Merge
+    D3 --> Merge

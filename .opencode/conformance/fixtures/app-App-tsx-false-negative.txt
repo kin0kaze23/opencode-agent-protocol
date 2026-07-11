@@ -1,0 +1,36 @@
+// Regression fixture for v4.32.1 false negative
+// Simulates app/App.tsx with auth-adjacent changes that were missed by path-only classifier
+//
+// This file contains content that should trigger high-risk auth/security detection
+// even though the file path (app/App.tsx) is not in any sensitive path pattern.
+//
+// Expected classification:
+//   risk_level: high
+//   sensitive_areas: includes auth, security
+//   must_escalate: true
+//   detection_type: content
+//   classifier_detected_sensitive: true
+
+import { ClerkProvider, SignedIn, SignedOut, useAuth, useUser } from "@clerk/clerk-react"
+
+function App() {
+  const isE2E = import.meta.env.VITE_E2E === "true"
+
+  if (isE2E) {
+    // E2E auth bypass for testing
+    return <div>E2E mode — auth bypassed</div>
+  }
+
+  return (
+    <ClerkProvider>
+      <SignedIn>
+        <Dashboard />
+      </SignedIn>
+      <SignedOut>
+        <LoginScreen />
+      </SignedOut>
+    </ClerkProvider>
+  )
+}
+
+export default App

@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Task Outcome Telemetry Record",
+  "description": "v4.33 — Schema for agent task outcome telemetry records",
+  "type": "object",
+  "required": [
+    "timestamp",
+    "task_id",
+    "repo",
+    "lane",
+    "task_type",
+    "outcome"
+  ],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp of task completion"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique task identifier"
+    },
+    "repo": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Repository name"
+    },
+    "branch": {
+      "type": "string",
+      "description": "Git branch name"
+    },
+    "lane": {
+      "type": "string",
+      "enum": ["DIRECT", "FAST", "STANDARD", "HIGH_RISK"],
+      "description": "Protocol lane classification"
+    },
+    "task_type": {
+      "type": "string",
+      "enum": ["bugfix", "feature", "refactor", "docs", "test", "infra", "protocol"],
+      "description": "Type of task performed"
+    },
+    "files_changed_count": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "model_used": {
+      "type": "string",
+      "description": "Primary model used for the task"
+    },
+    "reviewer_used": {
+      "type": "string",
+      "description": "Reviewer model used, or 'none'"
+    },
+    "reviewer_value_classification": {
+      "type": "string",
+      "enum": ["no_issue_found", "minor_issue_found", "significant_issue_found", "none"],
+      "default": "none",
+      "description": "Reviewer value classification: whether the reviewer found any issues"
+    },
+    "reviewer_issue_severity": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "none"],
+      "default": "none",
+      "description": "Severity of the highest individual reviewer finding"
+    },
+    "review_repair_cycles": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "Number of repair cycles caused by reviewer findings (separate from CI repair cycles)"
+    },
+    "pre_ci_reviewer_blocked_issue": {
+      "type": "string",
+      "enum": ["true", "false"],
+      "default": "false",
+      "description": "Whether reviewer found an issue before CI ran (pre-CI reviewer block)"
+    },
+    "premium_model_used": {
+      "type": "string",
+      "description": "Premium model used, or 'none'"
+    },
+    "tests_added_or_updated": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "test_command_run": {
+      "type": "string",
+      "description": "Test command executed, or 'none'"
+    },
+    "ci_status": {
+      "type": "string",
+      "enum": ["passed", "failed", "unknown", "not-configured"],
+      "default": "unknown"
+    },
+    "ci_first_try": {
+      "type": "string",
+      "enum": ["true", "false", "unknown"],
+      "default": "unknown"
+    },
+    "repair_cycles": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "pattern_memory_used": {
+      "type": "string",
+      "enum": ["true", "false"],
+      "default": "false"
+    },
+    "project_memory_used": {
+      "type": "string",
+      "enum": ["true", "false"],
+      "default": "false"
+    },
+    "human_acceptance": {
+      "type": "string",
+      "enum": ["accepted", "revised", "rejected", "unknown"],
+      "default": "unknown"
+    },
+    "outcome": {
+      "type": "string",
+      "enum": ["success", "partial", "failed", "reverted"],
+      "description": "Task outcome classification"
+    },
+    "notes": {
+      "type": "string",
+      "default": "",
+      "description": "Free-text notes (no secrets, no code, no prompts)"
+    },
+    "collection_mode": {
+      "type": "string",
+      "enum": ["live", "retrospective", "synthetic_eval"],
+      "default": "live",
+      "description": "How the telemetry was collected: live (real-time), retrospective (backfilled from evidence), synthetic_eval (fixture/eval)"
+    },
+    "evidence_level": {
+      "type": "string",
+      "enum": ["full", "partial", "fixture", "unknown"],
+      "default": "full",
+      "description": "Evidence quality: full (CI+PR+commit), partial (some evidence missing), fixture (synthetic), unknown (insufficient evidence)"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": ["live", "retrospective", "eval_fixture"],
+      "default": "live",
+      "description": "Telemetry source classification: live (real production task), retrospective (backfilled from evidence), eval_fixture (synthetic eval, never counts as production routing evidence)"
+    },
+    "classifier_detected_sensitive": {
+      "type": "string",
+      "enum": ["true", "false"],
+      "default": "false",
+      "description": "v4.33: Whether the content-aware sensitive change classifier detected sensitive changes"
+    },
+    "manual_sensitive_override": {
+      "type": "string",
+      "enum": ["true", "false"],
+      "default": "false",
+      "description": "v4.33: Whether a manual override was applied to correct a classifier false negative"
+    },
+    "classifier_false_negative": {
+      "type": "string",
+      "enum": ["true", "false"],
+      "default": "false",
+      "description": "v4.33: Whether the classifier was identified as producing a false negative (corrected by manual override)"
+    },
+    "classifier_detection_type": {
+      "type": "string",
+      "enum": ["path", "content", "path+content", "manual", "none"],
+      "default": "none",
+      "description": "v4.33: Detection method used by the sensitive change classifier: path (path-based), content (content-based), path+content (both), manual (manual override), none (no detection)"
+    }
+  },
+  "additionalProperties": false,
+  "forbidden": {
+    "prompt": "Must not log prompts",
+    "response": "Must not log responses",
+    "api_key": "Must not log API keys",
+    "secret": "Must not log secrets",
+    "file_contents": "Must not log file contents",
+    "user_data": "Must not log user data"
+  }
+}

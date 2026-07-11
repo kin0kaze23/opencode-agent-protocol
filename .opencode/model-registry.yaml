@@ -1,0 +1,1080 @@
+# OpenCode Model Registry — candidate provider architecture
+#
+# Purpose:
+# - Keep provider/model IDs in one place.
+# - Keep secrets out of repository files; reference env var names only.
+# - Distinguish OpenCode config model IDs from direct API model IDs.
+#
+# Status:
+# - OpenCode Go is promoted for OpenCode runtime agents only.
+# - Alibaba Coding Plan remains configured fallback until explicit decommission approval.
+
+version: 1
+status: v1_5_4_production_active_soak
+
+# Known test flakes — pre-existing, not caused by registry changes
+known_test_flakes:
+  - test: "launcher_runtime_coherence"
+    symptom: "exit 141 (broken pipe on launcher subprocess)"
+    first_observed: "2026-06-22"
+    status: "waived-known-infra"
+    note: "Consistent pre-existing flake. All other gates pass. Rerun after each model verification session to confirm no regression."
+
+# v1.5: Provider Strategy — Capacity-First Provider Inversion
+provider_strategy:
+  version: 1.5
+  date: 2026-06-22
+  primary_provider: umans-ai-coding-plan
+  primary_role: capacity_first_default_provider
+  secondary_provider: opencode-go
+  secondary_role: premium_reserve_provider
+  manual_escalation: ChatGPT/Codex
+
+  rationale: |
+    OpenCode Go monthly quota is materially consumed (~20% used).
+    Umans AI has more usable recurring capacity and resets roughly every 5 hours.
+    Umans is now the primary/default provider for routine development.
+    OpenCode Go is the secondary/premium provider for high-risk reasoning,
+    difficult debugging, final review, and emergency fallback.
+
+  quota_objective: |
+    Reduce OpenCode quota burn for routine work.
+    Use OpenCode Go only when it matters most: hard architecture, hard debugging,
+    final judgment, production release review, or when Umans fails quality/tool-use checks.
+
+  routing_rules:
+    - "If task is routine or medium risk, prefer Umans."
+    - "If task is high-risk architecture, difficult debugging, production release review, or failed Umans output, escalate to OpenCode Go."
+    - "If OpenCode quota/rate-limit occurs, return to Umans immediately."
+    - "Do not spend OpenCode Go on routine implementation/planning unless Umans fails quality or tool-use checks."
+    - "Compaction remains conservative: opencode-go/glm-5.2 primary (1M context), umans-kimi-k2.7 bounded fallback for sessions <=180K tokens."
+
+phase_m1:
+  status: protocol_hardening_pending_targeted_re_eval
+  scope: ambiguity_performance_unsafe_security_pre_edit_guardrails
+  default_routing_change: open_code_only
+  targeted_eval_tests:
+    - C-TEST-004
+    - C-TEST-006
+    - C-TEST-002
+  guardrails:
+    - Ambiguous implementation requests must not edit files immediately.
+    - Vague optimization prompts require baseline measurement, target metric, suspected bottleneck, touch list, verification command, and rollback path before edits.
+    - Unsafe security/auth/rate-limit/CORS requests must refuse early and offer defensive alternatives.
+
+compaction_policy:
+  default_safe: false
+  safe_models: [qwen3.6-plus, qwen3.7-plus, umans-kimi-k2.7, glm-5.2]
+  note: "Only models explicitly marked compaction_safe: true may rewrite session memory. Absence of compaction_safe is treated as false."
+  unknown_wrapper_policy: "Any unlisted or custom wrapper model (e.g., Umans) is treated as not compaction-safe until it passes a dedicated compaction eval; temporary exceptions must be explicitly listed with preflight evidence and rollback conditions."
+  current_active_compaction_model: opencode-go/glm-5.2
+  current_active_compaction_reason: "GLM-5.2 passed compaction eval (2026-07-08): 32K/64K/128K/256K/512K all PASS, 7/7 fields preserved, fresh-session restoration PASS. GLM-5.2 has ~1M context window, matching the active chat model to prevent context-exceeds-model-limit failures. umans-kimi-k2.7 retained as bounded fallback for sessions <=180K tokens."
+  fallback_compaction_model: umans-ai-coding-plan/umans-kimi-k2.7
+  fallback_compaction_budget: 180000
+  fallback_compaction_rule: "umans-kimi-k2.7 (256K context) may only be used for sessions estimated at <=180K tokens. If session exceeds 180K tokens, GLM-5.2 must be used or force checkpoint + fresh session."
+
+secret_source:
+  provider: doppler
+  project: nuggie-be
+  config: dev_backend
+  rules:
+    - Secret values must never be printed, logged, committed, or copied into docs.
+    - Repository files may reference variable names only.
+
+profiles:
+  alibaba-legacy:
+    status: decommissioned
+    provider: bailian-coding-plan
+    default_model: bailian-coding-plan/qwen3.5-plus
+    secret_env: BAILIAN_CODING_PLAN_API_KEY
+    use_when: historical reference only; APA direct dependency remains separate
+    do_not_use_when: OpenCode workspace routing (quota exhausted, 429 insufficient_quota)
+
+  opencode-go-candidate:
+    status: promoted-open-code-only
+    provider: opencode-go
+    default_model: opencode-go/qwen3.5-plus
+    secret_env: OPENCODE_GO_API_KEY
+    base_url_env: OPENCODE_GO_BASE_URL
+    default_base_url: https://opencode.ai/zen/go/v1
+    use_when: model-list checks, smoke tests, eval matrix, non-default trials
+    do_not_use_when: Claude/Hermes/direct API routing until separate integration track passes
+
+  opencode-go-primary:
+    status: premium_reserve_provider
+    provider: opencode-go
+    default_model: null
+    secret_env: OPENCODE_GO_API_KEY
+    role: premium_reserve_for_high_risk_tasks
+    use_when: |
+      High-risk architecture decisions, difficult debugging, final review,
+      production release review, emergency fallback, or when Umans fails
+      quality/tool-use checks. Preserve quota for tasks that matter most.
+    do_not_use_when: |
+      Routine implementation, routine planning, routine review, exploration,
+      budget tasks, or any task that Umans can handle competently.
+      OpenCode Go quota is limited and should be conserved.
+
+  umans-primary-provider:
+    status: active_capacity_first_provider
+    provider: umans-ai-coding-plan
+    default_coding_model: umans-ai-coding-plan/umans-coder
+    default_compaction_model: umans-ai-coding-plan/umans-kimi-k2.7
+    secret_env: UMANS_API_KEY
+    secret_source: doppler_project_nuggie_be_config_dev_backend
+    role: primary_capacity_provider
+    quota_behavior: "Resets approximately every 5 hours. Higher recurring capacity than OpenCode Go."
+    use_when: |
+      Routine implementation, routine planning, routine review, exploration,
+      budget tasks, and any medium-risk development work. Umans is the default
+      provider for daily development to preserve OpenCode Go quota.
+    do_not_use_when: |
+      High-risk architecture, difficult debugging, final judgment, production
+      release review, or when Umans output fails quality/tool-use checks.
+      Escalate to OpenCode Go for these cases.
+
+  mixed-safe-fallback:
+    status: active_with_umans_primary
+    order:
+      - umans-primary-provider
+      - opencode-go-primary
+      - opencode-go-candidate
+      - alibaba-legacy
+    use_when: Umans is primary provider with OpenCode Go as premium reserve fallback
+
+  umans-temporary-compaction:
+    status: inactive_rolled_back
+    provider: umans-ai-coding-plan
+    default_model: umans-ai-coding-plan/umans-kimi-k2.7
+    secret_env: provider_managed_outside_repo
+    use_when: Bounded fallback only — sessions <=180K tokens when GLM-5.2 is unavailable
+    do_not_use_when: Sessions >180K tokens (exceeds 256K context window risk)
+
+  emergency-rollback:
+    status: ready
+    order:
+      - alibaba-legacy
+    use_when: OpenCode Go outage, 403/auth regression, quality regression, wrapper breakage
+
+namespace_rules:
+  opencode_config_model_id: opencode-go/<model-id>
+  opencode_cli_model_id: opencode-go/<model-id>
+  direct_api_model_id: <model-id>
+  hermes_provider: opencode-go
+  notes:
+    - Direct OpenCode Go API calls use bare model IDs.
+    - OpenCode config and CLI use provider-prefixed IDs.
+    - MiniMax endpoint/API mode must be validated before promotion.
+
+models:
+  opencode-go:
+    expected_official_set:
+      - glm-5.2
+      - glm-5.1
+      - glm-5
+      - kimi-k2.5
+      - kimi-k2.6
+      - kimi-k2.7-code
+      - deepseek-v4-pro
+      - deepseek-v4-flash
+      - mimo-v2.5
+      - mimo-v2.5-pro
+      - minimax-m3
+      - minimax-m2.7
+      - minimax-m2.5
+      - qwen3.7-max
+      - qwen3.7-plus
+      - qwen3.6-plus
+    verified_via_opencode_cli: true
+    last_discovered: 2026-06-22
+    discovered_models: [deepseek-v4-flash, deepseek-v4-pro, glm-5.1, glm-5.2, kimi-k2.6, kimi-k2.7-code, mimo-v2.5, mimo-v2.5-pro, minimax-m2.7, minimax-m3, qwen3.6-plus, qwen3.7-max, qwen3.7-plus]
+    raw_api_status: 403_from_official_endpoints_on_2026-05-21
+    candidates:
+      qwen3.5-plus:
+        opencode_id: opencode-go/qwen3.5-plus
+        direct_id: qwen3.5-plus
+        candidate_roles: [historical_decommissioned]
+        promotion_status: decommissioned
+        compaction_safe: false
+        compaction_safe_reason: "Decommissioned from production routing; not approved for session-memory compaction."
+        caveat: "Decommissioned from workspace routing (Alibaba quota exhausted, 429 insufficient_quota). Superseded by qwen3.7-plus production v1.1. Historical reference only — not in active production routing."
+      qwen3.6-plus:
+        opencode_id: opencode-go/qwen3.6-plus
+        direct_id: qwen3.6-plus
+        candidate_roles: [fallback_orchestrator, hard_solver, production_rollback]
+        promotion_status: production_baseline_rollback
+        compaction_safe: true
+        caveat: "v1 production baseline retained as fallback/hard-solver/rollback baseline for v1.1 production (Action 4D). Rollback target if qwen3.7-plus shows issues."
+      qwen3.7-max:
+        opencode_id: opencode-go/qwen3.7-max
+        direct_id: qwen3.7-max
+        candidate_roles: [emergency_judge]
+        promotion_status: candidate_eval_pending
+        compaction_safe: false
+        compaction_safe_reason: "Unevaluated emergency-judge candidate; not approved for session-memory compaction."
+        caveat: "Emergency final judge candidate. Rare use only for high-stakes tie-breaking. Requires availability confirmation and smoke test before production routing. Must not be used for routine work."
+      qwen3.7-plus:
+        opencode_id: opencode-go/qwen3.7-plus
+        direct_id: qwen3.7-plus
+        candidate_roles: [orchestrator, planner, architect, implementer, fast_tasks, production_primary]
+        promotion_status: production_primary
+        production_date: 2026-06-05
+        production_by: "Action 4D — Production v1.1 Seal"
+        benchmark_score: "10.0/10, 100% pass, 0 empty responses (Action 4B)"
+        canary_tasks_completed: 3
+        canary_tasks: [
+          "Task 1: sync script thin-shell fix (PASS)",
+          "Task 2: conformance/reporting integration (PASS)",
+          "Task 3: real utility implementation (PASS)"
+        ]
+        blocked_from_production: false
+        canary_only: false
+        production_target: qwen_first_v1_1_production
+        compaction_safe: true
+        pricing:
+          input_per_million_tokens: "$0.40"
+          output_per_million_tokens: "$1.60"
+          estimated_limit: "4,300 requests per 5 hours"
+        caveat: "v1.1-production (Action 4D). Primary for orchestrator/FAST-DIRECT/implementer/planner/architect. qwen3.6-plus retained as fallback/hard-solver/rollback baseline."
+      kimi-k2.6:
+        opencode_id: opencode-go/kimi-k2.6
+        direct_id: kimi-k2.6
+        candidate_roles: [senior_reviewer_manual_only, high_risk_review, security_auth_review, schema_type_review, release_readiness_review, protocol_routing_review, default, planning, ui_ux, long_context]
+        promotion_status: senior_reviewer_candidate_passed
+        eval_result: "Phase 3B (2026-06-13): 6/6 PASS, 0 empty responses, avg usefulness 4.8/5.0, avg severity accuracy 4.8/5.0; approved as manual/high-risk senior reviewer only."
+        eval_artifact: "vault/evals/models/results/kimi-k2.6-reviewer-eval-20260613/eval-report.md"
+        compaction_safe: false
+        compaction_safe_reason: "Senior reviewer role only; not evaluated for session-memory compaction."
+        caveat: "Approved as manual/high-risk senior reviewer only. Not default reviewer, not automatic delegation, not implementation, not autonomous routing, not protocol seal without owner approval. GLM-5.1 remains default reviewer until shadow comparison/production soak."
+        last_verified_at: 2026-06-13
+      kimi-k2.7-code:
+        opencode_id: opencode-go/kimi-k2.7-code
+        direct_id: kimi-k2.7-code
+        canonical_family: kimi-k2.7
+        candidate_roles: [implementer, planner, coding_tasks]
+        promotion_status: candidate_only
+        compaction_safe: false
+        compaction_safe_reason: "Newly discovered model; not yet verified for any role including compaction."
+        caveat: "Discovered 2026-06-22 via opencode models. Likely a coding-optimized variant of Kimi K2.7. Candidate only until verification passes."
+        last_verified_at: null
+      kimi-k2.5:
+        opencode_id: opencode-go/kimi-k2.5
+        direct_id: kimi-k2.5
+        candidate_roles: [ui_ux, fallback]
+        promotion_status: candidate_eval_pending
+        compaction_safe: false
+        compaction_safe_reason: "Candidate eval pending; not approved for session-memory compaction."
+      glm-5.1:
+        opencode_id: opencode-go/glm-5.1
+        direct_id: glm-5.1
+        candidate_roles: [reviewer, judge, architecture]
+        promotion_status: incumbent_baseline_eval_pending
+        eval_result: "Phase 5D (2026-06-14): BLOCKED — Insufficient balance. Eval tasks documented in vault/evals/models/results/glm-5.1-incumbent-eval-20260614/eval-report.md"
+        eval_artifact: "vault/evals/models/results/glm-5.1-incumbent-eval-20260614/eval-report.md"
+        compaction_safe: false
+        compaction_safe_reason: "Reviewer/judge role only; not evaluated for session-memory compaction."
+        caveat: "Production incumbent reviewer. Phase 5D eval blocked by insufficient balance. Keep as incumbent_baseline until eval completed. Expensive ($0.0137/request), premium reviewer role. Must justify cost through eval evidence."
+      glm-5.2:
+        opencode_id: opencode-go/glm-5.2
+        direct_id: glm-5.2
+        candidate_roles: [candidate_orchestrator, candidate_reviewer, long_horizon_coding, agentic_tool_use, compaction_primary, summary_primary]
+        promotion_status: compaction_safe_proven
+        compaction_safe: true
+        compaction_safe_reason: "Passed compaction eval (2026-07-08): 32K/64K/128K/256K/512K all PASS, 7/7 fields preserved, fresh-session restoration PASS. GLM-5.2 has ~1M context window, matching the active chat model."
+        eval_artifact: "vault/evals/models/results/glm52-compaction-eval/eval-report-20260708.md"
+        caveat: "Z.ai flagship long-horizon coding/agentic model with 1M-token context. Promoted to compaction_safe after dedicated eval. Primary compaction/summary model. Still candidate_only for orchestrator/reviewer roles until tool-use verification passes."
+      glm-5:
+        opencode_id: opencode-go/glm-5
+        direct_id: glm-5
+        candidate_roles: [reviewer, judge, fallback]
+        promotion_status: candidate_eval_pending
+        compaction_safe: false
+        compaction_safe_reason: "Candidate/reviewer role; not approved for session-memory compaction."
+      deepseek-v4-pro:
+        opencode_id: opencode-go/deepseek-v4-pro
+        direct_id: deepseek-v4-pro
+        candidate_roles: [experimental_diagnostic]
+        promotion_status: blocked_for_runtime_tool_use
+        compaction_safe: false
+        compaction_safe_reason: "Produces empty content in multi-turn/tool-call contexts; not safe for session-memory compaction."
+        caveat: "v0.2 eval (2026-06-05): Produces empty content on debugging (TC-02) and build recovery (TC-05) tasks while consuming max tokens. Blocked from hard-solver, debugging, and orchestrator roles. Root cause may be reasoning_content handling in multi-turn/tool-call contexts. Keep for experimental/manual diagnostic only."
+      deepseek-v4-flash:
+        opencode_id: opencode-go/deepseek-v4-flash
+        direct_id: deepseek-v4-flash
+        candidate_roles: [fast_fallback, explorer, budget, debug_loop]
+        promotion_status: incumbent_baseline_eval_pending
+        compaction_safe: false
+        compaction_safe_reason: "Small context window and budget role; not approved for session-memory compaction."
+        eval_result: "Phase 5C (2026-06-14): BLOCKED — Insufficient balance. Eval tasks documented in vault/evals/models/results/deepseek-v4-flash-incumbent-eval-20260614/eval-report.md"
+        eval_artifact: "vault/evals/models/results/deepseek-v4-flash-incumbent-eval-20260614/eval-report.md"
+        caveat: "Production incumbent for explorer/budget/debug_loop. Phase 5C eval blocked by insufficient balance. Keep as incumbent_baseline until eval completed. Ultra-cheap ($0.0003/request), highest quota endurance (~31,650 requests per $12/5h). Ideal for high-volume, low-cost work."
+      mimo-v2.5-pro:
+        opencode_id: opencode-go/mimo-v2.5-pro
+        direct_id: mimo-v2.5-pro
+        candidate_roles: [manual_fallback]
+        promotion_status: blocked_from_auto_promotion
+        compaction_safe: false
+        compaction_safe_reason: "v0.2 eval produced empty responses on debugging/feature tasks; blocked from session-memory compaction."
+        caveat: "v0.2 eval (2026-06-05): Produces empty content on debugging (TC-02) and feature implementation (TC-04) tasks while consuming max tokens. Blocked from automatic FAST/DIRECT routing and orchestrator fallback until empty-response root cause resolved. Keep as manual fallback only. Do not count toward 30-task soak until root cause fixed."
+      mimo-v2.5:
+        opencode_id: opencode-go/mimo-v2.5
+        direct_id: mimo-v2.5
+        provider: opencode-go
+        access_state: provider_access_blocked_until_reset
+        candidate_roles: [budget_orchestrator, read_only_auditor, explorer, validation_loop, cheap_implementation, fallback]
+        promotion_status: provider_access_blocked_until_reset
+        compaction_safe: false
+        compaction_safe_reason: "Family shares empty-response risk and weaker context handling; not approved for session-memory compaction."
+        caveat: "Go-tier model exists but currently blocked by Go quota exhaustion. Valid candidate for budget/explorer routing after quota resets and empty-response eval passes. Must not seal protocol changes, approve production deployment, perform security-sensitive review, or make irreversible write-access changes. Do not mark stale — this is a valid Go model, not a decommissioned one."
+      # === Free-tier models (opencode/ prefix) ===
+      # Available now, no quota limit. Eval-only. Not safe for secrets, protocol seal, or production routing.
+      mimo-v2.5-free:
+        opencode_id: opencode/mimo-v2.5-free
+        direct_id: mimo-v2.5-free
+        provider: opencode-free-tier
+        access_state: available_now_free_tier
+        candidate_roles: [read_only_auditor, planning_helper, repo_exploration, patch_proposal, validation_supervision, debug_diagnosis]
+        promotion_status: eval_passed_manual_only
+        compaction_safe: false
+        compaction_safe_reason: "Free-tier manual-only helper; not approved for session-memory compaction."
+        eval_result: "Phase 2C (2026-06-13): 6/6 PASS, 0 empty responses, 0 unauthorized edits, avg usefulness 4.7/5.0"
+        eval_artifact: "vault/evals/models/results/mimo-v2.5-free-eval-20260613/eval-report.md"
+        caveat: "Free-tier manual-only temporary helper. Eval passed 2026-06-13. Allowed for non-sensitive read-only work only. Do NOT use for: runtime orchestrator, active budget routing, protocol seal, security review, production deployment, schema/type changes, secret-bearing work, autonomous routing changes, or irreversible writes. Re-evaluate opencode-go/mimo-v2.5 after Go quota reset for potential production routing."
+      deepseek-v4-flash-free:
+        opencode_id: opencode/deepseek-v4-flash-free
+        direct_id: deepseek-v4-flash-free
+        provider: opencode-free-tier
+        access_state: available_now_free_tier
+        candidate_roles: [read_only_auditor, explorer, validation_loop]
+        promotion_status: candidate_eval_pending
+        caveat: "Free-tier eval-only model. Available now. Do not use for protocol seal, secrets, or production routing. Separate from opencode-go/deepseek-v4-flash (Go-tier, active production)."
+      nemotron-3-ultra-free:
+        opencode_id: opencode/nemotron-3-ultra-free
+        direct_id: nemotron-3-ultra-free
+        provider: opencode-free-tier
+        access_state: available_now_free_tier
+        candidate_roles: [explorer, validation_loop]
+        promotion_status: candidate_eval_pending
+        caveat: "Free-tier eval-only model. Available now. Do not use for protocol seal, secrets, or production routing."
+      north-mini-code-free:
+        opencode_id: opencode/north-mini-code-free
+        direct_id: north-mini-code-free
+        provider: opencode-free-tier
+        access_state: available_now_free_tier
+        candidate_roles: [explorer, validation_loop]
+        promotion_status: candidate_eval_pending
+        caveat: "Free-tier eval-only model. Available now. Do not use for protocol seal, secrets, or production routing."
+      big-pickle:
+        opencode_id: opencode/big-pickle
+        direct_id: big-pickle
+        provider: opencode-free-tier
+        access_state: available_now_free_tier
+        candidate_roles: [explorer]
+        promotion_status: candidate_eval_pending
+        caveat: "Free-tier eval-only model. Available now. Do not use for protocol seal, secrets, or production routing."
+
+      minimax-m2.7:
+        opencode_id: opencode-go/minimax-m2.7
+        direct_id: minimax-m2.7
+        candidate_roles: [experimental]
+        endpoint_mode: messages_if_verified
+        promotion_status: blocked_until_retest
+        compaction_safe: false
+        compaction_safe_reason: "General capability too low; not safe for session-memory compaction."
+        caveat: "v0.2 eval (2026-06-05): Implementer score 2.59/10 — too weak for production implementation. Feature implementation scored 0.3/10, build recovery 1.5/10. Fast (23.8s avg) and efficient (1,328 tokens avg) but creates weak patches. Blocked from implementation routing until retest shows improved quality."
+      minimax-m2.5:
+        opencode_id: opencode-go/minimax-m2.5
+        direct_id: minimax-m2.5
+        candidate_roles: [fast_fallback]
+        endpoint_mode: messages_if_verified
+        promotion_status: endpoint_mode_pending
+        compaction_safe: false
+        compaction_safe_reason: "Endpoint mode and compaction safety not verified; not approved for session-memory compaction."
+      minimax-m3:
+        opencode_id: opencode-go/minimax-m3
+        direct_id: minimax-m3
+        candidate_roles: [ui_visual_review, screenshot_qa, mobile_responsive_qa, accessibility_audit, theme_design_review, product_handoff_qa]
+        promotion_status: eval_passed_manual_only
+        eval_result: "Phase 3C (2026-06-13): 5/5 PASS, 0 empty responses, visual/multimodal usefulness 4.6/5.0, accessibility accuracy 4.0/5.0, product polish 4.6/5.0; approved as manual UI/multimodal QA specialist only."
+        eval_artifact: "vault/evals/models/results/minimax-m3-ui-eval-20260613/eval-report.md"
+        compaction_safe: false
+        compaction_safe_reason: "Manual UI/multimodal QA specialist only; not evaluated for session-memory compaction."
+        caveat: "Approved as manual UI/multimodal QA specialist only. Not automatic routing, not security/auth review, not implementation, not protocol seal, not production deployment approval, not autonomous routing, and not secret-bearing work."
+
+  umans-ai-coding-plan:
+    status: active_capacity_provider
+    provider: umans-ai-coding-plan
+    secret_env: UMANS_API_KEY
+    secret_source: doppler_project_nuggie_be_config_dev_backend
+    quota_behavior: "Resets approximately every 5 hours. Higher quota than OpenCode Go for routine coding tasks."
+    last_discovered: 2026-06-22
+    discovered_models: [umans-coder, umans-flash, umans-glm-5.1, umans-glm-5.2, umans-kimi-k2.7, umans-qwen3.6-35b-a3b]
+    candidates:
+      umans-kimi-k2.7:
+        opencode_id: umans-ai-coding-plan/umans-kimi-k2.7
+        direct_id: umans-kimi-k2.7
+        canonical_family: kimi-k2.7
+        candidate_roles: [compaction_primary, summary_primary, long_context_summarization]
+        promotion_status: compaction_safe_proven
+        preflight_result: "2026-06-21: tiny OpenCode run returned non-empty OK response with no error marker."
+        compaction_safe: true
+        compaction_safe_reason: "Proven compaction-safe. Primary for compaction/summary until OpenCode Go preflight passes."
+        rollback_condition: "OpenCode Go qwen3.6-plus or qwen3.7-plus compaction preflight passes and owner approves reverting."
+        last_verified_at: 2026-06-21
+      umans-coder:
+        opencode_id: umans-ai-coding-plan/umans-coder
+        direct_id: umans-coder
+        canonical_family: umans-coder
+        candidate_roles: [implementer_primary, planner_primary, capacity_coding_workhorse, explorer_fallback, budget_fallback]
+        promotion_status: production_active_soak_monitoring
+        preflight_result: "2026-06-21: tiny OpenCode run returned non-empty OK response with no error marker."
+        canary_results:
+          implementation_canary: "2026-06-22: PASS — bounded implementation task completed with 0 empty responses, 0 protocol violations"
+          planning_canary: "2026-06-22: PASS — bounded planning task completed with 0 empty responses, 0 protocol violations, plan quality acceptable"
+        soak_results:
+          implementation_soak: "2026-06-22: PASS — real implementation task (conformance test creation) completed with 0 empty responses, 8 tool calls, 0 failures, fast latency, high code quality"
+          planning_soak: "2026-06-22: PASS — real planning task (quota monitoring feature) completed with 0 empty responses, specific/actionable/realistic plan, stayed bounded"
+        compaction_safe: false
+        compaction_safe_reason: "Coding-specialized model; compaction favors summarization/long-context quality. Not approved for session-memory compaction."
+        quota_optimization: "Primary for routine implementation and planning to preserve OpenCode Go quota for high-confidence orchestration and architecture."
+        canary_status: "Production active with soak monitoring. All canaries and soak tasks passed. Monitor for 1 day before promoting to production_core. Do not promote until 24h of production observation passes with 0 empty responses and stable quota behavior."
+        monitoring_requirements:
+          - "Observe 24h of production use with 0 empty responses"
+          - "Track quota consumption and reset behavior"
+          - "Monitor tool-use reliability across diverse tasks"
+          - "No quality regressions observed"
+        promotion_to_core_criteria:
+          - "24h production observation complete"
+          - "0 empty responses in production use"
+          - "Stable quota behavior documented"
+          - "No quality regressions"
+        last_verified_at: 2026-06-22
+      umans-flash:
+        opencode_id: umans-ai-coding-plan/umans-flash
+        direct_id: umans-flash
+        canonical_family: umans-flash
+        candidate_roles: [explorer, budget, fast_tasks]
+        verified_for_roles: [explorer, budget]
+        promotion_status: production_active_for_explorer_budget
+        compaction_safe: false
+        compaction_safe_reason: "Not evaluated for session-memory compaction. Requires dedicated compaction eval."
+        caveat: "v1.5.2 production promotion (2026-06-22): VERIFIED for explorer + budget roles only. 0 empty responses, correct repo exploration, accurate summarization, budget config reading correct. Not verified for: compaction, orchestrator, reviewer, implementer, planner, architect, summary. compaction_safe: false. Do NOT use for roles outside [explorer, budget]."
+        verification_status: "PRODUCTION ACTIVE — explorer/budget (2026-06-22). 5/5 verification tasks pass. 0 empty responses. Primary for explorer/budget as approved by owner."
+        last_verified_at: "2026-06-22"
+        verification_evidence:
+          - "Task 1 repo exploration: PASS — discovered protected-repo-prod (30 files), registry (38 repos), workspace map (44 repos)"
+          - "Task 2 summarization: PASS — summarized protected-repo INDEX.md (66 lines) and PGR entry (100 lines) with no hallucinations"
+          - "Task 3 budget task: PASS — read PGR v0.2 config, identified version/status/operating contract correctly"
+          - "Task 4 empty-response check: PASS — 0 empty responses across all tool calls"
+          - "Task 5 latency: ACCEPTABLE — normal response time, not blazing fast but acceptable"
+      umans-glm-5.1:
+        opencode_id: umans-ai-coding-plan/umans-glm-5.1
+        direct_id: umans-glm-5.1
+        canonical_family: glm-5.1
+        provider_endpoint: umans-ai-coding-plan
+        candidate_roles: [reviewer, judge]
+        verified_for_roles: [reviewer, judge]
+        promotion_status: production_active_for_reviewer_judge
+        compaction_safe: false
+        compaction_safe_reason: "Not evaluated for session-memory compaction. Requires dedicated compaction eval."
+        caveat: "v1.5.2 production promotion (2026-06-22): VERIFIED for reviewer + judge roles only. 0 empty responses, strong code review quality, correctly identified real regression. Quality comparable to opencode-go/glm-5.1. Not verified for: compaction, orchestrator, implementer, planner, architect, summary. compaction_safe: false. Do NOT use for roles outside [reviewer, judge]."
+        overlap_note: "Same family as opencode-go/glm-5.1. Treat as separate endpoint. Verified independently. Umans is primary for routine review (better quota/cost). OpenCode Go is premium/final review reserve for high-risk review."
+        verification_status: "PRODUCTION ACTIVE — reviewer/judge (2026-06-22). 4/4 verification tasks pass. 0 empty responses. Primary for reviewer/judge as approved by owner."
+        last_verified_at: "2026-06-22"
+        verification_evidence:
+          - "Task 1 read-only review: PASS — reviewed brain-hooks.js (200 lines), found 1 minor security note (AppleScript injection), 1 style note (magic number), no critical bugs"
+          - "Task 2 bug-risk assessment: PASS — reviewed model-routing-coherence.sh (250 lines), found real regression (stale explorer/budget assertions after umans-flash promotion), fixed across 6 config surfaces"
+          - "Task 3 protocol compliance: PASS — identified and resolved coherence gap from umans-flash promotion, all gates pass"
+          - "Task 4 empty-response check: PASS — 0 empty responses across all tool calls"
+      umans-glm-5.2:
+        opencode_id: umans-ai-coding-plan/umans-glm-5.2
+        direct_id: umans-glm-5.2
+        canonical_family: glm-5.2
+        provider_endpoint: umans-ai-coding-plan
+        candidate_roles: [candidate_orchestrator, candidate_reviewer, long_horizon_coding, agentic_tool_use]
+        verified_for_roles: [orchestrator_routine, orchestrator_medium_risk, senior_reviewer_candidate]
+        promotion_status: production_active_for_orchestrator_routine_medium
+        compaction_safe: false
+        compaction_safe_reason: "Not evaluated for session-memory compaction. Requires dedicated compaction eval."
+        caveat: "v1.5.2 production promotion (2026-06-22): VERIFIED for orchestrator routine + medium-risk + senior reviewer candidate. 0 empty responses, strong planning/architecture/review quality comparable to qwen3.7-plus. Not verified for: compaction, summary, high-risk architecture primary, autonomous broad refactors. Not production_core until 24h soak passes. compaction_safe: false. Do NOT use for roles outside [orchestrator_routine, orchestrator_medium_risk, senior_reviewer_candidate]."
+        overlap_note: "Same family as opencode-go/glm-5.2. Treat as separate endpoint. Verified independently. Umans is primary for routine/medium-risk orchestration (better quota/cost). OpenCode Go qwen3.7-plus is premium reserve for high-risk architecture, hard debugging, final release judgment."
+        verification_status: "PRODUCTION ACTIVE — orchestrator routine/medium (2026-06-22). 6/6 verification tasks pass. 0 empty responses. Planning, architecture reasoning, tool-use, bounded edit, senior review, and Qwen comparison all PASS. Quality comparable to qwen3.7-plus (not proven superior — confidence gap is soak time)."
+        last_verified_at: "2026-06-22"
+        verification_evidence:
+          - "Task 1 orchestrator planning: PASS — bounded P0.2 plan with scope, files, phases, validation, rollback, explicit out-of-scope, no over-expansion"
+          - "Task 2 architecture reasoning: PASS — reviewed v1.5 capacity-first inversion, identified tradeoffs, classified risks, found compaction fallback thinness"
+          - "Task 3 tool-use reliability: PASS — 5 tool calls (read ×3, bash ×2), 0 empty responses, 0 failures"
+          - "Task 4 bounded repo-edit: PASS — updated helper-roster.md, ran coherence test after edit (59/59 PASS)"
+          - "Task 5 senior review: PASS — reviewed umans-flash and umans-glm-5.1 promotions, confirmed coherence, no over-promotion, fixed stale helper-roster.md"
+          - "Task 6 Qwen comparison: COMPARABLE — quality comparable across 7 dimensions, no superiority claim, confidence gap is soak time"
+      umans-qwen3.6-35b-a3b:
+        opencode_id: umans-ai-coding-plan/umans-qwen3.6-35b-a3b
+        direct_id: umans-qwen3.6-35b-a3b
+        canonical_family: qwen3.6
+        candidate_roles: [implementer, planner, explorer]
+        promotion_status: candidate_only
+        compaction_safe: false
+        compaction_safe_reason: "Newly discovered model; not yet verified for any role including compaction."
+        caveat: "Discovered 2026-06-22. Likely a Qwen 3.6 variant (35B parameters, 3B active?). Candidate only until verification passes."
+        last_verified_at: null
+
+role_router:
+  status: v1_5_capacity_first_routing
+  production_date: 2026-06-22
+  production_action: v1.5 Capacity-First Provider Inversion — Umans as primary, OpenCode Go as premium reserve
+  previous_version: v1_4_3_resilience_hardened (2026-06-22)
+
+  # v1.5: Capacity-first routing — Umans primary for routine, OpenCode Go premium reserve
+  # Umans = default daily development provider (planning, implementation, routine review, exploration)
+  # OpenCode Go = premium reserve (hard architecture, difficult debugging, final review, emergency fallback)
+
+  # Orchestrator: umans-glm-5.2 primary (v1.5.2 promoted), umans-coder fallback, qwen3.7-plus premium reserve
+  orchestrator: [umans-ai-coding-plan/umans-glm-5.2, umans-ai-coding-plan/umans-coder, opencode-go/qwen3.7-plus]
+  fallback_orchestrator: [umans-ai-coding-plan/umans-coder, opencode-go/qwen3.7-plus, opencode-go/qwen3.6-plus]
+
+  fast_tasks: [umans-coder, opencode-go/deepseek-v4-flash]
+
+  # Architect: OpenCode Go for high-risk architecture (premium reserve)
+  architect: [opencode-go/qwen3.7-plus]
+  fallback_architect: [opencode-go/qwen3.6-plus, umans-ai-coding-plan/umans-glm-5.2]
+
+  # Planner: Umans primary (already validated)
+  planner: [umans-ai-coding-plan/umans-coder, opencode-go/qwen3.7-plus]
+
+  # Implementer: Umans primary (already validated)
+  implementation: [umans-ai-coding-plan/umans-coder, opencode-go/qwen3.7-plus]
+
+  # Reviewer: Umans GLM-5.1 primary (v1.5.2 promoted), OpenCode Go premium/final review reserve
+  reviewer: [umans-ai-coding-plan/umans-glm-5.1, opencode-go/glm-5.1, umans-ai-coding-plan/umans-coder]
+
+  judge: [umans-ai-coding-plan/umans-glm-5.1, opencode-go/glm-5.1]
+
+  # Explorer/Budget: umans-flash promoted (v1.5.2) to save OpenCode quota
+  explorer: [umans-ai-coding-plan/umans-flash, opencode-go/deepseek-v4-flash]
+
+  budget: [umans-ai-coding-plan/umans-flash, opencode-go/deepseek-v4-flash]
+
+  challenger: [opencode-go/kimi-k2.6]
+  hard_deep_repo_solver: [opencode-go/qwen3.6-plus]
+  cheap_coding_worker_candidate: [umans-coder]
+  emergency_fallback: [umans-ai-coding-plan/umans-coder, opencode-go/qwen3.6-plus]
+  blocked_orchestrator: [deepseek-v4-pro, mimo-v2.5-pro, minimax-m2.7]
+
+  # v1.3: Quota-aware routing policy
+  # OpenCode Go = premium lane for high-confidence orchestration, architecture, difficult debugging
+  # Umans = capacity lane for routine implementation, planning, and coding work
+  # When both providers expose equivalent models, prefer the provider with better quota/cost
+  quota_aware_routing_policy:
+    version: 1.3
+    date: 2026-06-21
+    principles:
+      - "OpenCode Go is the premium/high-confidence lane: orchestration, architecture, difficult debugging, final review"
+      - "Umans is the capacity/routine lane: implementation, planning, coding work, explorer/budget fallback"
+      - "When both providers expose equivalent models, prefer the provider with better remaining quota / lower cost for routine work"
+      - "Never use unverified models for compaction"
+      - "On quota/rate limit: switch provider immediately, not just model"
+      - "On empty response: mark model degraded and step down"
+      - "On tool-use failure: avoid that model for agentic tasks"
+    provider_roles:
+      opencode_go:
+        description: "Premium/high-confidence lane"
+        primary_for: [orchestrator, architect, hard_implementation, final_review, difficult_debugging]
+        quota_behavior: "Lower quota, resets every 5 hours. Preserve for high-risk tasks."
+      umans:
+        description: "Capacity/routine lane"
+        primary_for: [implementer, planner, routine_coding, explorer_fallback, budget_fallback]
+        quota_behavior: "Higher quota, resets every 5 hours. Use for routine work to preserve OpenCode Go."
+
+  # v1.5: Failure-type-aware conditional routing with capacity-first provider strategy
+  # Static ordered fallback is insufficient: quota failures need immediate provider switch,
+  # quality failures can try same-provider siblings first.
+  # Each role defines: primary model, quality_fallback (same provider), quota_fallback (cross-provider)
+  failure_type_aware_routing:
+    version: 1.5
+    date: 2026-06-22
+    description: "Conditional routing based on failure type, capacity-first provider strategy"
+
+    # Failure type → routing behavior
+    failure_type_rules:
+      quota_rate_limit:
+        description: "Provider quota exhausted or rate limited (429, insufficient_balance, quota_exceeded)"
+        behavior: "switch_provider_immediately"
+        reason: "Same-provider fallback will also fail. Jump to other provider's equivalent model."
+      auth_failure:
+        description: "Authentication failure (401, 403, invalid_api_key)"
+        behavior: "switch_provider_immediately"
+        reason: "Provider credentials broken. Jump to other provider."
+      empty_response:
+        description: "Model returned empty content after consuming tokens"
+        behavior: "mark_degraded_switch_provider"
+        reason: "Model may be having runtime issues. Mark degraded and try other provider."
+      tool_use_failure:
+        description: "Model cannot use required tools (function calling broken, tool schema mismatch)"
+        behavior: "avoid_model_agentic_tasks"
+        reason: "Model unreliable for agentic work. Use for non-agentic tasks only or switch provider."
+      quality_weakness:
+        description: "Model output quality too low (weak patches, poor planning, incorrect analysis)"
+        behavior: "try_stronger_sibling_same_provider_first"
+        reason: "Quality issue may be model-specific. Try stronger model from same provider before switching."
+      compaction_failure:
+        description: "Compaction produced invalid/incomplete context or session died after compaction"
+        behavior: "use_proven_compaction_safe_only"
+        reason: "Only models explicitly marked compaction_safe:true may perform compaction."
+      provider_timeout:
+        description: "Provider did not respond within timeout"
+        behavior: "switch_provider_immediately"
+        reason: "Provider may be down. Jump to other provider."
+
+    # Role-specific routing with failure-type awareness (v1.5 capacity-first)
+    roles:
+      orchestrator:
+        primary: umans-ai-coding-plan/umans-glm-5.2  # v1.5.2: promoted after verification
+        quality_fallback: umans-ai-coding-plan/umans-coder  # same-provider fallback (capacity lane)
+        quota_fallback: opencode-go/qwen3.7-plus  # cross-provider, premium reserve
+        manual_escalation: ChatGPT/Codex
+        notes: "Umans GLM-5.2 is primary orchestrator for routine/medium-risk (production_active_for_orchestrator_routine_medium). umans-coder is same-provider fallback. OpenCode Go qwen3.7-plus is premium reserve for high-risk architecture, hard debugging, final release judgment. On Umans quota failure, jump to OpenCode Go."
+
+      implementer:
+        primary: umans-ai-coding-plan/umans-coder
+        quality_fallback: opencode-go/qwen3.7-plus  # cross-provider, premium quality
+        quota_fallback: opencode-go/qwen3.6-plus  # cross-provider, hard-solver
+        manual_escalation: Kimi/other proven coding model
+        notes: "Capacity lane. On Umans quota failure, jump directly to OpenCode Go."
+
+      reviewer:
+        primary: umans-ai-coding-plan/umans-glm-5.1  # v1.5.2: promoted after verification
+        quality_fallback: opencode-go/glm-5.1  # cross-provider, premium/final review reserve
+        quota_fallback: umans-ai-coding-plan/umans-coder  # cross-provider, lightweight review fallback
+        candidate_routes:
+          - umans-ai-coding-plan/umans-glm-5.2  # candidate_only, pending verification
+        manual_escalation: ChatGPT/Codex
+        notes: "Umans GLM-5.1 is primary reviewer (production_active_for_reviewer_judge). OpenCode Go glm-5.1 is premium/final review reserve for high-risk review. On Umans quota failure, jump to OpenCode Go."
+
+      planner:
+        primary: umans-ai-coding-plan/umans-coder
+        quality_fallback: opencode-go/qwen3.7-plus  # cross-provider, premium quality
+        quota_fallback: opencode-go/qwen3.6-plus  # cross-provider, hard-solver
+        notes: "Capacity lane. On Umans quota failure, jump directly to OpenCode Go."
+
+      architect:
+        primary: opencode-go/qwen3.7-plus  # v1.5: OpenCode Go premium reserve for high-risk architecture
+        quality_fallback: opencode-go/qwen3.6-plus  # same provider, hard-solver
+        quota_fallback: umans-ai-coding-plan/umans-glm-5.2  # cross-provider, architecture-style reasoning
+        notes: "Premium reserve: OpenCode Go for high-risk architecture. On OpenCode Go quota failure, fall to qwen3.6-plus, then umans-glm-5.2 (architecture-style reasoning). Do not use umans-coder for architecture unless explicitly low-risk."
+
+      explorer:
+        primary: umans-ai-coding-plan/umans-flash  # v1.5.2: promoted from deepseek-v4-flash after verification
+        quality_fallback: opencode-go/deepseek-v4-flash  # fallback to incumbent
+        quota_fallback: umans-ai-coding-plan/umans-coder  # cross-provider
+        notes: "Umans-flash is primary explorer (production_active_for_explorer_budget). OpenCode Go deepseek-v4-flash is fallback if flash quota fails."
+
+      budget:
+        primary: umans-ai-coding-plan/umans-flash  # v1.5.2: promoted from deepseek-v4-flash after verification
+        quality_fallback: opencode-go/deepseek-v4-flash  # fallback to incumbent
+        quota_fallback: umans-ai-coding-plan/umans-coder  # cross-provider
+        notes: "Umans-flash is primary budget (production_active_for_explorer_budget). OpenCode Go deepseek-v4-flash is fallback if flash quota fails."
+
+      compaction:
+        primary: opencode-go/glm-5.2
+        quality_fallback: umans-ai-coding-plan/umans-kimi-k2.7  # compaction_safe_proven, 256K context
+        quota_fallback: opencode-go/qwen3.7-plus  # compaction_safe, 128K context
+        fallback_budget_rule: "umans-kimi-k2.7 may only be used for sessions <=180K tokens. qwen3.7-plus may only be used for sessions <=100K tokens. If session exceeds fallback budget, force GLM-5.2 or checkpoint + fresh session."
+        notes: "GLM-5.2 primary (1M context, matches chat model). Kimi fallback bounded to <=180K. Qwen fallback bounded to <=100K. Eval passed 2026-07-08."
+
+      summary:
+        primary: opencode-go/glm-5.2
+        quality_fallback: umans-ai-coding-plan/umans-kimi-k2.7  # compaction_safe_proven, 256K context
+        quota_fallback: opencode-go/qwen3.7-plus  # compaction_safe, 128K context
+        fallback_budget_rule: "Same as compaction: kimi <=180K, qwen <=100K, GLM-5.2 for anything larger."
+        notes: "GLM-5.2 primary (1M context). Kimi fallback bounded to <=180K. Qwen fallback bounded to <=100K."
+
+    # Model status labels (v1.4.3 update)
+    model_status_labels:
+      umans-coder: "production_active_soak_monitoring"
+      umans-kimi-k2.7: "compaction_safe_proven"
+      umans-flash: "production_active_for_explorer_budget"
+      umans-glm-5.1: "production_active_for_reviewer_judge"
+      umans-glm-5.2: "production_active_for_orchestrator_routine_medium"
+      glm-5.2: "compaction_safe_proven"
+      qwen3.6-plus: "compaction_fallback_preflight_passed"
+      qwen3.7-plus: "compaction_fallback_preflight_passed"
+
+  # v1.4: Model/provider overlap map
+  # When the same or equivalent model exists on both providers, treat as separate endpoints
+  # Prefer the endpoint with better quota/cost for routine work
+  # Prefer the endpoint with better verified quality for high-risk work
+  model_overlap_map:
+    - model_family: "glm-5.2"
+      opencode_go_model: opencode-go/glm-5.2
+      umans_model: umans-ai-coding-plan/umans-glm-5.2
+      overlap_type: "same_model_family_different_endpoint"
+      routing_rule: "Umans GLM-5.2 is primary for routine/medium-risk orchestration (better quota/cost). OpenCode Go qwen3.7-plus is premium reserve for high-risk architecture, hard debugging, final release judgment. Never route to unverified endpoint for compaction."
+      verification_status: "umans-glm-5.2 is production_active_for_orchestrator_routine_medium. opencode-go/glm-5.2 is candidate_only."
+    - model_family: "glm-5.1"
+      opencode_go_model: opencode-go/glm-5.1
+      umans_model: umans-ai-coding-plan/umans-glm-5.1
+      overlap_type: "same_model_family_different_endpoint"
+      routing_rule: "Umans GLM-5.1 is primary for routine review (better quota/cost). OpenCode Go GLM-5.1 is premium/final review reserve for high-risk review. Both verified independently."
+      verification_status: "umans-glm-5.1 is production_active_for_reviewer_judge. opencode-go/glm-5.1 is premium_reserve."
+    - model_family: "qwen-coding"
+      opencode_go_models: [qwen3.7-plus, qwen3.6-plus]
+      umans_equivalent: "umans-coder (Kimi-backed coding model), umans-qwen3.6-35b-a3b (Qwen variant)"
+      routing_rule: "For routine implementation/planning: prefer umans-coder (capacity lane). For high-confidence orchestration/architecture: prefer opencode-go/qwen3.7-plus (premium lane)."
+    - model_family: "compaction-safe"
+      opencode_go_models: [glm-5.2, qwen3.6-plus, qwen3.7-plus]
+      umans_equivalent: "umans-kimi-k2.7"
+      routing_rule: "Compaction: prefer opencode-go/glm-5.2 (1M context, matches chat model). umans-kimi-k2.7 is bounded fallback for sessions <=180K tokens only. qwen models are bounded fallback for sessions <=100K tokens only."
+    - model_family: "explorer-budget"
+      opencode_go_models: [deepseek-v4-flash]
+      umans_models: [umans-flash, umans-coder]
+      routing_rule: "Explorer/Budget: prefer umans-flash (production_active_for_explorer_budget, v1.5.2). OpenCode Go deepseek-v4-flash is fallback."
+
+  # v1.4: Discovery freshness rules
+  discovery_freshness:
+    version: 1.4
+    date: 2026-06-22
+    rules:
+      - "If model discovery is older than 7 days, warn before major work"
+      - "If provider model list changes, mark new models candidate_only until verified"
+      - "Run 'opencode models <provider>' to refresh discovery"
+      - "Update last_discovered timestamp after each discovery run"
+      - "Update last_verified_at after each verification task"
+    last_discovery_run: 2026-06-22
+    next_discovery_due: 2026-06-29
+    discovery_command: "opencode models <provider>"
+
+  # v1.3: Verification gates
+  umans_coder_canary_gate:
+    status: pending
+    description: "Full coding canary for umans-coder as primary implementer/planner"
+    required_checks:
+      - routine_implementation_task: "Complete a bounded implementation task with 0 empty responses and 0 protocol violations"
+      - routine_planning_task: "Create a plan for a multi-step feature with 0 empty responses"
+      - tool_use_reliability: "Verify tool-use works reliably across 3+ tasks"
+      - quota_behavior_observed: "Observe quota consumption and reset behavior over 1 day"
+    do_not_promote_to_primary_when: any check fails or is unverified
+
+  glm52_verification_gate:
+    status: pending
+    description: "Verification gate for GLM-5.2 as candidate orchestrator/reviewer"
+    required_checks:
+      - tool_use_via_opencode_go: "Verify function calling works through opencode-go provider"
+      - repo_edit_safety: "Safe read + edit on a test repo without protocol violations"
+      - protocol_gate_pass: "Pass workspace protocol guard with GLM-5.2 as reviewer"
+      - empty_response_safety: "0 empty responses across 3+ tasks"
+      - compaction_safety: "Not approved for compaction until dedicated eval passes"
+    do_not_promote_when: any check fails or is unverified
+
+  # v1.4.1: GLM-5.2 A/B Verification Plan
+  # Compare opencode-go/glm-5.2 vs umans-ai-coding-plan/umans-glm-5.2
+  # Both endpoints must be verified independently before promotion
+  glm52_ab_verification_plan:
+    status: pending
+    description: "A/B verification of GLM-5.2 across OpenCode Go and Umans endpoints"
+    session_a:
+      model: opencode-go/glm-5.2
+      provider: opencode-go
+      tasks:
+        - reviewer_task: "Read-only review of a code file with quality assessment"
+        - orchestrator_task: "Plan a multi-step feature implementation"
+        - tool_use_test: "Execute 3+ tool calls (read, edit, bash)"
+        - bounded_repo_edit: "Add and remove a test comment in a file"
+        - empty_response_check: "Verify 0 empty responses across all tasks"
+      expected_outcome: "PASS/FAIL with detailed metrics"
+    session_b:
+      model: umans-ai-coding-plan/umans-glm-5.2
+      provider: umans-ai-coding-plan
+      tasks:
+        - reviewer_task: "Read-only review of a code file with quality assessment"
+        - orchestrator_task: "Plan a multi-step feature implementation"
+        - tool_use_test: "Execute 3+ tool calls (read, edit, bash)"
+        - bounded_repo_edit: "Add and remove a test comment in a file"
+        - empty_response_check: "Verify 0 empty responses across all tasks"
+      expected_outcome: "PASS/FAIL with detailed metrics"
+    comparison_criteria:
+      - tool_use_reliability: "Which endpoint has more reliable function calling?"
+      - empty_response_rate: "Which endpoint has fewer empty responses?"
+      - code_quality: "Which endpoint produces higher quality code?"
+      - protocol_compliance: "Which endpoint has fewer protocol violations?"
+      - quota_cost: "Which endpoint is more cost-effective for routine review?"
+    promotion_rule: "After A/B verification, prefer endpoint with better verified quality for high-risk work, better quota/cost for routine work. Do NOT promote until both endpoints pass all 5 tasks."
+    do_not_test:
+      - compaction_promotion: "Do not test compaction unless separately requested"
+      - production_routing: "Do not add to active fallback chains until A/B passes"
+
+  # v1.5.3: 24h Production Soak Monitoring
+  production_soak:
+    version: 1.5.3
+    start_date: "2026-06-22"
+    soak_window: "24 hours from first production use"
+    status: active
+    description: |
+      Track all promoted Umans models for 24h of production use.
+      If no material failures occur, mark eligible models production_core_for_role.
+      If failures occur, degrade only the affected role/model, not the whole provider.
+    monitored_models:
+      umans-glm-5.2:
+        roles: [orchestrator_routine, orchestrator_medium_risk]
+        soak_start: "2026-06-22"
+        empty_responses: 0
+        tool_use_failures: 0
+        quality_regressions: 0
+        fallback_events: 0
+        quota_events: 0
+        status: soaking
+        production_core_eligible: false
+        eligibility_criteria:
+          - "24h production observation complete"
+          - "0 empty responses in production use"
+          - "0 tool-use failures"
+          - "0 quality regressions"
+          - "Stable quota behavior documented"
+      umans-coder:
+        roles: [planner, implementer]
+        soak_start: "2026-06-22"
+        empty_responses: 0
+        tool_use_failures: 0
+        quality_regressions: 0
+        fallback_events: 0
+        quota_events: 0
+        status: soaking
+        production_core_eligible: false
+        eligibility_criteria:
+          - "24h production observation complete"
+          - "0 empty responses in production use"
+          - "0 tool-use failures"
+          - "0 quality regressions"
+          - "Stable quota behavior documented"
+      umans-glm-5.1:
+        roles: [reviewer, judge]
+        soak_start: "2026-06-22"
+        empty_responses: 0
+        tool_use_failures: 0
+        quality_regressions: 0
+        fallback_events: 0
+        quota_events: 0
+        status: soaking
+        production_core_eligible: false
+        eligibility_criteria:
+          - "24h production observation complete"
+          - "0 empty responses in production use"
+          - "0 tool-use failures"
+          - "0 quality regressions"
+          - "Stable quota behavior documented"
+      umans-flash:
+        roles: [explorer, budget]
+        soak_start: "2026-06-22"
+        empty_responses: 0
+        tool_use_failures: 0
+        quality_regressions: 0
+        fallback_events: 0
+        quota_events: 0
+        status: soaking
+        production_core_eligible: false
+        eligibility_criteria:
+          - "24h production observation complete"
+          - "0 empty responses in production use"
+          - "0 tool-use failures"
+          - "0 quality regressions"
+          - "Stable quota behavior documented"
+    degradation_rules:
+      - "If a model produces an empty response: mark degraded for that role, switch to fallback"
+      - "If a model fails tool-use: mark degraded for agentic tasks, keep for non-agentic if applicable"
+      - "If quality regression observed: try stronger same-provider sibling first, then switch provider"
+      - "If quota/rate-limit: switch provider immediately, do not retry same provider"
+      - "Degrade only the affected role/model, not the whole provider"
+    promotion_rule:
+      - "After 24h soak with 0 material failures: mark model production_core_for_role"
+      - "Material failure = empty response, tool-use failure, or quality regression"
+      - "Quota events are not material failures if fallback handled them correctly"
+      - "Owner approval required for production_core promotion"
+    production_core_promotion_checklist:
+      - "24h production observation complete"
+      - "0 empty responses in production use"
+      - "0 tool-use failures"
+      - "0 quality regressions"
+      - "Stable quota behavior documented"
+      - "All gates pass (model routing coherence, empty-response guardrail, compaction safety, workspace protocol guard)"
+      - "Owner approval for production_core promotion"
+      - "If any check fails: degrade only the affected role/model, not the whole provider"
+
+  # v1.5.3: Runtime Observation Logging
+  runtime_observation:
+    version: 1.5.3
+    description: |
+      Track runtime events for soak monitoring. The brain-hooks plugin already
+      logs empty responses and compaction outcomes. This section documents
+      the full observation surface and identifies gaps.
+    logged_by_brain_hooks:
+      - field: "timestamp"
+        source: "empty-response logs + compaction hook logs"
+        status: logged
+      - field: "model"
+        source: "empty-response logs + compaction hook logs"
+        status: logged
+      - field: "task_type"
+        source: "empty-response logs"
+        status: logged
+      - field: "latency_seconds"
+        source: "empty-response logs"
+        status: logged
+      - field: "token_usage"
+        source: "empty-response logs"
+        status: logged
+      - field: "failure_reason"
+        source: "empty-response logs"
+        status: logged
+      - field: "outcome"
+        source: "compaction hook logs (success, safe_skip, handled_error, provider_unavailable)"
+        status: logged
+      - field: "providerStatus"
+        source: "compaction hook logs"
+        status: logged
+      - field: "configuredCompactionModel"
+        source: "compaction hook logs"
+        status: logged
+    inferred_from_model_prefix:
+      - field: "provider"
+        source: "model prefix (umans-ai-coding-plan/ or opencode-go/)"
+        status: inferred
+      - field: "role"
+        source: "agent context (orchestrator, reviewer, explorer, etc.)"
+        status: inferred
+    manual_observation_required:
+      - field: "tool_use_failures"
+        source: "agent session observation — count tool calls that returned errors or empty results"
+        status: manual
+        frequency: "per session, update soak counters"
+      - field: "quality_regression"
+        source: "agent session observation — subjective assessment of output quality decline"
+        status: manual
+        frequency: "per session, update soak counters"
+      - field: "fallback_event"
+        source: "agent session observation — count when fallback model was used"
+        status: manual
+        frequency: "per session, update soak counters"
+      - field: "quota_rate_limit_event"
+        source: "agent session observation — count 429/insufficient_balance events"
+        status: manual
+        frequency: "per session, update soak counters"
+    soak_counter_update_rule: |
+      After each production session using a promoted Umans model, update the
+      soak counters in production_soak.monitored_models.<model>:
+      - Increment empty_responses if any empty response occurred
+      - Increment tool_use_failures if any tool call failed due to model behavior
+      - Increment quality_regressions if output quality was materially below expectations
+      - Increment fallback_events if a fallback model was used
+      - Increment quota_events if a quota/rate-limit was hit
+      If any counter increments, document the event in vault/projects/personal-projects/lessons.md.
+
+  # v1.3: Protocol roles for quota-aware routing
+  protocol_roles:
+    provider_router:
+      description: "Decides provider/model before task execution based on task type, quota, cost, and failure state"
+      responsibility: "Select optimal provider/model for each task using quota-aware routing policy"
+      decision_factors: [task_type, quota_remaining, cost_per_task, tool_use_reliability, recent_failures]
+    quota_steward:
+      description: "Tracks provider usage, cooldowns, reset windows, and recent model failures"
+      responsibility: "Monitor quota consumption, detect rate limits, trigger provider switch on failure"
+      tracking: [provider_usage, rate_limit_events, empty_response_events, tool_use_failures, cooldown_windows]
+
+production_baseline:
+  version: v1.1-production
+  status: qwen3_7_plus_production_ready
+  production_date: 2026-06-05
+  production_by: Action 4D — Qwen3.7 Plus Production v1.1 Seal
+  previous_version: v1.1-canary (Action 4C, 2026-06-05)
+  evidence:
+    - "v0.4 benchmark (qwen3.6-plus): 9.9/10 average, 100% pass rate, 0 empty responses"
+    - "Action 4B benchmark (qwen3.7-plus): 10.0/10 average, 100% pass rate, 0 empty responses"
+    - "qwen3.7-plus pricing: -20% input, -47% output, +30% rate limit vs qwen3.6-plus"
+    - "Empty-response guardrail conformance: 30/30 PASS"
+    - "Workspace protocol guard: 602/602 PASS"
+    - "Canary Task 1: sync script thin-shell fix (PASS)"
+    - "Canary Task 2: conformance/reporting integration (PASS)"
+    - "Canary Task 3: real utility implementation (PASS)"
+    - "3/3 canary tasks clean, 0 empty responses, 0 protocol violations"
+  routing_table:
+    primary_orchestrator: qwen3.7-plus
+    fallback_orchestrator: qwen3.6-plus
+    fast_direct: qwen3.7-plus
+    implementer: qwen3.7-plus
+    hard_solver: qwen3.6-plus
+    reviewer: glm-5.1
+    explorer: deepseek-v4-flash
+    budget: deepseek-v4-flash
+  canary_rules:
+    status: canary_complete_production_active
+    canary_model: qwen3.7-plus
+    canary_roles: [primary_orchestrator, fast_direct, implementer]
+    canary_tasks_completed: 3
+    canary_tasks:
+      - "Task 1: sync script thin-shell fix (PASS)"
+      - "Task 2: conformance/reporting integration (PASS)"
+      - "Task 3: real utility implementation (PASS)"
+    rollback_model: qwen3.6-plus
+    rollback_roles: [fallback_orchestrator, hard_solver]
+    promotion_requirements:
+      - "3 clean real development tasks with 0 empty responses"
+      - "0 protocol violations during canary"
+      - "0 unauthorized global/routing drift"
+      - "All relevant conformance checks pass"
+      - "Evidence reports produced for each canary task"
+      - "Explicit owner approval before production v1.1 seal"
+    promotion_status: all_requirements_met_sealed
+  blocked_from_auto_routing:
+    - model: mimo-v2.5-pro
+      reason: "2 empty responses on debugging and feature implementation tasks (v0.2 eval)"
+    - model: deepseek-v4-pro
+      reason: "2 empty responses on debugging and build recovery tasks (v0.2 eval)"
+    - model: minimax-m2.7
+      reason: "Implementer score 2.59/10 — too weak for production (v0.2 eval)"
+  promotion_gate:
+    rule: "No blocked model may be promoted to automatic production routing without ALL of the following:"
+    requirements:
+      - "0 empty responses across all assigned roles"
+      - "Real OpenCode runtime benchmark pass (not API-only simulation)"
+      - "Empty-response guardrail conformance test pass"
+      - "0 protocol violations"
+      - "Explicit owner approval"
+  rollback_to_v1:
+    description: "If future model experiments destabilize routing, restore these files to their v1-sealed state"
+    authoritative_files:
+      - ".opencode/opencode.json"
+      - ".opencode/brain-config.json"
+      - ".opencode/model-registry.yaml"
+      - ".opencode/helper-roster.md"
+      - ".opencode/rules.md"
+    verify_command: "bash .opencode/conformance/tests/empty-response-guardrail.sh && bash .opencode/scripts/workspace-protocol-guard.sh"
+  candidate_upgrade:
+    target: qwen3.7-plus
+    target_opencode_id: opencode-go/qwen3.7-plus
+    candidate_version: v1.1-canary
+    status: canary_active
+    canary_date: 2026-06-05
+    canary_by: "Action 4C — Owner approved canary after Action 4B benchmark (10.0/10, 100% pass, 0 empty)"
+    rationale: "Higher-limit (4,300 vs 3,300 req/5h), lower-cost ($0.40/$1.60 vs $0.50/$3.00 per M tokens) alternative to qwen3.6-plus. Passed all 8 promotion gates except owner approval for full production."
+    canary_routing:
+      primary_orchestrator: qwen3.7-plus
+      fast_direct: qwen3.7-plus
+      implementer: qwen3.7-plus
+      fallback_orchestrator: qwen3.6-plus
+      hard_solver: qwen3.6-plus
+    promotion_to_v1_1_requires:
+      - "3 clean real development tasks with 0 empty responses"
+      - "0 protocol violations during canary"
+      - "0 unauthorized global/routing drift"
+      - "All relevant conformance checks pass"
+      - "Evidence reports produced for each canary task"
+      - "Explicit owner approval before production v1.1 seal"
+    rollback_to_v1: "Restore all authoritative files to v1-sealed state (qwen3.6-plus primary); verify with conformance tests"
+
+promotion_gates:
+  - OpenCode Go model list passes through OpenCode CLI or official TUI.
+  - Smoke tests pass for each promoted model.
+  - Golden-canary eval matrix meets or beats Alibaba baseline by tag.
+  - Endpoint/API mode is known for promoted models.
+  - Secret leakage scan passes.
+  - Rollback to Alibaba is verified.
+  - Owner explicitly approves default switch.
+  - Phase M1 targeted re-eval passes for ambiguity, performance, and unsafe-security guardrails.

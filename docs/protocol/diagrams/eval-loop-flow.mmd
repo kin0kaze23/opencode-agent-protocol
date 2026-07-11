@@ -1,0 +1,41 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1a1a2e', 'primaryTextColor': '#e0e0e0', 'lineColor': '#7f8c8d'}}}%%
+flowchart TD
+    subgraph Registry
+        TY[tasks.yaml<br/>9 benchmark tasks]
+    end
+
+    subgraph Runner
+        RTR[run-task-replay-eval.sh<br/>--dry-run / --score-only / --record-result]
+        RLC[run-loop-controller.sh<br/>--dry-run / --simulate / --apply]
+        RCM[run-cross-model-evals.sh<br/>--dry-run / --simulate / --list]
+    end
+
+    subgraph Scoring
+        SCT[score-task-replay.sh<br/>7 dimensions + 2 penalties]
+        GEN[generate-task-replay-scorecard.sh]
+    end
+
+    subgraph ROI
+        NMP[normalize-model-performance.sh]
+        AMR[analyze-model-roi.sh]
+        GRR[generate-routing-recommendations.sh]
+    end
+
+    TY --> RTR
+    TY --> RLC
+    TY --> RCM
+
+    RTR --> SCT
+    RLC --> SCT
+    RCM --> RLC
+
+    SCT --> GEN
+    GEN --> NMP
+    NMP --> AMR
+    AMR --> GRR
+
+    GRR --> Policy[model-routing-policy.recommended.yaml<br/>advisory only]
+    GRR --> Scorecard[reports/routing-recommendations.md]
+
+    RLC --> Lessons[loop-lessons.jsonl]
+    SCT --> Reports[reports/task-replay/]

@@ -1,0 +1,372 @@
+# Task Replay Registry — v4.44 Agent Task Replay Eval Suite
+#
+# Historical benchmark tasks derived from real engineering work in this workspace.
+# Each task is a replayable eval that can be scored across models/agents.
+#
+# Safety rules:
+# - protected-repo is never included in any task
+# - --apply mode is required for any real repo mutation
+# - Default mode is dry-run (no mutation)
+# - Forbidden files are enforced by the replay runner
+
+version: "1.0.0"
+created: "2026-07-09"
+description: "Historical benchmark tasks for agent performance evaluation"
+
+# ─── Exclusion list ──────────────────────────────────────────────────────
+excluded_repos:
+  - protected-repo
+
+# ─── Scoring rubric (shared default) ─────────────────────────────────────
+default_scoring_rubric:
+  root_cause_correct:
+    weight: 5
+    max: 5
+    description: "Did the agent identify and fix the actual root cause?"
+  minimal_diff:
+    weight: 4
+    max: 5
+    description: "Did the agent touch only necessary files with minimal changes?"
+  test_quality:
+    weight: 4
+    max: 5
+    description: "Were tests added, updated, or verified?"
+  ci_success:
+    weight: 4
+    max: 5
+    description: "Would the change pass CI gates?"
+  security_risk_handling:
+    weight: 5
+    max: 5
+    description: "Were security-sensitive paths handled correctly?"
+  evidence_quality:
+    weight: 3
+    max: 5
+    description: "Was completion evidence provided and accurate?"
+  lesson_reuse:
+    weight: 3
+    max: 5
+    description: "Did the agent apply relevant prior lessons?"
+  reviewer_issue_count:
+    type: penalty
+    per_issue: 2
+    max_penalty: 10
+    description: "Penalty per reviewer-found issue"
+  repair_cycles:
+    type: penalty
+    per_cycle: 3
+    max_penalty: 9
+    description: "Penalty per repair cycle beyond the first"
+  time_cost:
+    type: tracked
+    description: "Tracked but not always penalized"
+
+# ─── Benchmark tasks ────────────────────────────────────────────────────
+tasks:
+  # ── Task 1: Release gate installer path rewriting ──────────────────────
+  - task_id: "TR-001"
+    title: "Release gate installer path rewriting bug"
+    repo_context: "control-plane"
+    task_type: "bug_fix"
+    risk_lane: "STANDARD"
+    historical_source: "v4.34 — installer referenced .opencode/scripts/ paths but target repos needed .github/scripts/ paths"
+    input_prompt: |
+      The release gate installer copies workflow files to target repos but the
+      workflow references .opencode/scripts/ paths that don't exist in target
+      repos. Fix the installer to rewrite script paths from .opencode/scripts/
+      to .github/scripts/ when copying to target repos.
+    expected_root_cause: "Installer copies workflow YAML verbatim without rewriting .opencode/scripts/ paths to .github/scripts/"
+    expected_files_touched:
+      - ".opencode/scripts/install-release-gate.sh"
+    forbidden_files:
+      - "protected-repo/**"
+      - ".env"
+      - ".env.*"
+      - "**/package.json"
+      - "**/package-lock.json"
+    required_tests:
+      - "Installer rewrites .opencode/scripts/ to .github/scripts/"
+      - "Installer does not modify source files"
+      - "Installer handles missing target gracefully"
+    expected_evidence:
+      - "Diff showing path rewriting logic"
+      - "Conformance test verifying rewrite"
+    expected_reviewer_findings:
+      - "No hardcoded absolute paths"
+      - "Idempotent installation"
+    max_repair_cycles: 2
+    scoring_rubric: "default"
+
+  # ── Task 2: demo-project workflow trigger mismatch ────────────────────────
+  - task_id: "TR-002"
+    title: "demo-project workflow trigger mismatch"
+    repo_context: "demo-project"
+    task_type: "bug_fix"
+    risk_lane: "STANDARD"
+    historical_source: "v4.37 — demo-project CI workflow trigger paths did not include components/, hooks/, server/"
+    input_prompt: |
+      The demo-project CI workflow only triggers on paths: src/**, lib/**, tests/**
+      but the repo also has code in components/, hooks/, and server/ that should
+      trigger CI. Fix the workflow trigger to include all source directories.
+    expected_root_cause: "Workflow trigger paths list is incomplete — missing components/, hooks/, server/"
+    expected_files_touched:
+      - ".github/workflows/gates.yml"
+    forbidden_files:
+      - "protected-repo/**"
+      - ".env"
+      - ".env.*"
+      - "**/package.json"
+      - "**/package-lock.json"
+    required_tests:
+      - "Workflow trigger includes components/**"
+      - "Workflow trigger includes hooks/**"
+      - "Workflow trigger includes server/**"
+    expected_evidence:
+      - "Diff showing updated trigger paths"
+      - "Workflow YAML is valid"
+    expected_reviewer_findings:
+      - "No unnecessary path additions"
+      - "Trigger paths match actual source layout"
+    max_repair_cycles: 2
+    scoring_rubric: "default"
+
+  # ── Task 3: Dashboard awk parsing bug ──────────────────────────────────
+  - task_id: "TR-003"
+    title: "Fleet dashboard awk parsing bug"
+    repo_context: "control-plane"
+    task_type: "bug_fix"
+    risk_lane: "FAST"
+    historical_source: "v4.40 — dashboard used print $2 instead of print $3 for baseline failure names, causing wrong repo names in output"
+    input_prompt: |
+      The fleet dashboard script extracts baseline failure names using
+      awk '{print $2}' but the field position is wrong — it should be $3
+      because the awk format is 'repo_name status field_name'. Fix the
+      field index.
+    expected_root_cause: "awk field index is $2 instead of $3 — wrong column extracted"
+    expected_files_touched:
+      - ".opencode/scripts/generate-fleet-dashboard.sh"
+    forbidden_files:
+      - "protected-repo/**"
+      - ".env"
+      - ".env.*"
+    required_tests:
+      - "Dashboard extracts correct field"
+      - "Dashboard handles missing field gracefully"
+    expected_evidence:
+      - "Diff showing corrected awk field index"
+      - "Conformance test verifying correct extraction"
+    expected_reviewer_findings:
+      - "No other awk fields broken"
+      - "Edge case handling for missing fields"
+    max_repair_cycles: 1
+    scoring_rubric: "default"
+
+  # ── Task 4: Evidence freshness snapshot metric gap ─────────────────────
+  - task_id: "TR-004"
+    title: "Evidence freshness snapshot metric gap"
+    repo_context: "control-plane"
+    task_type: "feature_addition"
+    risk_lane: "STANDARD"
+    historical_source: "v4.43 — fleet snapshot recorder did not track freshness metrics (fresh/expiring/stale/critical counts)"
+    input_prompt: |
+      The fleet snapshot recorder captures dashboard metrics but does not
+      track evidence freshness counts. Add freshness metrics to the snapshot:
+      fresh_evidence_count, expiring_soon_count, stale_evidence_count,
+      critically_stale_count. Generate the freshness report before recording
+      the snapshot and extract the counts.
+    expected_root_cause: "Snapshot recorder does not call freshness report or extract freshness counts"
+    expected_files_touched:
+      - ".opencode/scripts/record-fleet-snapshot.sh"
+    forbidden_files:
+      - "protected-repo/**"
+      - ".env"
+      - ".env.*"
+    required_tests:
+      - "Snapshot includes fresh_evidence_count"
+      - "Snapshot includes expiring_soon_count"
+      - "Snapshot includes stale_evidence_count"
+      - "Snapshot includes critically_stale_count"
+      - "Snapshot handles missing freshness report gracefully"
+    expected_evidence:
+      - "Diff showing freshness report call"
+      - "Diff showing 4 new metric fields"
+      - "Conformance test verifying metrics present"
+    expected_reviewer_findings:
+      - "Graceful handling when freshness report is missing"
+      - "No hardcoded freshness values"
+    max_repair_cycles: 2
+    scoring_rubric: "default"
+
+  # ── Task 5: sample-service import/build failure ─────────────────────────
+  - task_id: "TR-005"
+    title: "sample-service import/build failure"
+    repo_context: "sample-service"
+    task_type: "bug_fix"
+    risk_lane: "STANDARD"
+    historical_source: "v4.37 — sample-service had import path mismatch causing build failure in CI"
+    input_prompt: |
+      sample-service builds fail in CI because an import path references
+      @/lib/utils but the file was moved to @/lib/helpers. Fix the import
+      path so the build succeeds. Check all files that import from the
+      old path and update them.
+    expected_root_cause: "Import path references @/lib/utils but file was moved to @/lib/helpers — stale import"
+    expected_files_touched:
+      - "src/**/*.ts"
+      - "src/**/*.tsx"
+    forbidden_files:
+      - "protected-repo/**"
+      - ".env"
+      - ".env.*"
+      - "**/package.json"
+      - "**/package-lock.json"
+    required_tests:
+      - "All imports reference correct path"
+      - "Build succeeds with updated imports"
+      - "No circular dependencies introduced"
+    expected_evidence:
+      - "Diff showing corrected import paths"
+      - "Build output showing success"
+    expected_reviewer_findings:
+      - "All affected files updated, not just the first one found"
+      - "No unnecessary re-exports or barrel files created"
+    max_repair_cycles: 2
+    scoring_rubric: "default"
+
+  # ── Task 6: sample-service approval-flow eval gap ───────────────────────
+  - task_id: "TR-006"
+    title: "sample-service approval-flow eval gap"
+    repo_context: "sample-service"
+    task_type: "test_gap"
+    risk_lane: "STANDARD"
+    historical_source: "v4.37 — approval flow had no eval coverage, weak assertions allowed false positives"
+    input_prompt: |
+      The approval flow in sample-service has no test coverage. The existing
+      tests only check that the flow completes but don't verify that approvals
+      are actually required, that unauthorized users are rejected, or that
+      the approval state is persisted correctly. Add comprehensive tests.
+    expected_root_cause: "Missing test coverage for approval flow — no assertions on authorization, persistence, or rejection paths"
+    expected_files_touched:
+      - "tests/**/*.test.ts"
+    forbidden_files:
+      - "protected-repo/**"
+      - ".env"
+      - ".env.*"
+      - "**/package.json"
+      - "**/package-lock.json"
+    required_tests:
+      - "Test: unauthorized user cannot approve"
+      - "Test: authorized user can approve"
+      - "Test: approval state is persisted"
+      - "Test: rejection path works correctly"
+      - "Test: double-approval is idempotent"
+    expected_evidence:
+      - "New test file with comprehensive coverage"
+      - "Test run output showing all tests pass"
+    expected_reviewer_findings:
+      - "Tests cover edge cases, not just happy path"
+      - "No test data leakage between test cases"
+      - "Mocks are scoped and realistic"
+    max_repair_cycles: 2
+    scoring_rubric: "default"
+
+  # ── Task 7: example-app auth bypass guard ──────────────────────────────
+  - task_id: "TR-007"
+    title: "example-app auth bypass guard"
+    repo_context: "example-app"
+    task_type: "security_fix"
+    risk_lane: "HIGH-RISK"
+    historical_source: "v4.37 — auth middleware had a bypass where requests with no Authorization header were allowed through to protected routes"
+    input_prompt: |
+      example-app has an auth bypass vulnerability. The auth middleware
+      checks for a valid token but if the Authorization header is missing
+      entirely, the middleware passes the request through without rejection.
+      Fix the middleware to reject requests with missing Authorization
+      headers on protected routes.
+    expected_root_cause: "Auth middleware does not reject missing Authorization header — falls through to next() instead of rejecting"
+    expected_files_touched:
+      - "src/middleware/auth*.ts"
+    forbidden_files:
+      - "protected-repo/**"
+      - ".env"
+      - ".env.*"
+      - "**/package.json"
+      - "**/package-lock.json"
+      - "**/secrets/**"
+    required_tests:
+      - "Test: missing Authorization header returns 401"
+      - "Test: invalid token returns 401"
+      - "Test: valid token passes through"
+      - "Test: public routes still work without header"
+    expected_evidence:
+      - "Diff showing missing-header rejection logic"
+      - "Security test proving bypass is closed"
+      - "Threat model note for the fix"
+    expected_reviewer_findings:
+      - "No timing attack introduced"
+      - "Error response does not leak information"
+      - "Public route allowlist is explicit, not pattern-based"
+    max_repair_cycles: 1
+    scoring_rubric: "default"
+
+  # ── Task 8: example-app allowed-failure grep bug ────────────────────────
+  - task_id: "TR-008"
+    title: "example-app allowed-failure grep bug"
+    repo_context: "example-app"
+    task_type: "bug_fix"
+    risk_lane: "FAST"
+    historical_source: "v4.37 — CI script used grep without -- pattern, causing patterns starting with - to be interpreted as flags"
+    input_prompt: |
+      The CI script in example-app uses grep to check for allowed failures
+      but patterns starting with - are interpreted as grep flags, causing
+      the check to fail silently. Fix the grep usage to handle patterns
+      starting with - correctly.
+    expected_root_cause: "grep command does not use -- to separate flags from pattern, causing - prefixed patterns to be misinterpreted"
+    expected_files_touched:
+      - ".github/workflows/gates.yml"
+    forbidden_files:
+      - "protected-repo/**"
+      - ".env"
+      - ".env.*"
+    required_tests:
+      - "grep handles patterns starting with -"
+      - "grep does not silently fail on edge-case patterns"
+    expected_evidence:
+      - "Diff showing -- separator in grep calls"
+      - "Test verifying edge-case pattern handling"
+    expected_reviewer_findings:
+      - "All grep calls in the file are fixed, not just one"
+      - "No other flag-pattern issues exist"
+    max_repair_cycles: 1
+    scoring_rubric: "default"
+
+  # ── Task 9: Installer NOW.md legacy detection false positive ───────────
+  - task_id: "TR-009"
+    title: "Installer NOW.md legacy detection false positive"
+    repo_context: "control-plane"
+    task_type: "bug_fix"
+    risk_lane: "FAST"
+    historical_source: "v4.37 — installer used grep on entire NOW.md file to detect legacy status, matching 'blocked' in any context instead of the status field"
+    input_prompt: |
+      The release gate installer detects legacy NOW.md status by grepping
+      the entire file for 'blocked' or 'active'. This causes false positives
+      when those words appear in other sections (e.g., task descriptions).
+      Fix the detection to only check the Status field.
+    expected_root_cause: "grep searches entire NOW.md instead of extracting the Status field specifically"
+    expected_files_touched:
+      - ".opencode/scripts/install-release-gate.sh"
+    forbidden_files:
+      - "protected-repo/**"
+      - ".env"
+      - ".env.*"
+    required_tests:
+      - "Installer detects status from Status field only"
+      - "Installer does not false-positive on 'blocked' in descriptions"
+      - "Installer handles missing NOW.md gracefully"
+    expected_evidence:
+      - "Diff showing field-specific status extraction"
+      - "Test verifying no false positive"
+    expected_reviewer_findings:
+      - "Status extraction is robust to whitespace"
+      - "Case-insensitive matching where appropriate"
+    max_repair_cycles: 1
+    scoring_rubric: "default"

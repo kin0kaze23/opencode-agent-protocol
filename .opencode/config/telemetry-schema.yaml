@@ -1,0 +1,307 @@
+# Benchmark Telemetry Schema — v4.18.2
+# Authority: workspace canonical
+# Purpose: Define the data structure for protocol performance measurement
+# Used by: benchmark-telemetry.sh, /checkpoint benchmark telemetry, vault evidence
+
+version: "4.18.2"
+
+# Schema version included in every record
+schema_version: "4.18.2"
+
+# Telemetry record schema — each gate execution produces one record
+schema:
+  schema_version:
+    type: string
+    description: "Telemetry schema version (for forward compatibility)"
+    required: true
+    default: "4.18.1"
+
+  repo:
+    type: string
+    description: "Repo name (e.g., protected-repo-prod, demo-project)"
+    required: true
+
+  lane:
+    type: enum
+    values: [DIRECT, FAST, STANDARD, HIGH-RISK]
+    description: "Execution lane selected for the task"
+    required: true
+
+  task_type:
+    type: enum
+    values: [copy_content_only, css_ui_polish, isolated_component, shared_component_design_system, data_model_logic, auth_security_rls, routing_navigation, deployment_config_env, large_cross_surface, comments_docs, unknown]
+    description: "Diff classification from diff-analyze.sh"
+    required: true
+
+  model_used:
+    type: string
+    description: "Model ID used for the task (e.g., umans-ai-coding-plan/umans-glm-5.2)"
+    required: true
+
+  gate:
+    type: enum
+    values: [lint, typecheck, test, build, browser_verification, a11y, visual_regression, e2e, sast, reviewer, deploy_preview, smoke_test]
+    description: "Gate name"
+    required: true
+
+  duration_ms:
+    type: integer
+    description: "Gate execution duration in milliseconds"
+    required: true
+
+  result:
+    type: enum
+    values: [pass, fail, warn, skip, not_run, cached]
+    description: "Gate result"
+    required: true
+
+  failure_classification:
+    type: string
+    description: "Classified failure type for routing evidence quality"
+    required: true
+    values:
+      - "pass": Gate executed and passed
+      - "fail_new": Gate failed and working tree was dirty (failure may be caused by current change)
+      - "fail_pre_existing": Gate failed, working tree was clean, AND gate is in gate-health-baseline as known failing
+      - "fail_environment": Gate failed, working tree was clean, AND gate is NOT in gate-health-baseline (environment drift, dependency issue)
+      - "not_run": Gate was not run (no command available for this repo type)
+      - "skipped_by_lane": Gate was skipped because the lane doesn't require it
+      - "skipped_by_cache": Gate was skipped because session cache had a valid result
+      - "skipped_unsupported": Gate was skipped because the repo doesn't support this gate type
+      - "cached_pass": Gate was served from cache and the cached result was pass
+      - "cached_stale": Gate was served from cache but the cache entry may be stale
+    note: "Only pass, fail_new, and cached_pass records are usable for routing evidence. All other classifications must be excluded from routing decisions."
+
+  skip_reason:
+    type: string
+    description: "Reason why a gate was skipped or not run (separate from result)"
+    required: false
+    values:
+      - "no_command": Gate command is empty or placeholder
+      - "lane_skip": Lane does not require this gate
+      - "cache_hit": Session cache had a valid result
+      - "unsupported": Repo type does not support this gate
+      - "": Gate was executed (not skipped)
+
+  usable_for_routing:
+    type: boolean
+    description: "Whether this record can be used as evidence for model routing decisions"
+    required: true
+    default: false
+    rules:
+      - true: failure_classification is pass, fail_new, or cached_pass
+      - false: failure_classification is fail_pre_existing, fail_environment, not_run, skipped_by_lane, skipped_by_cache, skipped_unsupported, or cached_stale
+      - false: record lacks schema_version (pre-v4.18.1 records)
+      - false: record lacks failure_classification (pre-v4.18.1 records)
+
+  cache_hit:
+    type: boolean
+    description: "Whether the gate was served from session cache (true) or actually executed (false)"
+    required: true
+
+  diff_classification:
+    type: string
+    description: "Diff classification from diff-analyze.sh (e.g., text_only, css_color_spacing, component_change)"
+    required: true
+
+  selected_gate_profile:
+    type: string
+    description: "Verification profile selected (e.g., ui-surface, logic-backend, stateful-sensitive)"
+    required: true
+
+  rerun_count:
+    type: integer
+    description: "Number of times this gate was re-run due to failure"
+    default: 0
+    required: false
+
+  parallel:
+    type: boolean
+    description: "Whether this gate ran in parallel with other gates"
+    default: false
+    required: false
+
+  token_estimate:
+    type: integer
+    description: "Estimated token consumption — marked as estimated, not measured"
+    required: false
+    measured: false
+    note: "Token counts are estimated from file/line counts when runtime telemetry unavailable. Marked as estimated, not measured."
+
+  timestamp:
+    type: string
+    description: "ISO timestamp of gate execution"
+    required: true
+
+  is_outlier:
+    type: boolean
+    description: "Flagged when duration > 2x median for same gate+repo combination"
+    default: false
+    required: false
+
+# Quality rules
+quality_rules:
+  append_only: true
+  description: "Benchmark records are append-only. Never modify or delete existing records."
+
+  raw_vs_aggregated:
+    raw_path: "vault/protocols/opencode/evals/benchmark-data/"
+    aggregated_path: "vault/protocols/opencode/evals/benchmark-reports/"
+    rule: "Raw events stored as individual JSON files per repo per run. Aggregated reports generated on demand via --report flag."
+
+  outlier_handling:
+    method: "Flag durations > 2x median for same gate+repo combination"
+    action: "Mark is_outlier=true. Do not exclude from data. Include in report with outlier flag."
+
+  token_measurement:
+    status: "estimated"
+    note: "Token counts are estimated from file/line counts (1 line ≈ 15 tokens). Not measured from runtime telemetry. Marked as estimated in every record."
+
+  privacy:
+    no_secrets: true
+    no_source_code: true
+    no_user_data: true
+    no_env_values: true
+    description: "Telemetry captures only timing, pass/fail, routing metadata, and diff classification. No source code, secrets, env values, or user data."
+    verification: "All benchmark data files scanned by gitleaks pre-commit hook."
+
+# Decision thresholds for future routing changes
+decision_thresholds:
+  minimum_sample_size:
+    description: "Minimum data needed before recommending routing changes"
+    per_repo_per_lane: 20
+    per_gate_type: 10
+    total_minimum: 100
+    current_baseline: 20
+    status: "INSUFFICIENT — need 5x more data before routing changes"
+
+  acceptable_failure_rate:
+    description: "Maximum acceptable gate failure rate for a model/lane combination"
+    threshold: 5
+    unit: "percent"
+    action: "If failure rate > 5%, do not recommend that model for that lane"
+
+  minimum_improvement:
+    description: "Minimum cost/time improvement needed to justify routing change"
+    time_improvement: 15
+    unit: "percent"
+    action: "Only recommend routing change if alternative model is >15% faster with acceptable pass rate"
+
+  escalation_rule:
+    description: "When to escalate from cheap model to premium"
+    trigger: "2+ consecutive failures with same model on same gate type"
+    action: "Escalate to premium reserve model for that gate type"
+    rollback: "Revert to cheap model after 5 consecutive passes with premium"
+
+  rollback_rule:
+    description: "Any routing change can be reverted with single git revert"
+    action: "git revert <routing-change-commit>"
+    verify: "bash .opencode/scripts/workspace-protocol-guard.sh"
+
+# Aggregation dimensions for analysis
+aggregations:
+  by_repo:
+    description: "Aggregate metrics per repo"
+    metrics: [avg_duration, pass_rate, cache_hit_rate, rerun_rate]
+
+  by_lane:
+    description: "Aggregate metrics per lane"
+    metrics: [avg_duration, pass_rate, cache_hit_rate, rerun_rate]
+
+  by_gate:
+    description: "Aggregate metrics per gate type"
+    metrics: [avg_duration, pass_rate, cache_hit_rate, rerun_rate, parallel_benefit]
+
+  by_model:
+    description: "Aggregate metrics per model"
+    metrics: [avg_duration, pass_rate, token_estimate]
+
+  by_diff_classification:
+    description: "Aggregate metrics per diff classification"
+    metrics: [avg_duration, gate_count, skip_count, false_skip_rate, false_escalation_rate]
+
+# Evidence report sections
+report_sections:
+  - name: "Fastest safe model per lane"
+    description: "Which model completes each lane fastest with acceptable pass rate"
+    requires: [by_model, by_lane]
+
+  - name: "Cheapest acceptable model per lane"
+    description: "Which model consumes fewest tokens with acceptable pass rate"
+    requires: [by_model, by_lane, token_estimate]
+
+  - name: "Slowest gates by repo"
+    description: "Which gates take longest in each repo"
+    requires: [by_repo, by_gate]
+
+  - name: "Cache effectiveness"
+    description: "Cache hit rate, time saved by caching, invalidation frequency"
+    requires: [cache_hit, duration_ms]
+
+  - name: "Parallel gate benefit"
+    description: "Time saved by parallel execution vs serial"
+    requires: [parallel, duration_ms]
+
+  - name: "False skip / false escalation rate"
+    description: "How often diff-analyze incorrectly skipped or escalated gates"
+    requires: [by_diff_classification, result]
+
+# Storage
+storage:
+  raw_data_path: "vault/protocols/opencode/evals/benchmark-data/"
+  report_path: "vault/protocols/opencode/evals/benchmark-reports/"
+  methodology_path: "vault/protocols/opencode/evals/benchmark-methodology.md"
+  format: "json"
+  retention: "per-session raw, aggregated per-version"
+
+# Gate Health Baseline (v4.18.2)
+gate_health_baseline:
+  path: ".opencode/config/gate-health-baseline.yaml"
+  description: "Per-repo known gate health state for failure classification"
+  purpose: "Distinguishes fail_pre_existing (known failing gate) from fail_environment (unexpected failure on clean tree)"
+  update_rule: "Update when a gate starts or stops failing pre-existing. Include reason, first_observed date, and owner_action."
+
+# Telemetry Integrity Report (v4.18.2)
+integrity_report:
+  description: "Report on data quality and usability for routing decisions"
+  generated_by: "benchmark-telemetry.sh --integrity-report"
+  sections:
+    - name: "usable_records"
+      description: "Count of records usable for routing (usable_for_routing=true)"
+    - name: "excluded_records"
+      description: "Count of records excluded from routing"
+    - name: "exclusion_reasons"
+      description: "Breakdown of exclusion reasons"
+    - name: "repo_health_matrix"
+      description: "Per-repo gate health: expected healthy, known failing, unexpected failing"
+    - name: "lane_coverage_matrix"
+      description: "Per-lane record count and usable count"
+    - name: "task_type_coverage_matrix"
+      description: "Per-task-type record count and usable count"
+
+# Conformance Rules (v4.18.2)
+conformance_rules:
+  - rule: "Every telemetry record v4.18.1+ must include schema_version"
+    check: "schema_version field present and non-empty"
+    severity: "blocking"
+  - rule: "Every failure must include failure_classification"
+    check: "failure_classification field present when result is fail"
+    severity: "blocking"
+  - rule: "Every record must include usable_for_routing"
+    check: "usable_for_routing field present and boolean"
+    severity: "blocking"
+  - rule: "Routing reports must ignore fail_pre_existing/not_run/skipped records"
+    check: "Integrity report excludes non-usable records from routing counts"
+    severity: "blocking"
+  - rule: "Old records (pre-v4.18.1) are backward compatible but not decision-grade"
+    check: "Records without schema_version are marked usable_for_routing=false"
+    severity: "warning"
+
+# Privacy
+privacy:
+  no_secrets: true
+  no_source_code: true
+  no_user_data: true
+  no_env_values: true
+  description: "Telemetry captures only timing, pass/fail, routing metadata, and diff classification. No source code, secrets, env values, or user data."
+  verification: "All benchmark data files scanned by gitleaks pre-commit hook."

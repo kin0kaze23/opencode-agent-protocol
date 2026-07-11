@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OpenCode Local Rate Card (Example)",
+  "description": "Example rate card for cost estimation. Copy to rate-card.local.json and update with your actual provider pricing. This file is gitignored to prevent accidental commits of sensitive pricing data.",
+  "version": "1.0.0",
+  "currency": "USD",
+  "models": {
+    "opencode-go/qwen3.6-plus": {
+      "input_per_million_tokens": 3.00,
+      "output_per_million_tokens": 9.00
+    },
+    "opencode-go/qwen3.5-plus": {
+      "input_per_million_tokens": 1.50,
+      "output_per_million_tokens": 4.50
+    },
+    "opencode-go/deepseek-v4-flash": {
+      "input_per_million_tokens": 0.10,
+      "output_per_million_tokens": 0.30
+    },
+    "opencode-go/glm-5.1": {
+      "input_per_million_tokens": 2.00,
+      "output_per_million_tokens": 6.00
+    }
+  },
+  "notes": [
+    "Prices are examples only and may not reflect current provider pricing.",
+    "Update with your actual provider rate card.",
+    "This file is gitignored. Commit only rate-card.example.json."
+  ]
+}

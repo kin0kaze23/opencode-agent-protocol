@@ -1,0 +1,520 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "shell": "/bin/zsh",
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 200000,
+    "tail_turns": 3,
+    "preserve_recent_tokens": 6000
+  },
+  "model": "opencode-go/qwen3.7-plus",
+  "small_model": "opencode-go/deepseek-v4-flash",
+  "provider": {},
+  "instructions": [
+    ".opencode/AGENTS.md",
+    ".opencode/rules.md"
+  ],
+  "permission": {
+    "read": {
+      "*": "allow",
+      ".env": "deny",
+      ".env.*": "deny",
+      "*/.env": "deny",
+      "*/.env.*": "deny",
+      ".env.example": "allow",
+      "*/.env.example": "allow"
+    },
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "lsp": "allow",
+    "todowrite": "allow",
+    "webfetch": "allow",
+    "websearch": "allow",
+    "skill": "allow",
+    "external_directory": "deny",
+    "doom_loop": "deny",
+    "edit": {
+      "*": "allow",
+      ".env": "deny",
+      ".env.*": "deny",
+      "*/.env": "deny",
+      "*/.env.*": "deny",
+      "package.json": "deny",
+      "*/package.json": "deny",
+      "package-lock.json": "deny",
+      "*/package-lock.json": "deny",
+      "pnpm-lock.yaml": "deny",
+      "*/pnpm-lock.yaml": "deny",
+      "yarn.lock": "deny",
+      "*/yarn.lock": "deny",
+      "bun.lock": "deny",
+      "*/bun.lock": "deny",
+      "bun.lockb": "deny",
+      "*/bun.lockb": "deny",
+      "Cargo.toml": "deny",
+      "*/Cargo.toml": "deny",
+      "Cargo.lock": "deny",
+      "*/Cargo.lock": "deny",
+      "requirements.txt": "deny",
+      "*/requirements.txt": "deny",
+      "pyproject.toml": "deny",
+      "*/pyproject.toml": "deny",
+      "poetry.lock": "deny",
+      "*/poetry.lock": "deny",
+      "go.mod": "deny",
+      "*/go.mod": "deny",
+      "go.sum": "deny",
+      "*/go.sum": "deny",
+      "Gemfile": "deny",
+      "*/Gemfile": "deny",
+      "Gemfile.lock": "deny",
+      "*/Gemfile.lock": "deny",
+      "AGENTS.md": "deny",
+      "*/AGENTS.md": "deny",
+      ".opencode/*": "deny",
+      "*/.opencode/*": "deny",
+      ".github/*": "deny",
+      "*/.github/*": "deny",
+      "supabase/*": "deny",
+      "*/supabase/*": "deny",
+      "prisma/*": "deny",
+      "*/prisma/*": "deny",
+      "drizzle/*": "deny",
+      "*/drizzle/*": "deny",
+      "migrations/*": "deny",
+      "*/migrations/*": "deny",
+      "auth/*": "deny",
+      "*/auth/*": "deny",
+      "payment/*": "deny",
+      "*/payment/*": "deny",
+      "payments/*": "deny",
+      "*/payments/*": "deny",
+      "billing/*": "deny",
+      "*/billing/*": "deny",
+      "secrets/*": "deny",
+      "*/secrets/*": "deny",
+      "terraform/*": "deny",
+      "*/terraform/*": "deny",
+      "*.tf": "deny",
+      "kubernetes/*": "deny",
+      "*/kubernetes/*": "deny",
+      "k8s/*": "deny",
+      "*/k8s/*": "deny",
+      "helm/*": "deny",
+      "*/helm/*": "deny",
+      "vercel.json": "deny",
+      "*/vercel.json": "deny",
+      "wrangler.toml": "deny",
+      "*/wrangler.toml": "deny",
+      "firebase.json": "deny",
+      "*/firebase.json": "deny",
+      "netlify.toml": "deny",
+      "*/netlify.toml": "deny",
+      "railway.json": "deny",
+      "*/railway.json": "deny",
+      "Dockerfile": "deny",
+      "Dockerfile*": "deny",
+      "*/Dockerfile": "deny",
+      "*/Dockerfile*": "deny",
+      "docker-compose*.yml": "deny",
+      "*/docker-compose*.yml": "deny",
+      "docker-compose*.yaml": "deny",
+      "*/docker-compose*.yaml": "deny",
+      "Makefile": "deny",
+      "*/Makefile": "deny",
+      "Procfile": "deny",
+      "*/Procfile": "deny"
+    },
+    "bash": {
+      "*": "deny",
+      "pwd": "allow",
+      "ls *": "allow",
+      "find *": "allow",
+      "grep *": "allow",
+      "rg *": "allow",
+      "cat *": "allow",
+      "head *": "allow",
+      "tail *": "allow",
+      "wc *": "allow",
+      "tree *": "allow",
+      "file *": "allow",
+      "diff *": "allow",
+      "git status*": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "git branch*": "allow",
+      "git show*": "allow",
+      "git rev-parse*": "allow",
+      "npm run lint*": "allow",
+      "npm run typecheck*": "allow",
+      "npm run test*": "allow",
+      "npm run build*": "allow",
+      "npm run dev*": "allow",
+      "pnpm lint*": "allow",
+      "pnpm typecheck*": "allow",
+      "pnpm test*": "allow",
+      "pnpm build*": "allow",
+      "pnpm dev*": "allow",
+      "npx tsc*": "allow",
+      "npx eslint*": "allow",
+      "npx prettier --check*": "allow",
+      "cargo check*": "allow",
+      "cargo test*": "allow",
+      "cargo build*": "allow",
+      "cargo clippy*": "allow",
+      "cargo fmt --check*": "allow",
+      "python -m pytest*": "allow",
+      "pytest*": "allow",
+      "python -m mypy*": "allow",
+      "ruff check*": "allow",
+      "ruff format --check*": "allow",
+      "swift build*": "allow",
+      "swift test*": "allow",
+      "bash .opencode/scripts/lite-mode-eligibility.sh *": "allow",
+      "bash .opencode/scripts/workspace-protocol-guard.sh *": "allow",
+      "bash .opencode/scripts/senior-self-review.sh *": "allow",
+      "bash .opencode/scripts/find-tests.sh *": "allow",
+      "bash .opencode/scripts/detect-untested.sh *": "allow",
+      "bash .opencode/scripts/sensitive-change-classifier.sh *": "allow",
+      "bash .opencode/scripts/commit-scope-guard.sh *": "allow",
+      "bash .opencode/scripts/reviewer-evidence-detector.sh *": "allow",
+      "bash .opencode/scripts/browser-verification-preflight.sh *": "allow",
+      "bash .opencode/scripts/diff-analyze.sh *": "allow",
+      "bash .opencode/scripts/session-cache.sh *": "allow",
+      "bash .opencode/git-guard/git-guard.sh commit*": "allow",
+      "cat .env*": "deny",
+      "cat */.env*": "deny",
+      "head .env*": "deny",
+      "head */.env*": "deny",
+      "tail .env*": "deny",
+      "tail */.env*": "deny",
+      "grep * .env*": "deny",
+      "grep * */.env*": "deny",
+      "rg * .env*": "deny",
+      "rg * */.env*": "deny",
+      "less .env*": "deny",
+      "more .env*": "deny",
+      "git show *:.env*": "deny",
+      "git show *:.env.*": "deny",
+      "git add *": "deny",
+      "git commit *": "deny",
+      "git push *": "deny",
+      "git reset --hard*": "deny",
+      "git clean *": "deny",
+      "rm -rf *": "deny",
+      "chmod *": "deny",
+      "chown *": "deny",
+      "npm install*": "deny",
+      "npm uninstall*": "deny",
+      "npm update*": "deny",
+      "pnpm add*": "deny",
+      "pnpm remove*": "deny",
+      "pnpm install*": "deny",
+      "yarn add*": "deny",
+      "bun add*": "deny",
+      "cargo add*": "deny",
+      "cargo install*": "deny",
+      "pip install*": "deny",
+      "python -m pip install*": "deny",
+      "poetry add*": "deny",
+      "poetry install*": "deny",
+      "go get*": "deny",
+      "bundle install*": "deny",
+      "gem install*": "deny",
+      "vercel *": "deny",
+      "wrangler *": "deny",
+      "supabase *": "deny",
+      "firebase *": "deny",
+      "railway *": "deny",
+      "fly *": "deny",
+      "gh pr merge*": "deny",
+      "gh release*": "deny",
+      "curl * | sh": "deny",
+      "wget * | sh": "deny",
+      "npx eslint --fix*": "deny"
+    },
+    "task": {
+      "explorer": "allow",
+      "planner": "allow",
+      "implementer": "allow",
+      "reviewer": "allow",
+      "architect": "allow",
+      "budget": "allow",
+      "visual-reviewer": "allow",
+      "visual-reviewer-fallback": "allow"
+    }
+  },
+  "mcp": {
+    "context7": {
+      "command": [
+        "npx",
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "enabled": true,
+      "type": "local"
+    },
+    "exa": {
+      "command": [
+        "npx",
+        "-y",
+        "exa-mcp-server"
+      ],
+      "enabled": true,
+      "type": "local"
+    },
+    "sequential-thinking": {
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "enabled": true,
+      "type": "local"
+    },
+    "github": {
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "enabled": true,
+      "type": "local"
+    },
+    "firecrawl": {
+      "command": [
+        "npx",
+        "-y",
+        "firecrawl-mcp"
+      ],
+      "enabled": false,
+      "type": "local"
+    }
+  },
+  "agent": {
+    "orchestrator": {
+      "model": "umans-ai-coding-plan/umans-glm-5.2",
+      "mode": "primary",
+      "description": "Primary owner agent for the Personal Projects workspace. Single front-door authority that follows the checked-in workspace protocol and delegates only to the canonical helper roster.",
+      "prompt": "{file:prompts/orchestrator.md}",
+      "permission": {
+        "edit": "ask",
+        "bash": {
+          "*": "ask"
+        },
+        "task": {
+          "*": "deny",
+          "explorer": "allow",
+          "planner": "allow",
+          "implementer": "allow",
+          "reviewer": "allow",
+          "architect": "allow",
+          "budget": "allow",
+          "visual-reviewer": "allow",
+          "visual-reviewer-fallback": "allow"
+        }
+      },
+      "temperature": 0.2,
+      "steps": 120,
+      "color": "#7C3AED"
+    },
+    "explorer": {
+      "model": "umans-ai-coding-plan/umans-flash",
+      "mode": "all",
+      "description": "Explorer helper — read-only codebase discovery, dependency mapping, runtime-path search, and hotspot identification before planning unfamiliar work.",
+      "prompt": "{file:prompts/explorer.md}",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": {
+          "*": "deny"
+        }
+      },
+      "temperature": 0.1,
+      "steps": 80,
+      "color": "#2563EB"
+    },
+    "planner": {
+      "model": "umans-ai-coding-plan/umans-coder",
+      "mode": "all",
+      "description": "Planner helper — plan creation, plan correction, scope slicing, and implementation-readiness checks against runtime authority and touch-list completeness.",
+      "prompt": "{file:prompts/planner.md}",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": {
+          "*": "deny"
+        }
+      },
+      "temperature": 0.2,
+      "steps": 100,
+      "color": "#059669"
+    },
+    "implementer": {
+      "model": "umans-ai-coding-plan/umans-coder",
+      "mode": "all",
+      "description": "Implementer helper — bounded code changes on an approved touch list only, with gate reporting back to the owner.",
+      "prompt": "{file:prompts/implementer.md}",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "ask"
+        },
+        "task": {
+          "*": "deny"
+        }
+      },
+      "temperature": 0.1,
+      "steps": 300,
+      "color": "#DC2626"
+    },
+    "reviewer": {
+      "model": "umans-ai-coding-plan/umans-glm-5.1",
+      "mode": "all",
+      "description": "Reviewer helper — primary risk review, regression check, and exact next-step recommendation before commit or ship.",
+      "prompt": "{file:prompts/reviewer.md}",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": {
+          "*": "deny"
+        }
+      },
+      "temperature": 0.1,
+      "steps": 90,
+      "color": "#D97706"
+    },
+    "architect": {
+      "model": "opencode-go/qwen3.7-plus",
+      "mode": "all",
+      "description": "Architect helper — resolve high-ambiguity auth, schema, state-model, or cross-surface design decisions before implementation.",
+      "prompt": "{file:prompts/architect.md}",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": {
+          "*": "deny"
+        }
+      },
+      "temperature": 0.2,
+      "steps": 140,
+      "color": "#9333EA"
+    },
+    "budget": {
+      "model": "umans-ai-coding-plan/umans-flash",
+      "mode": "all",
+      "description": "Budget helper — cheap read-only alternative for review, planning, and routing summaries using strict resource constraints.",
+      "prompt": "{file:prompts/budget.md}",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": {
+          "*": "deny"
+        }
+      },
+      "temperature": 0.1,
+      "steps": 60,
+      "color": "#6B7280"
+    },
+    "visual-reviewer": {
+      "model": "umans-ai-coding-plan/umans-kimi-k2.7",
+      "mode": "all",
+      "description": "Visual QA specialist (primary) — screenshot analysis, UI/UX review, accessibility visual audit using vision/multimodal capability. Evaluated: 4.6/5.0 multimodal usefulness.",
+      "prompt": "{file:prompts/visual-reviewer.md}",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": {
+          "*": "deny"
+        }
+      },
+      "temperature": 0.1,
+      "steps": 60,
+      "color": "#EC4899"
+    },
+    "visual-reviewer-fallback": {
+      "model": "opencode-go/kimi-k2.6",
+      "mode": "all",
+      "description": "Visual QA specialist (fallback) — screenshot analysis using Kimi K2.7 vision capability. Used when OpenCode Go quota is hit. Same prompt as visual-reviewer.",
+      "prompt": "{file:prompts/visual-reviewer-fallback.md}",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": {
+          "*": "deny"
+        }
+      },
+      "temperature": 0.1,
+      "steps": 60,
+      "color": "#F472B6"
+    },
+    "summary": {
+      "model": "umans-ai-coding-plan/umans-kimi-k2.7",
+      "mode": "subagent",
+      "description": "Summary helper — dedicated continuity-aware summarizer for long-session compaction. Only a compaction-safe model is allowed.",
+      "prompt": "You are OpenCode's dedicated continuity-aware summarizer. Read the long session transcript and produce a compact summary preserving the minimum state needed to resume. Output ONLY these fields, each on its own line: Repo:, Current task:, Lane:, Touch list digest:, Blockers:, Latest decision:, Next step:. No markdown, code fences, or commentary. Use concise text only; use 'none' or 'unknown' if a field cannot be determined.",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": {
+          "*": "deny"
+        }
+      },
+      "temperature": 0.1,
+      "steps": 40,
+      "color": "#0891B2"
+    },
+    "compaction": {
+      "model": "umans-ai-coding-plan/umans-kimi-k2.7",
+      "mode": "subagent",
+      "description": "Compaction helper — dedicated agent used to compress full context when sessions exceed the safe token threshold. Only a compaction-safe model is allowed.",
+      "prompt": "You are OpenCode's dedicated compaction agent. When a session grows too long, produce a compact summary that preserves critical task continuity. Keep recent turns verbatim when provided. Condense older turns into a single structured continuity block. Output ONLY these fields, each on its own line: Repo:, Current task:, Lane:, Touch list digest:, Blockers:, Latest decision:, Next step:. After anchors you may add a brief 'Session notes' paragraph (under 300 tokens) capturing key decisions and unresolved risks. Do not invent facts; use 'none' or 'unknown' if a field cannot be determined.",
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": {
+          "*": "deny"
+        }
+      },
+      "temperature": 0.1,
+      "steps": 40,
+      "color": "#BE185D"
+    }
+  },
+  "default_agent": "orchestrator",
+  "autoupdate": "notify",
+  "share": "disabled",
+  "snapshot": true,
+  "watcher": {
+    "ignore": [
+      "**/node_modules/**",
+      "**/.next/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/.turbo/**",
+      "**/*.lock",
+      "**/vault/**",
+      "**/.git/**",
+      "**/__pycache__/**",
+      "**/target/**"
+    ]
+  },
+  "lsp": {
+    "typescript": {
+      "initialization": {
+        "preferences": {
+          "importModuleSpecifierPreference": "relative",
+          "includeInlayParameterNameHints": "all",
+          "includeInlayVariableTypeHints": true
+        }
+      },
+      "disabled": true
+    }
+  },
+  "plugin": [
+    ".opencode/plugins/brain-hooks.js",
+    ".opencode/plugins/permission-guard.js"
+  ]
+}

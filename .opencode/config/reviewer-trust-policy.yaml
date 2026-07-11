@@ -1,0 +1,29 @@
+# Reviewer Trust Policy — v4.36
+#
+# Controls what counts as trusted reviewer evidence for high-risk PRs.
+# This file is advisory — the reviewer-evidence-detector.sh reads it at runtime.
+#
+# Location: .opencode/config/reviewer-trust-policy.yaml
+# Default behavior (when file is missing): all settings use defaults below.
+
+# Trusted reviewer logins (empty list = any reviewer accepted).
+# When non-empty, only approvals from these logins count as trusted evidence.
+trusted_reviewers: []
+
+# Trusted label names that count as reviewer evidence.
+# The detector checks if any of these labels are applied to the PR.
+trusted_labels:
+  - reviewer-approved
+
+# Trusted bot accounts that can provide reviewer evidence.
+# Bot approvals from these accounts are treated as trusted.
+trusted_bot_accounts: []
+
+# Whether label evidence is accepted at all.
+# Set to false to require GitHub approving reviews only (no label fallback).
+allow_label_evidence: true
+
+# Whether approval must match current PR head SHA (stale approval rejection).
+# When true, approvals on older commits are not trusted.
+# GitHub branch protection should also dismiss stale approvals — this is defense-in-depth.
+require_fresh_approval: true

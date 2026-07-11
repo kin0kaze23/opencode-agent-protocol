@@ -1,0 +1,85 @@
+{
+  "version": "1.2.0",
+  "created": "2026-05-23",
+  "updated": "2026-06-30",
+  "description": "Approved repo-level .opencode/ exceptions. Each repo may contain non-hook content only if explicitly approved by an ADR or profile mapping.",
+  "exceptions": {
+    "apa-digital-asset-product": {
+      "adr": ".opencode/adr/adr-apa-repo-agent-exception.md",
+      "reason": "APA requires domain-specific agents (blockchain/stablecoin, compliance/AML, treasury ops) and custom factory commands that differ from workspace-level agents.",
+      "allowed_contents": [
+        "agents",
+        "commands",
+        "node_modules",
+        "package.json",
+        "package-lock.json",
+        ".gitignore"
+      ],
+      "review_condition": "Expires when APA migrates to workspace-level agent model or Phase C4 migration completes."
+    },
+    "career-ops": {
+      "adr": null,
+      "reason": "career-ops has repo-specific OpenCode commands for career pipeline management. No agent definitions or runtime config changes.",
+      "allowed_contents": [
+        "commands"
+      ],
+      "review_condition": "Review if career-ops adds agent definitions or opencode.json."
+    },
+    "protected-repo": {
+      "adr": null,
+      "reason": "ARCHIVED — local-first prototype. No active development. Profile set to archived.",
+      "allowed_contents": [
+        "opencode.json"
+      ],
+      "review_condition": "Archived repo. No new content should be added to .opencode/.",
+      "profile": "archived"
+    },
+    "protected-repo-prod": {
+      "adr": null,
+      "reason": "ui_ux profile requires Playwright and Pencil MCP enabled. Repo-local opencode.json contains MCP overrides only.",
+      "allowed_contents": [
+        "opencode.json",
+        "commands",
+        ".gitignore"
+      ],
+      "review_condition": "Review if protected-repo-prod adds agent definitions or non-MCP config to opencode.json.",
+      "profile": "ui_ux"
+    },
+    "example-app": {
+      "adr": null,
+      "reason": "ui_ux profile requires Playwright and Pencil MCP enabled. Repo-local opencode.json contains MCP overrides only.",
+      "allowed_contents": [
+        "opencode.json"
+      ],
+      "review_condition": "Review if example-app adds agent definitions or non-MCP config to opencode.json.",
+      "profile": "ui_ux"
+    },
+    "paperclip-PROD": {
+      "adr": null,
+      "reason": "ui_ux profile requires Playwright and Pencil MCP enabled. Repo-local opencode.json contains MCP overrides only.",
+      "allowed_contents": [
+        "opencode.json"
+      ],
+      "review_condition": "Review if paperclip-PROD adds agent definitions or non-MCP config to opencode.json.",
+      "profile": "ui_ux"
+    },
+    "demo-project": {
+      "adr": null,
+      "reason": "ui_ux profile requires Playwright and Pencil MCP enabled. Repo-local opencode.json contains MCP overrides only.",
+      "allowed_contents": [
+        "opencode.json"
+      ],
+      "review_condition": "Review if demo-project adds agent definitions or non-MCP config to opencode.json.",
+      "profile": "ui_ux"
+    },
+    "example-dashboard": {
+      "adr": null,
+      "reason": "ui_ux profile requires Playwright and Pencil MCP enabled. Repo-local opencode.json contains MCP overrides only.",
+      "allowed_contents": [
+        "opencode.json"
+      ],
+      "review_condition": "Review if example-dashboard adds agent definitions or non-MCP config to opencode.json.",
+      "profile": "ui_ux"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1a1a2e', 'primaryTextColor': '#e0e0e0', 'lineColor': '#7f8c8d', 'fontSize': '14px'}}}%%
+graph TB
+    subgraph Input
+        UT[User Task]
+    end
+
+    subgraph Intake
+        RC[Risk Classifier<br/>v4.20.1]
+        LR[Lane Selection<br/>DIRECT/FAST/STANDARD/HIGH-RISK]
+    end
+
+    subgraph Routing
+        MR[Model/Agent Routing<br/>v4.46-v4.47]
+        RR[Routing Recommendations<br/>advisory only]
+    end
+
+    subgraph Execution
+        PL[Plan]
+        IM[Implement / Simulate]
+        TS[Test]
+        RV[Review]
+        RP[Repair Loop<br/>max_cycles]
+    end
+
+    subgraph Release
+        RG[Release Gate<br/>v4.34]
+        PC[PR Comment<br/>v4.39]
+        BP[Branch Protection<br/>v4.38]
+    end
+
+    subgraph Learning
+        SC[Score<br/>v4.44]
+        LE[Lesson Extraction<br/>v4.45]
+        ROI[Model ROI Update<br/>v4.46]
+        FR[Future Routing<br/>Improvement]
+    end
+
+    UT --> RC
+    RC --> LR
+    LR --> MR
+    MR --> PL
+    PL --> IM
+    IM --> TS
+    TS --> RV
+    RV --> RP
+    RP -->|repair| IM
+    RV -->|pass| RG
+    RG --> PC
+    RG --> BP
+    RG --> SC
+    SC --> LE
+    LE --> ROI
+    ROI --> FR
+    FR -.->|advisory| MR
+    RR -.->|advisory| MR

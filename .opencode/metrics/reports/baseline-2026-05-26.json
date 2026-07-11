@@ -1,0 +1,64 @@
+{
+  "date": "2026-05-26",
+  "generated": "2026-05-26T15:04:21Z",
+  "total_events": 8,
+  "sample_status": "INSUFFICIENT_SAMPLE_SIZE",
+  "by_task_type": [
+    {
+      "type": "conformance",
+      "count": 4
+    },
+    {
+      "type": "test",
+      "count": 4
+    }
+  ],
+  "by_agent": [
+    {
+      "agent": "unknown",
+      "count": 8
+    }
+  ],
+  "by_model_route": [
+    {
+      "model": "opencode-go/qwen3.6-plus",
+      "count": 1
+    },
+    {
+      "model": "unknown",
+      "count": 7
+    }
+  ],
+  "success_fail_rate": {
+    "success": 8,
+    "fail": 0,
+    "success_rate": 100
+  },
+  "latency_percentiles": {
+    "p50": 2921,
+    "p75": 3881,
+    "p95": 4323,
+    "min": 100,
+    "max": 4323,
+    "avg": 2124.4285714285716
+  },
+  "tokens": {
+    "total_in": 2000,
+    "total_out": 1000,
+    "unknown_count": 6
+  },
+  "cost": {
+    "total_estimated_usd": 0.007500000000000001,
+    "unknown_count": 7
+  },
+  "error_distribution": [
+    {
+      "category": "none",
+      "count": 8
+    }
+  ],
+  "notes": [
+    "This report contains metadata only. No prompts, responses, secrets, or private data.",
+    "Sample status: INSUFFICIENT_SAMPLE_SIZE. Thresholds are not enforced until 100+ samples."
+  ]
+}

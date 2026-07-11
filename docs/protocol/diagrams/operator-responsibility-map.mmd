@@ -1,0 +1,46 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1a1a2e', 'primaryTextColor': '#e0e0e0', 'lineColor': '#7f8c8d'}}}%%
+flowchart TD
+    subgraph Owner_Approves
+        OA1[Task scope and touch list]
+        OA2[Plan before implementation]
+        OA3[PR merge to main]
+        OA4[Deploy / release]
+        OA5[Secret handling]
+        OA6[Schema / migration changes]
+        OA7[Model routing changes]
+        OA8[--apply mode for loop controller]
+    end
+
+    subgraph Owner_Reviews
+        OR1[HIGH-RISK task plans]
+        OR2[Reviewer findings]
+        OR3[Routing recommendations]
+        OR4[Scorecard trends]
+        OR5[Fleet health]
+        OR6[Evidence freshness]
+    end
+
+    subgraph Automated
+        A1[Risk classification]
+        A2[Lane selection]
+        A3[Gate execution]
+        A4[Test execution]
+        A5[Score calculation]
+        A6[Lesson extraction]
+        A7[ROI analysis]
+        A8[Routing recommendation generation]
+        A9[Fleet dashboard]
+        A10[Freshness tracking]
+        A11[PR comments]
+    end
+
+    subgraph Never_Automated
+        NA1[Push to main]
+        NA2[Force push]
+        NA3[Skip pre-commit hooks]
+        NA4[Commit secrets]
+        NA5[Disable rate limits]
+        NA6[Touch protected-repo]
+        NA7[Auto-apply routing]
+        NA8[Self-approve HIGH-RISK]
+    end

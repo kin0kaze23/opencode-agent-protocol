@@ -1,0 +1,21 @@
+# Add this entry to your .pre-commit-config.yaml under `repos:` to block
+# internal/working files from being committed. This is the pre-commit framework
+# equivalent of the standalone bash hook (.opencode/templates/block-internal-files.sh).
+#
+# Usage:
+#   1. Copy this snippet into .pre-commit-config.yaml (under `repos:`)
+#   2. Run `pre-commit install` in the repo root
+#
+# To customize the allowed root .md allowlist, edit the `args` list below.
+
+  - repo: local
+    hooks:
+      - id: block-internal-files
+        name: block internal working files
+        description: Prevents sprint notes, AI scratch files, and other internal docs from being committed.
+        entry: .opencode/hooks/block-internal-files.sh
+        language: script
+        types: [text]
+        args: []
+        # To extend the allowed root .md allowlist, add args like:
+        # args: ['--allow-md', 'AGENTS.md', '--allow-md', 'NOW.md']

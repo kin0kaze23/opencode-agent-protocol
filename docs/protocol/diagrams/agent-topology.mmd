@@ -1,0 +1,63 @@
+graph TB
+    subgraph "Orchestrator Layer"
+        ORC[Orchestrator<br/>umans-glm-5.2<br/>Routes tasks, owns strategy]
+    end
+
+    subgraph "Planning Layer"
+        PLN[Planner<br/>Creates plans, touch lists<br/>Ambiguous/high-risk work]
+    end
+
+    subgraph "Execution Layer"
+        IMP[Implementer<br/>Bounded code changes<br/>Consumes approved plans]
+        EXP[Explorer<br/>Read-only discovery<br/>Cheap-first routing]
+    end
+
+    subgraph "Review Layer"
+        REV[Reviewer<br/>umans-glm-5.1<br/>Risk 4+, sensitive paths]
+        ARCH[Architect<br/>qwen3.7-plus<br/>Auth/schema/state-model]
+    end
+
+    subgraph "Budget Layer"
+        BUD[Budget<br/>deepseek-v4-flash<br/>Cheap summaries, routing]
+    end
+
+    subgraph "Compaction Layer"
+        CMP[Compaction<br/>glm-5.2 / kimi-k2.7<br/>Context preservation]
+    end
+
+    subgraph "Eval & Routing Layer"
+        ROI[Model ROI Analyzer<br/>Normalizes performance]
+        ROUTE[Routing Generator<br/>Advisory recommendations]
+        CAL[Reviewer Calibration<br/>Tracks disagreement]
+        LOOP[Loop Controller<br/>Bounded repair cycles]
+        SCORE[Task Scorer<br/>7 dimensions, max 35]
+        LESSON[Lesson Extractor<br/>JSONL evidence]
+    end
+
+    subgraph "Release Layer"
+        GATE[Release Gate<br/>CI + sensitive classifier<br/>Reviewer evidence check]
+        PR[PR / Merge<br/>Human approval required]
+    end
+
+    ORC -->|delegate| PLN
+    ORC -->|discover| EXP
+    ORC -->|implement| IMP
+    ORC -->|review| REV
+    ORC -->|architecture| ARCH
+    ORC -->|budget| BUD
+    ORC -->|compaction| CMP
+
+    PLN -->|approved plan| IMP
+    IMP -->|test results| SCORE
+    SCORE -->|fail| LOOP
+    LOOP -->|repair| IMP
+    SCORE -->|pass| GATE
+    REV -->|findings| CAL
+    GATE -->|block| IMP
+    GATE -->|pass| PR
+
+    IMP -->|performance| ROI
+    ROI -->|recommendations| ROUTE
+    ROUTE -->|advisory| ORC
+    LOOP -->|lessons| LESSON
+    LESSON -->|future| ORC

@@ -1,0 +1,31 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1a1a2e', 'primaryTextColor': '#e0e0e0', 'lineColor': '#7f8c8d'}}}%%
+flowchart LR
+    PR[PR Created] --> Lint[Lint]
+    Lint --> TC[Typecheck]
+    TC --> UT[Unit Tests]
+    UT --> Build[Build]
+
+    Build --> SC{Sensitive change?}
+
+    SC -->|No| Gate1[Standard gate]
+    SC -->|Yes| SC2{Change type?}
+
+    SC2 -->|Auth/Security| Force[Force HIGH-RISK]
+    SC2 -->|Payment/Billing| Force
+    SC2 -->|Schema/Migration| Force
+    SC2 -->|Other sensitive| Classify[Content-aware classifier v4.33]
+
+    Force --> RG[Release gate]
+    Classify --> RG
+    Gate1 --> RG
+
+    RG --> REV{Reviewer evidence?}
+
+    REV -->|Required, found| Pass[Gate PASS]
+    REV -->|Required, missing| Block[Gate BLOCK]
+    REV -->|Not required| Pass
+
+    Pass --> Comment[PR Comment v4.39]
+    Comment --> Merge[Ready to merge]
+    Block --> Fix[Fix and re-push]
+    Fix --> Lint

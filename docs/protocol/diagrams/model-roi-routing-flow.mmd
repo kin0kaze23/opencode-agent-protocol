@@ -1,0 +1,39 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1a1a2e', 'primaryTextColor': '#e0e0e0', 'lineColor': '#7f8c8d'}}}%%
+flowchart TD
+    Results[All results<br/>replay + loop + cross-model]
+
+    Results --> Norm[normalize-model-performance.sh]
+
+    Norm --> Records[performance-records.jsonl<br/>with result_type]
+
+    Records --> ROI[analyze-model-roi.sh]
+
+    ROI --> Scorecard[reports/model-roi-scorecard.md/json]
+
+    Scorecard --> Stats{Calibration}
+
+    Stats -->|unique_task_count| UC[Unique tasks]
+    Stats -->|unique_model_count| MC[Unique models]
+    Stats -->|independent_run_count| IC[Independent runs]
+    Stats -->|single_model_warning| SMW[Single-model warning]
+    Stats -->|cross_model_comparison| CMC[Cross-model available?]
+
+    Scorecard --> Routing[generate-routing-recommendations.sh]
+
+    Routing --> Recs{Recommendations}
+
+    Recs -->|3+ unique tasks| High[high confidence]
+    Recs -->|1-2 unique tasks| Low[low confidence]
+    Recs -->|0 unique tasks| Insufficient[insufficient data]
+
+    Recs --> Type{recommendation_type}
+    Type -->|single model| Best[best_observed]
+    Type -->|multiple models| Overall[best_overall]
+
+    Routing --> YAML[model-routing-policy.recommended.yaml<br/>advisory: true, auto_applied: false]
+
+    YAML --> Guard{Guardrails}
+    Guard -->|protected-repo excluded| G1[Pass]
+    Guard -->|No self-attested promotion| G2[Pass]
+    Guard -->|No auto-apply| G3[Pass]
+    Guard -->|No HIGH-RISK cost downgrade| G4[Pass]

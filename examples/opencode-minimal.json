@@ -1,0 +1,13 @@
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "umans": {
+      "envKey": "UMANS_API_KEY"
+    }
+  },
+  "model": "umans-ai-coding-plan/umans-glm-5.2",
+  "small_model": "umans-ai-coding-plan/umans-flash",
+  "plugin": [
+    ".opencode/plugins/brain-hooks.js",
+    ".opencode/plugins/permission-guard.js"
+  ]
+}
