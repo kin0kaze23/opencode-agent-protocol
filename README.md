@@ -116,7 +116,7 @@ bash .opencode/conformance/tests/model-roi.sh
 
 ## Protocol Version
 
-**Current:** v5.0.2 — Public CI + Branch Protection Gate
+**Current:** v5.0.3 — Branch Protection Verification
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
 

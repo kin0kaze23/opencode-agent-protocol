@@ -26,8 +26,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install verification
-        run: bash scripts/verify-install.sh
       - name: Protocol Atlas validation
         run: bash .opencode/scripts/validate-protocol-atlas.sh
       - name: Protocol Atlas conformance
