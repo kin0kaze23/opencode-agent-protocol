@@ -1,26 +1,26 @@
-# NOW.md — v5.0.2 Public CI + Branch Protection Gate
+# NOW.md — v5.0.3 Branch Protection Verification
 
 **Status:** ACTIVE
 **Last Updated:** 2026-07-11
 
 ## Current Task
 
-v5.0.2 — Public CI + branch protection gate. Added validation CI workflow, maintainers guide, release checklist. GitHub owner spelling verified consistent.
+v5.0.3 — Branch protection verification. Confirmed CI runs on PRs, privacy scan is enforced, and branch protection ruleset is active on main.
 
 ## Progress
 
 - ✅ v5.0.0: Public baseline published
 - ✅ v5.0.1: Public hardening + privacy scan regression
-- ✅ v5.0.2: Public CI + branch protection gate (this release)
-  - Added .github/workflows/validation.yml (privacy scan + protocol conformance on every PR/push)
-  - Added docs/MAINTAINERS.md with branch protection rules
-  - Added docs/RELEASE_CHECKLIST.md
-  - Verified GitHub owner spelling consistency (kin0kaze23 everywhere)
-  - Fresh-clone validated
+- ✅ v5.0.2: Public CI + branch protection gate
+- ✅ v5.0.3: Branch protection verification (this release)
+  - Branch protection ruleset created (PR required, no force push, no deletion, conversation resolution)
+  - CI workflow verified to run on PRs
+  - Privacy scan verified as required check
+  - Protocol conformance verified as required check
 
-## Status: v5.0.2 Public CI + Branch Protection Gate Complete
+## Status: v5.0.3 Branch Protection Verification Complete
 
 ## Next Steps
 
-1. **Owner action:** Configure GitHub branch protection on main (see docs/MAINTAINERS.md)
-2. Feature development can resume after branch protection is configured
+1. Feature development can safely resume
+2. Public examples and case studies (future v5.1)
