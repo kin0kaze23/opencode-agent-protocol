@@ -139,6 +139,7 @@ This protocol is **safety-first** but not **guaranteed safe**. It provides guard
 | [docs/RUNTIME_MAP.md](docs/RUNTIME_MAP.md) | Runtime source-of-truth map |
 | [docs/CONFIGURATION_GUIDE.md](docs/CONFIGURATION_GUIDE.md) | How to customize the protocol |
 | [docs/CLAIMS.md](docs/CLAIMS.md) | Allowed and disallowed public claims |
+| [docs/VALIDATION.md](docs/VALIDATION.md) | Validation scripts and CI enforcement |
 | [docs/MAINTAINERS.md](docs/MAINTAINERS.md) | Maintainer guide and branch protection |
 | [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) | Release checklist |
 | [CHANGELOG.md](CHANGELOG.md) | Public release summary |
@@ -167,7 +168,7 @@ bash .opencode/conformance/tests/model-roi.sh
 
 ## Protocol Version
 
-**Current:** v5.2.0 — Evidence Pack + Failure Modes + Threat Model
+**Current:** v5.3.0 — Config Schema Validation + Docs Drift Checks
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
 

@@ -11,6 +11,10 @@ All notable changes to the OpenCode Agent Protocol are documented here.
 
 ## Recent Releases
 
+### v5.3.0 — 2026-07-11
+
+Config schema validation + docs drift checks. Added `scripts/validate-docs-drift.sh` (117 checks: file references, version consistency, diagram integrity, doc links). Added `scripts/validate-config-schema.sh` (40 checks: required files, JSON/YAML validity, agent roles, CI jobs). Added `scripts/validate-claims-evidence.sh` (17 checks: disallowed claim patterns, evidence docs, case studies). Expanded CI from 2 to 5 required jobs. Added `docs/VALIDATION.md`. Fixed 1 real docs drift issue caught by the new validator. Fresh-clone validated.
+
 ### v5.2.0 — 2026-07-11
 
 Evidence pack + failure modes + threat model. Added `docs/CASE_STUDIES.md` with 3 public-safe case studies (privacy scan regression, repeatable release process, agent topology). Added `docs/EVIDENCE.md` with measured/illustrative workflow evidence. Added `docs/FAILURE_MODES.md` documenting 8 known failure modes with symptoms, risks, mitigations, and validation commands. Added `docs/THREAT_MODEL.md` covering 9 threat categories (secrets leakage, personal data leakage, prompt injection, unsafe automation, destructive commands, supply chain, malicious PRs, model hallucination, over-permissive actions). Updated README with evidence/limitations section. Updated CLAIMS.md with new allowed claims. Fresh-clone validated.
