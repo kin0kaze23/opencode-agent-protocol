@@ -1,0 +1,11 @@
+name: Simple Test (Temporary)
+
+on:
+  push:
+    branches: [fix/ci-gates-input-expressions]
+
+jobs:
+  simple-test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "This workflow runs successfully"
