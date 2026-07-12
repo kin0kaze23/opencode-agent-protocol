@@ -125,6 +125,16 @@ This protocol is **safety-first** but not **guaranteed safe**. It provides guard
 | [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) | Security threat model with 9 threat categories |
 | [docs/CLAIMS.md](docs/CLAIMS.md) | Allowed and disallowed public claims |
 
+## External Review and First Run
+
+New to the protocol? Start here:
+
+| Document | Purpose |
+|----------|---------|
+| [docs/FIRST_RUN_CHECKLIST.md](docs/FIRST_RUN_CHECKLIST.md) | 15-minute clone-to-validated guide |
+| [docs/EXTERNAL_REVIEW_GUIDE.md](docs/EXTERNAL_REVIEW_GUIDE.md) | What to inspect and evaluate as a reviewer |
+| [docs/DEMO_WALKTHROUGH.md](docs/DEMO_WALKTHROUGH.md) | Walk through 5 example workflows |
+
 ## Documentation
 
 | Document | Purpose |
@@ -168,7 +178,7 @@ bash .opencode/conformance/tests/model-roi.sh
 
 ## Protocol Version
 
-**Current:** v5.3.0 — Config Schema Validation + Docs Drift Checks
+**Current:** v5.4.0 — External Review Readiness + Multi-Environment Validation
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
 
