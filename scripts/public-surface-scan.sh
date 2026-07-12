@@ -19,7 +19,7 @@ FAILURES=0
 
 # Exclude this script, OOXML schema files (paperClips is a Word feature),
 # and policy/docs that intentionally list excluded names
-EXCLUDE_PATTERN='^./.git/|^./scripts/public-surface-scan.sh|office/schemas/.*\.xsd$|^./docs/PUBLICATION_POLICY.md|^./docs/RELEASE_CHECKLIST.md|^./examples/workflows/release-checklist.md|^./docs/CASE_STUDIES.md|^./docs/EVIDENCE.md|^./docs/FAILURE_MODES.md|^./docs/THREAT_MODEL.md|^./docs/VALIDATION.md|^./NOW.md|^./.gitignore'
+EXCLUDE_PATTERN='^./.git/|^./scripts/public-surface-scan.sh|office/schemas/.*\.xsd$|^./docs/PUBLICATION_POLICY.md|^./docs/RELEASE_CHECKLIST.md|^./examples/workflows/release-checklist.md|^./docs/CASE_STUDIES.md|^./docs/EVIDENCE.md|^./docs/FAILURE_MODES.md|^./docs/THREAT_MODEL.md|^./docs/VALIDATION.md|^./docs/FIRST_RUN_CHECKLIST.md|^./NOW.md|^./.gitignore'
 
 scan_category() {
   local category="$1"

@@ -11,6 +11,10 @@ All notable changes to the OpenCode Agent Protocol are documented here.
 
 ## Recent Releases
 
+### v5.4.0 — 2026-07-11
+
+External review readiness + multi-environment validation. Expanded CI to run on both Ubuntu and macOS (5 jobs × 2 environments = 10 CI checks per PR). Added `docs/EXTERNAL_REVIEW_GUIDE.md` with reviewer onboarding instructions. Added `docs/FIRST_RUN_CHECKLIST.md` for 15-minute clone-to-validated flow. Added `docs/DEMO_WALKTHROUGH.md` linking to 5 example workflows. Added `.github/ISSUE_TEMPLATE/external_review_feedback.md` with structured feedback fields. Updated README with external review section. Fresh-clone validated.
+
 ### v5.3.0 — 2026-07-11
 
 Config schema validation + docs drift checks. Added `scripts/validate-docs-drift.sh` (117 checks: file references, version consistency, diagram integrity, doc links). Added `scripts/validate-config-schema.sh` (40 checks: required files, JSON/YAML validity, agent roles, CI jobs). Added `scripts/validate-claims-evidence.sh` (17 checks: disallowed claim patterns, evidence docs, case studies). Expanded CI from 2 to 5 required jobs. Added `docs/VALIDATION.md`. Fixed 1 real docs drift issue caught by the new validator. Fresh-clone validated.

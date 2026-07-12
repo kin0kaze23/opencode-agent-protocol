@@ -1,5 +1,6 @@
 # Validation CI — runs on every PR and push to main
-# Ensures privacy scan and protocol conformance pass before merge.
+# Ensures privacy scan, docs drift, config schema, claims, and protocol conformance pass before merge.
+# Validates on both Ubuntu and macOS for multi-environment portability.
 
 name: Validation
 
@@ -14,40 +15,60 @@ permissions:
 
 jobs:
   public-surface-scan:
-    name: Privacy Scan
-    runs-on: ubuntu-latest
+    name: Privacy Scan (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
       - name: Run public-surface-scan
         run: bash scripts/public-surface-scan.sh
 
   docs-drift-validation:
-    name: Docs Drift
-    runs-on: ubuntu-latest
+    name: Docs Drift (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
       - name: Validate docs drift
         run: bash scripts/validate-docs-drift.sh
 
   config-schema-validation:
-    name: Config Schema
-    runs-on: ubuntu-latest
+    name: Config Schema (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
       - name: Validate config schema
         run: bash scripts/validate-config-schema.sh
 
   claims-evidence-validation:
-    name: Claims & Evidence
-    runs-on: ubuntu-latest
+    name: Claims & Evidence (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
       - name: Validate claims and evidence
         run: bash scripts/validate-claims-evidence.sh
 
   protocol-validation:
-    name: Protocol Conformance
-    runs-on: ubuntu-latest
+    name: Protocol Conformance (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
       - name: Protocol Atlas validation
