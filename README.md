@@ -155,6 +155,21 @@ New to the protocol? Start here:
 | [docs/EXTERNAL_REVIEW_GUIDE.md](docs/EXTERNAL_REVIEW_GUIDE.md) | What to inspect and evaluate as a reviewer |
 | [docs/DEMO_WALKTHROUGH.md](docs/DEMO_WALKTHROUGH.md) | Walk through 5 example workflows |
 
+## Harness and Loop
+
+The protocol has two layers:
+
+```
+HARNESS: rules + agents + skills + policies + validators + CI
+LOOP:    goal → plan → act → verify → repair → review → merge
+```
+
+The **harness** is the set of stable files that define what each iteration is allowed to do. It changes slowly and is validated by CI.
+
+The **loop** is the repeated process that runs inside the harness. It runs per task and is governed by the harness rules.
+
+See [docs/HARNESS_AND_LOOP.md](docs/HARNESS_AND_LOOP.md) for the full two-layer architecture.
+
 ## Getting Started With Your Own Models
 
 This protocol ships with model routing configured for the original author's providers. To adapt it to your own setup:
@@ -193,6 +208,8 @@ See [Feedback Triage Policy](docs/FEEDBACK_TRIAGE.md) for how feedback is handle
 | [docs/CONFIGURATION_GUIDE.md](docs/CONFIGURATION_GUIDE.md) | How to customize the protocol |
 | [docs/CLAIMS.md](docs/CLAIMS.md) | Allowed and disallowed public claims |
 | [docs/VALIDATION.md](docs/VALIDATION.md) | Validation scripts, test tiers, and CI enforcement |
+| [docs/HARNESS_AND_LOOP.md](docs/HARNESS_AND_LOOP.md) | Two-layer architecture (harness vs loop) |
+| [docs/PROGRESSIVE_ONBOARDING.md](docs/PROGRESSIVE_ONBOARDING.md) | 10-stage path from clone to first workflow |
 | [docs/OWN_MODEL_SETUP.md](docs/OWN_MODEL_SETUP.md) | How to adapt the protocol to your own model providers |
 | [docs/PUBLIC_SYNC_POLICY.md](docs/PUBLIC_SYNC_POLICY.md) | How the public repo relates to the internal development repo |
 | [docs/DOGFOODING_LOG_TEMPLATE.md](docs/DOGFOODING_LOG_TEMPLATE.md) | Template for recording daily-use evidence |
@@ -224,7 +241,7 @@ bash .opencode/conformance/tests/model-roi.sh
 
 ## Protocol Version
 
-**Current:** v5.5.1 — Public Runtime Onboarding + Portability Clarification
+**Current:** v5.5.2 — Harness/Loop Onboarding Pack
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
 

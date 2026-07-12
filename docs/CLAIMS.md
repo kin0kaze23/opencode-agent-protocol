@@ -29,6 +29,9 @@ These claims are evidence-based and defensible:
 | Provider-adaptable with user configuration | Templates and guide for adapting to user's own model providers |
 | Daily-use ready with guardrails | Internal daily use validated; guardrails documented |
 | Multi-environment CI validation | Ubuntu + macOS matrix (10 required checks) |
+| Harness/loop architecture | Two-layer separation documented in HARNESS_AND_LOOP.md |
+| Minimal loop example | Illustrative Plan → Act → Verify → Review script in examples/loop-runner/ |
+| Progressive onboarding | 10-stage path from clone to first useful workflow |
 
 ---
 

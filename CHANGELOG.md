@@ -11,6 +11,10 @@ All notable changes to the OpenCode Agent Protocol are documented here.
 
 ## Recent Releases
 
+### v5.5.2 — 2026-07-12
+
+Harness/loop onboarding pack. Added `docs/HARNESS_AND_LOOP.md` with two-layer architecture (harness = stable files/rules/validators/CI, loop = goal → plan → act → verify → repair → review → merge). Added `examples/loop-runner/minimal-loop.sh` — illustrative loop runner showing Plan → Act → Verify → Review pattern. Added `docs/PROGRESSIVE_ONBOARDING.md` — 10-stage path from clone to first useful workflow. Added Failure Mode #9: State-Drift Repair Loop (same iteration repeats because state on disk did not capture progress). Added concrete config examples (minimal docs-only, small app bugfix, stricter high-risk) to `examples/config/README.md`. Updated README with harness/loop section. Updated CLAIMS.md. Fresh-clone validated.
+
 ### v5.5.1 — 2026-07-11
 
 Public runtime onboarding + portability clarification. Updated README with prerequisites section clarifying that this is a protocol layer requiring OpenCode as runtime. Added `docs/OWN_MODEL_SETUP.md` with provider-agnostic setup guide for OpenAI, Anthropic, and custom providers. Added `examples/config/` with template configs (brain-config, model-routing-policy, opencode.json). Cleaned `.opencode/AGENTS.md` and `.opencode/rules.md` of internal-only references (vault, owner-memory, WORKSPACE_MAP) — replaced with generic equivalents. Updated `docs/VALIDATION.md` with test tier classification (Tier 1: public self-contained, Tier 2: CI-required, Tier 3: optional workspace). Added `docs/PUBLIC_SYNC_POLICY.md` documenting internal/public repo relationship. Added `docs/DOGFOODING_LOG_TEMPLATE.md` for recording daily-use evidence. Updated `docs/CLAIMS.md` with new allowed claims (OpenCode protocol layer, provider-adaptable, daily-use ready) and disallowed claims (turnkey any-model support, works without OpenCode, no setup required). Fresh-clone validated.
