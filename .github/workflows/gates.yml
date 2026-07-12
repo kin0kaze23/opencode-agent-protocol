@@ -19,11 +19,11 @@ name: Reusable Gates
 on:
   workflow_call:
     inputs:
-      node-version:
+      node_version:
         description: 'Node.js version'
         required: false
         default: '20'
-      package-manager:
+      package_manager:
         description: 'Override package manager detection (pnpm, npm, yarn, bun)'
         required: false
         default: 'auto'
@@ -38,8 +38,8 @@ jobs:
       - name: Detect package manager
         id: pm
         run: |
-          if [ "${{ inputs.package-manager }}" != "auto" ]; then
-            echo "manager=${{ inputs.package-manager }}" >> $GITHUB_OUTPUT
+          if [ "${{ inputs.package_manager }}" != "auto" ]; then
+            echo "manager=${{ inputs.package_manager }}" >> $GITHUB_OUTPUT
             exit 0
           fi
           if [ -f "pnpm-lock.yaml" ]; then
@@ -55,7 +55,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ inputs.node-version }}
+          node-version: ${{ inputs.node_version }}
 
       - name: Setup pnpm
         if: steps.pm.outputs.manager == 'pnpm'
