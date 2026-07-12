@@ -106,3 +106,16 @@
 | **Mitigation** | Always check the source config file, not the generated output. See `docs/RUNTIME_MAP.md` for the authoritative vs generated classification |
 | **Validation** | Compare generated files against their source configs |
 | **Owner responsibility** | Treat generated files as informational only. Regenerate before relying on them |
+
+---
+
+## 9. State-Drift Repair Loop
+
+| Field | Value |
+|-------|-------|
+| **Symptom** | The same iteration repeats because state on disk did not capture what changed. The agent re-plans the step it already finished. |
+| **Risk** | Wasted iterations, token burn, false sense of progress |
+| **Cause** | State file (PLAN.md, IMPLEMENTATION_PLAN.md, or equivalent) was not updated after a step completed. The loop has no memory of what was already done. |
+| **Mitigation** | Every iteration must serialize what it did, what it tried, and what is next. The state file connects iteration N to iteration N+1. Without it, the loop re-derives the plan from scratch each time. |
+| **Validation** | Check that state files are updated after each iteration: `grep -c "^## " PLAN.md` should show progress entries. Run `bash .opencode/conformance/tests/loop-controller.sh` to verify loop state machine. |
+| **Owner responsibility** | Ensure state files are written to disk after each iteration. Do not rely on in-context memory across iterations. If the loop repeats the same step, stop and check the state file. |
