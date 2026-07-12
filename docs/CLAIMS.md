@@ -18,13 +18,17 @@ These claims are evidence-based and defensible:
 | Fresh-clone validated | Every release validated from a clean clone |
 | Configurable protocol | Model routing, reviewer policy, gate matrix, token budgets all configurable |
 | Portable public installation | No machine-specific paths, no vault dependency, no personal data |
-| Branch protection enforced | GitHub ruleset active on main |
+| Branch protection enforced | GitHub ruleset active on main, 10 required CI checks |
 | Protocol Atlas documented | 11 Mermaid diagrams with rendered SVGs |
 | Variant-aware privacy scanning | PascalCase, camelCase, space, kebab, snake, lowercase patterns |
 | Documented agent topology | Orchestrator + 5 helper roles with routing guidance |
 | Evidence-backed case studies | 3 case studies with measured/illustrative evidence |
 | Documented failure modes | 8 known failure modes with mitigations and validation commands |
 | Security threat model | 9 threat categories with mitigations and owner controls |
+| OpenCode protocol layer | Protocol specification that requires OpenCode as runtime |
+| Provider-adaptable with user configuration | Templates and guide for adapting to user's own model providers |
+| Daily-use ready with guardrails | Internal daily use validated; guardrails documented |
+| Multi-environment CI validation | Ubuntu + macOS matrix (10 required checks) |
 
 ---
 
@@ -34,13 +38,16 @@ These claims are not supported by evidence and must not be made:
 
 | Claim | Why not allowed |
 |-------|----------------|
-| Better than Anthropic/OpenAI internal harnesses | No comparative evidence |
+| Better than Anthropic/OpenAI internal systems | No comparative evidence |
 | Approved by top AI researchers | No external review conducted |
 | Fully autonomous production safety | Human review still required for HIGH-RISK |
 | Guaranteed productivity improvement | No measured productivity evidence published |
 | Zero privacy leaks guaranteed | Scanner catches known patterns, not all possible patterns |
 | Production-tested at scale | No production usage evidence published |
 | SOC 2 / ISO 27001 compliant | No compliance audit conducted |
+| Turnkey any-model support | Requires user configuration of providers and models |
+| Works without OpenCode | OpenCode is the required runtime |
+| No setup required | Users must configure OpenCode, models, and providers |
 
 ---
 

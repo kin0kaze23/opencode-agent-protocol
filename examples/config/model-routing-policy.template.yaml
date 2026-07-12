@@ -1,0 +1,50 @@
+# Model Routing Policy Template
+#
+# Copy this file to .opencode/config/model-routing-policy.recommended.yaml
+# and replace placeholder values with your own model IDs.
+#
+# Placeholders:
+#   YOUR_PRIMARY_MODEL    — main model for implementation tasks
+#   YOUR_FALLBACK_MODEL   — backup model when primary fails
+#   YOUR_REVIEWER_MODEL   — independent model for review tasks
+#   YOUR_EXPLORER_MODEL   — cheaper model for read-only discovery
+
+routing:
+  implementation:
+    primary: YOUR_PRIMARY_MODEL
+    fallback: YOUR_FALLBACK_MODEL
+    description: "Primary model for code implementation tasks"
+
+  review:
+    primary: YOUR_REVIEWER_MODEL
+    description: "Independent model for code review and quality checks"
+
+  architecture:
+    primary: YOUR_PRIMARY_MODEL
+    description: "Model for architecture and high-risk decisions"
+
+  exploration:
+    primary: YOUR_EXPLORER_MODEL
+    description: "Cheaper model for read-only discovery and classification"
+
+  compaction:
+    primary: YOUR_PRIMARY_MODEL
+    description: "Model for session compaction and summarization"
+
+# Fallback chains — ordered list of models to try if the primary fails
+fallback_chains:
+  implementation:
+    - YOUR_PRIMARY_MODEL
+    - YOUR_FALLBACK_MODEL
+  review:
+    - YOUR_REVIEWER_MODEL
+  architecture:
+    - YOUR_PRIMARY_MODEL
+  exploration:
+    - YOUR_EXPLORER_MODEL
+
+# Notes:
+# - All routing is advisory — the protocol recommends but does not enforce
+# - Always have a fallback model configured
+# - Reviewer model should differ from implementation model when possible
+# - Never hardcode API keys in this file — use environment variables

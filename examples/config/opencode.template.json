@@ -1,0 +1,23 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "your_provider": {
+      "npm": "@ai-sdk/your-provider",
+      "name": "Your Provider",
+      "options": {
+        "apiKey": "{env:YOUR_API_KEY_ENV_VAR}"
+      },
+      "models": {
+        "your-model-id": {
+          "name": "Your Model Display Name"
+        }
+      }
+    }
+  },
+  "agent": {
+    "build": {
+      "model": "your_provider/your-model-id",
+      "systemPrompt": "You are a helpful AI coding assistant."
+    }
+  }
+}

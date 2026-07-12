@@ -1,0 +1,39 @@
+{
+  "version": "5.5.1",
+  "name": "Your Protocol Name",
+  "description": "Your description of the protocol",
+  "default_model_role": "YOUR_PRIMARY_MODEL — orchestrator and primary task execution",
+
+  "routing": {
+    "implementation": {
+      "primary": "your_primary_model",
+      "fallback": "your_fallback_model",
+      "notes": "Primary model for implementation tasks. Fallback used if primary fails."
+    },
+    "review": {
+      "primary": "your_reviewer_model",
+      "notes": "Independent model for review tasks. Should differ from implementation model when possible."
+    },
+    "architecture": {
+      "primary": "your_primary_model",
+      "notes": "Model for architecture and high-risk decisions."
+    },
+    "exploration": {
+      "primary": "your_fallback_model",
+      "notes": "Cheaper model for read-only discovery and classification."
+    }
+  },
+
+  "fallback_chains": {
+    "implementation": ["your_primary_model", "your_fallback_model"],
+    "review": ["your_reviewer_model"],
+    "architecture": ["your_primary_model"],
+    "exploration": ["your_fallback_model"]
+  },
+
+  "notes": {
+    "api_keys": "Configure API keys as environment variables. Never hardcode keys in this file.",
+    "advisory": "All routing is advisory. The protocol recommends models but does not enforce them at runtime.",
+    "safety": "Keep safety rules in AGENTS.md unchanged. Keep privacy scan patterns in public-surface-scan.sh unchanged."
+  }
+}
