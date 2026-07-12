@@ -1,6 +1,6 @@
 # Protocol Atlas — OpenCode Agent Harness
 
-> **Version:** v5.4.0
+> **Version:** v5.5.0
 > **Last Updated:** 2026-07-11
 > **Status:** Active — Public Hardening
 > **protected-repo:** EXCLUDED — do not touch

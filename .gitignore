@@ -84,6 +84,7 @@ __pycache__/
 **/LAUNCH_*.md
 **/PYPI_*.md
 **/FEEDBACK_*.md
+!docs/FEEDBACK_TRIAGE.md
 **/VALIDATION_REPORT.md
 **/TODO*.md
 **/WORKING_*.md
