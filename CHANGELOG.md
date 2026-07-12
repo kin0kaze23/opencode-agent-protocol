@@ -11,6 +11,10 @@ All notable changes to the OpenCode Agent Protocol are documented here.
 
 ## Recent Releases
 
+### v5.5.0 — 2026-07-11
+
+External review pilot + feedback triage. Added `docs/EXTERNAL_REVIEW_PILOT.md` with reviewer profile, goals, timeline, and first-run steps. Added `docs/REVIEWER_INVITE_TEMPLATE.md` for inviting reviewers. Added `docs/FEEDBACK_TRIAGE.md` with classification categories and priority levels (P0–P3). Added `docs/REVIEW_FEEDBACK.md` (ready for first cycle). Configured branch protection to require all 10 matrix CI checks (5 jobs × 2 environments). Updated `docs/MAINTAINERS.md` with exact matrix check names. Updated README with external reviewers section. Fresh-clone validated.
+
 ### v5.4.0 — 2026-07-11
 
 External review readiness + multi-environment validation. Expanded CI to run on both Ubuntu and macOS (5 jobs × 2 environments = 10 CI checks per PR). Added `docs/EXTERNAL_REVIEW_GUIDE.md` with reviewer onboarding instructions. Added `docs/FIRST_RUN_CHECKLIST.md` for 15-minute clone-to-validated flow. Added `docs/DEMO_WALKTHROUGH.md` linking to 5 example workflows. Added `.github/ISSUE_TEMPLATE/external_review_feedback.md` with structured feedback fields. Updated README with external review section. Fresh-clone validated.

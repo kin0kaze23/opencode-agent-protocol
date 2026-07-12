@@ -135,6 +135,17 @@ New to the protocol? Start here:
 | [docs/EXTERNAL_REVIEW_GUIDE.md](docs/EXTERNAL_REVIEW_GUIDE.md) | What to inspect and evaluate as a reviewer |
 | [docs/DEMO_WALKTHROUGH.md](docs/DEMO_WALKTHROUGH.md) | Walk through 5 example workflows |
 
+## External Reviewers Welcome
+
+We welcome external review. If you are a technical reviewer:
+
+1. Follow the [First Run Checklist](docs/FIRST_RUN_CHECKLIST.md) (15 minutes)
+2. Read the [External Review Guide](docs/EXTERNAL_REVIEW_GUIDE.md)
+3. Review the [External Review Pilot](docs/EXTERNAL_REVIEW_PILOT.md) plan
+4. File feedback using the "External Review Feedback" issue template
+
+See [Feedback Triage Policy](docs/FEEDBACK_TRIAGE.md) for how feedback is handled.
+
 ## Documentation
 
 | Document | Purpose |
@@ -178,7 +189,7 @@ bash .opencode/conformance/tests/model-roi.sh
 
 ## Protocol Version
 
-**Current:** v5.4.0 — External Review Readiness + Multi-Environment Validation
+**Current:** v5.5.0 — External Review Pilot + Feedback Triage
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
 

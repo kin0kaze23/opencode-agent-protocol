@@ -20,10 +20,17 @@ After merging the CI workflow, configure branch protection rules on GitHub:
 
 ### Required Status Checks
 
-The following checks from `.github/workflows/validation.yml` must pass before merge:
+The following checks from `.github/workflows/validation.yml` must pass before merge. CI runs on both Ubuntu and macOS (matrix strategy), so each check has two variants:
 
-- `Privacy Scan` — runs `scripts/public-surface-scan.sh`
-- `Protocol Conformance` — runs install verification, Protocol Atlas, production hardening, loop controller, model ROI
+| Check name (Ubuntu) | Check name (macOS) |
+|---------------------|---------------------|
+| `Privacy Scan (ubuntu-latest)` | `Privacy Scan (macos-latest)` |
+| `Docs Drift (ubuntu-latest)` | `Docs Drift (macos-latest)` |
+| `Config Schema (ubuntu-latest)` | `Config Schema (macos-latest)` |
+| `Claims & Evidence (ubuntu-latest)` | `Claims & Evidence (macos-latest)` |
+| `Protocol Conformance (ubuntu-latest)` | `Protocol Conformance (macos-latest)` |
+
+All 10 checks are required by branch protection. A PR cannot merge until all 10 pass.
 
 ### How to Configure
 
