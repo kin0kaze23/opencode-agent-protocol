@@ -1,0 +1,9 @@
+name: Test Caller (Temporary)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-gates:
+    uses: kin0kaze23/opencode-agent-protocol/.github/workflows/gates.yml@fix/ci-gates-input-expressions
+    secrets: inherit
