@@ -20,7 +20,7 @@ It should stay thinner than repo-root instructions and tool-native config.
 - If file hash unchanged since last read: use cached content, skip re-read.
 - Record reads via `bash .opencode/scripts/session-cache.sh file-record <path>`.
 - Invalidate on: file modification, git operations, session restart.
-- Cacheable: AGENTS.md, NOW.md, PLAN.md, WORKSPACE_MAP.md, .opencode/*.md, skills/*/SKILL.md.
+- Cacheable: AGENTS.md, NOW.md, PLAN.md, your workspace map, .opencode/*.md, skills/*/SKILL.md.
 
 ### Session Gate Cache Rules
 - Track gate results via `bash .opencode/scripts/session-cache.sh gate-set <name> <pass|fail> <exit>`.
@@ -77,9 +77,9 @@ Before non-trivial work:
 2. Read `<repo>/NOW.md` (mandatory).
    - Treat `NOW.md` as required behavioral state even when it is not auto-loaded by the runtime.
 3. **Progressive expansion only** — read additional files ONLY when:
-   - Repo selection ambiguous → read `WORKSPACE_MAP.md`
+   - Repo selection ambiguous → read your workspace map (if you maintain one)
    - Repo structure unclear → spawn Explorer or read file tree
-   - Task overlaps lesson keywords → read `vault/projects/<repo>/lessons.md`
+   - Task overlaps lesson keywords → read your project lessons file (if you maintain one)
    - Cross-repo work → read dependent repo `AGENTS.md` before switching
    - Roadmapping relevant → read `ROADMAP.md`
 4. Run repo-local preflight.
@@ -100,7 +100,7 @@ When risk score is 0, exactly 1 file, and no sensitive paths are touched:
 - Keep daily helper permissions limited to the active helper roster: Explorer, Planner, Implementer, Reviewer, Architect.
 - ModelEval helpers are Eval mode only. Do not expose them in the default daily permission surface.
 - Never paste raw `oc debug config` output into chat, docs, commits, or issue comments. It may resolve environment-backed secrets. Use filtered/redacted summaries only. Short rule phrase for checks: raw oc debug config output is blocked.
-- Durable protocol documentation belongs under `vault/protocols/`. Avoid new workspace-root documents unless the protocol explicitly requires an active root contract (`PLAN.md`, `AGENTS.md`, `NOW.md`).
+- Durable protocol documentation belongs under your knowledge base (if you maintain one). Avoid new workspace-root documents unless the protocol explicitly requires an active root contract (`PLAN.md`, `AGENTS.md`, `NOW.md`).
 - New or untracked repos are not first-class until the repo-promotion gate is satisfied: registry entry, workspace map entry, repo `AGENTS.md`, repo `NOW.md`, git lifecycle decision, and guard pass.
 
 ## v4.6.1 Stabilization Rules
@@ -112,7 +112,7 @@ When risk score is 0, exactly 1 file, and no sensitive paths are touched:
 - `NOT_RUN` must include the reason, risk, and what confidence is missing.
 - `ACCEPTED_NON_BLOCKING` is valid only after explicit owner approval; cite the approval in the summary.
 - `BLOCKING_UNKNOWN` is the default when the failure cannot be confidently classified.
-- Before claiming completion, report dirty workspace inventory by group: OpenCode protocol files, vault protocol/eval files, product-code files, unrelated pre-existing changes, and unknown/risky changes. Do not hide dirty state behind a generic "done" summary.
+- Before claiming completion, report dirty workspace inventory by group: OpenCode protocol files, knowledge-base files, product-code files, unrelated pre-existing changes, and unknown/risky changes. Do not hide dirty state behind a generic "done" summary.
 - For UI verification, run or document browser route preflight before browser evidence: Playwright MCP enabled/disabled, Python Playwright usability, required browser binary availability, agent-browser usability when configured, and selected fallback route. Do not force-enable Playwright MCP or install browser dependencies without explicit approval.
 
 ## Phase M1 Pre-Edit Guardrails — Ambiguity, Performance, Unsafe Security
@@ -137,11 +137,11 @@ When risk score is 0, exactly 1 file, and no sensitive paths are touched:
 
 ## Owner Memory Runtime Rules (v4.5.1)
 
-- Owner memory lives under `vault/owner-memory/` and is advisory only; it never overrides current user instructions, repo `AGENTS.md`, repo `NOW.md`, or active `PLAN.md`.
+- Owner memory (if you maintain it) lives under your durable memory directory and is advisory only; it never overrides current user instructions, repo `AGENTS.md`, repo `NOW.md`, or active `PLAN.md`.
 - Read Owner memory only when relevant: user asks about prior context/preferences, the task overlaps durable workspace/project memory, or repo truth is insufficient for continuity.
-- Before using Owner memory, orient through `vault/owner-memory/index.md` and `vault/owner-memory/log.md`, then read only relevant pages.
+- Before using Owner memory, orient through your memory index and log, then read only relevant pages.
 - Write Owner memory only for durable, source-backed facts: explicit user preferences, confirmed lessons, durable decisions, project summaries, hazards, or workspace conventions.
-- Every Owner memory page must declare `authority: advisory`, include provenance in `sources:`, and be listed in `vault/owner-memory/index.md`.
+- Every Owner memory page must declare `authority: advisory`, include provenance in `sources:`, and be listed in your memory index.
 - Never store secrets, raw resolved config output, unreviewed transcripts, or temporary debugging logs in Owner memory.
 - If Owner memory conflicts with repo truth, trust repo truth, mark the memory stale/superseded, and log the conflict.
 - Use `/memory-status`, `/memory-save`, and `/memory-audit` command contracts for manual memory operations; the workspace protocol guard enforces the baseline memory structure.
@@ -178,7 +178,7 @@ Unless a repo-root contract explicitly says otherwise:
 - Root `.agent/`
 - Repo-local `.agent/`
 - `.ai/codex/config.json`
-- `vault/agent-protocols/`
+- internal protocol archives (if any)
 - Archives, validation outputs, caches, backups, and generated runtime state
 - `~/.claude/CLAUDE.md` and `~/.claude/rules/*` as sources of OpenCode authority
 
@@ -295,7 +295,7 @@ If a session dies after compaction:
 
 ## Vault Persistence Policy (ADR-002)
 
-**Detection:** Always use `git -C vault status --short` (NOT `git status vault/` from root).
+**Detection:** Always use `git -C <your-knowledge-base> status --short` (NOT `git status <your-knowledge-base>/` from root).
 
 **Allowlisted files (per active repo):**
 - `projects/<repo>/progress.md`
@@ -307,12 +307,12 @@ If a session dies after compaction:
 **Outcomes:**
 | Vault State | Outcome | Action |
 |-------------|---------|--------|
-| Allowlist-only changes | PERSISTED | Commit in dedicated vault commit |
+| Allowlist-only changes | PERSISTED | Commit in dedicated knowledge-base commit |
 | Any other changes | DEFERRED | Write patch to `/tmp/`, report path |
 
 **Rules:**
 1. Vault is non-authoritative — persistence outcome does NOT block repo-local checkpoint
-2. Always use `git -C vault status --short` for nested repo detection
+2. Always use `git -C <your-knowledge-base> status --short` for nested repo detection
 3. PERSISTED only if allowlist-only changes for active repo
 
 ## Research Invocation Gate (v0.1 canary)
@@ -345,7 +345,7 @@ Do **not** use research for:
 - Deployment, infra, or CI/CD tasks
 - Schema changes or type/interface updates
 - Known repo tasks where protocol already exists
-- Any task solvable from local code/docs/vault
+- Any task solvable from local code/docs/knowledge-base
 
 ### Autonomy levels
 
@@ -361,15 +361,15 @@ The orchestrator may invoke `/research-pipeline` autonomously **only** when ALL 
 
 1. The user explicitly asks for latest/current/external comparison or research, **OR** the task is clearly classified as RESEARCH, EVALUATION, MARKET, TOOLING, or STRATEGY
 2. The query contains no secrets, PII, private repo details, internal URLs, credentials, baby/family private details, or customer data
-3. The pipeline writes only to `vault/research/`
-4. The answer does not already exist in local repo docs or vault research notes
+3. The pipeline writes only to your research directory
+4. The answer does not already exist in local repo docs or your research notes
 
 ### Preflight check before invoking research
 
 Before running `/research-pipeline`, agents must verify:
 
 1. Can I solve this from local code/docs/protocol?
-2. Is the information I need already in the vault?
+2. Is the information I need already in your knowledge-base?
 3. Does the query contain any secrets, PII, or private data?
 4. Is this task actually research, or am I avoiding work?
 
@@ -377,9 +377,9 @@ If #1 or #2 is yes → do not run research. If #3 is yes → refuse the query. I
 
 ### Safety rules
 
-1. **No code mutation** — pipeline only writes to `vault/research/`
+1. **No code mutation** — pipeline only writes to your research directory
 2. **No credential exposure** — no env vars, API keys, or tokens in output
-3. **No auto-memory** — owner-memory is never modified
+3. **No auto-memory** — durable memory is never modified
 4. **No secrets in queries** — public information only
 5. **Canary only** — not production-core; promotion requires explicit approval
 6. **websearch primary** — Exa optional only if `EXA_API_KEY` configured
@@ -409,9 +409,9 @@ If #1 or #2 is yes → do not run research. If #3 is yes → refuse the query. I
 | Resource | Location |
 |----------|----------|
 | Research pipeline command | `.opencode/commands/research-pipeline.md` |
-| Daily use runbook | `vault/protocols/research/RESEARCH_PIPELINE_DAILY_USE.md` |
-| Output contract | `vault/protocols/research/RESEARCH_OUTPUT_CONTRACT.md` |
-| Canary evaluation | `vault/protocols/research/CANARY_EVAL.md` |
+| Daily use runbook | your research pipeline docs |
+| Output contract | your research output contract |
+| Canary evaluation | your research canary eval docs |
 
 ## Provider Fallback Policy (v1.5 — 2026-06-22)
 
@@ -535,7 +535,7 @@ In `--auto` mode, `ask` prompts are auto-approved. Only explicit `deny` is a rea
 2. One-line summary: what was done, what's next
 3. Done
 
-Skip: vault persistence, benchmark telemetry, behavioral drift, PGR reflection, loop ledger, branch lifecycle review, compaction continuity check.
+Skip: knowledge-base persistence, benchmark telemetry, behavioral drift, PGR reflection, loop ledger, branch lifecycle review, compaction continuity check.
 
 ### Full Checkpoint (STANDARD / HIGH-RISK)
 Use the existing `/checkpoint` flow with all steps.

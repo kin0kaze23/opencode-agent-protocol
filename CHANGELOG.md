@@ -11,6 +11,10 @@ All notable changes to the OpenCode Agent Protocol are documented here.
 
 ## Recent Releases
 
+### v5.5.1 — 2026-07-11
+
+Public runtime onboarding + portability clarification. Updated README with prerequisites section clarifying that this is a protocol layer requiring OpenCode as runtime. Added `docs/OWN_MODEL_SETUP.md` with provider-agnostic setup guide for OpenAI, Anthropic, and custom providers. Added `examples/config/` with template configs (brain-config, model-routing-policy, opencode.json). Cleaned `.opencode/AGENTS.md` and `.opencode/rules.md` of internal-only references (vault, owner-memory, WORKSPACE_MAP) — replaced with generic equivalents. Updated `docs/VALIDATION.md` with test tier classification (Tier 1: public self-contained, Tier 2: CI-required, Tier 3: optional workspace). Added `docs/PUBLIC_SYNC_POLICY.md` documenting internal/public repo relationship. Added `docs/DOGFOODING_LOG_TEMPLATE.md` for recording daily-use evidence. Updated `docs/CLAIMS.md` with new allowed claims (OpenCode protocol layer, provider-adaptable, daily-use ready) and disallowed claims (turnkey any-model support, works without OpenCode, no setup required). Fresh-clone validated.
+
 ### v5.5.0 — 2026-07-11
 
 External review pilot + feedback triage. Added `docs/EXTERNAL_REVIEW_PILOT.md` with reviewer profile, goals, timeline, and first-run steps. Added `docs/REVIEWER_INVITE_TEMPLATE.md` for inviting reviewers. Added `docs/FEEDBACK_TRIAGE.md` with classification categories and priority levels (P0–P3). Added `docs/REVIEW_FEEDBACK.md` (ready for first cycle). Configured branch protection to require all 10 matrix CI checks (5 jobs × 2 environments). Updated `docs/MAINTAINERS.md` with exact matrix check names. Updated README with external reviewers section. Fresh-clone validated.

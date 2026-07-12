@@ -9,7 +9,27 @@
 
 ## What This Is
 
-This repository contains the **OpenCode agent protocol** — behavioral rules, model routing, commands, scripts, conformance tests, and visual documentation for governing AI-assisted software development.
+This repository contains the **OpenCode agent protocol** — a protocol layer and AI engineering harness specification for governing AI-assisted software development with OpenCode.
+
+**Important:** This is a **protocol specification**, not a bundled runtime. To use it as a working harness, you need:
+
+- **OpenCode** installed as the runtime
+- **Model API access** configured by you (OpenAI, Anthropic, or other providers)
+- **Your own project repos** to apply the protocol to
+
+Fresh-clone validation proves **protocol integrity** (files are valid, tests pass, no personal data). It does not prove that your models or providers are configured.
+
+### Prerequisites
+
+| Requirement | Purpose |
+|-------------|---------|
+| [OpenCode](https://github.com/opencode-ai/opencode) | Runtime that executes the protocol |
+| git | Version control |
+| bash 4+ | Script execution (validation, scanning, conformance tests) |
+| GitHub account | CI, branch protection, PR workflow |
+| Model provider access | API keys for your chosen AI models (configured by you, not included) |
+
+### What's Included
 
 - **OpenCode protocol** (`.opencode/`) — behavioral rules, model routing, commands, scripts, conformance tests
 - **Protocol Atlas** (`docs/protocol/PROTOCOL_ATLAS.md`) — visual system map with 11 Mermaid diagrams
@@ -135,6 +155,18 @@ New to the protocol? Start here:
 | [docs/EXTERNAL_REVIEW_GUIDE.md](docs/EXTERNAL_REVIEW_GUIDE.md) | What to inspect and evaluate as a reviewer |
 | [docs/DEMO_WALKTHROUGH.md](docs/DEMO_WALKTHROUGH.md) | Walk through 5 example workflows |
 
+## Getting Started With Your Own Models
+
+This protocol ships with model routing configured for the original author's providers. To adapt it to your own setup:
+
+1. Read [docs/OWN_MODEL_SETUP.md](docs/OWN_MODEL_SETUP.md) — how to configure your providers
+2. Copy templates from [examples/config/](examples/config/) — placeholder configs for OpenAI, Anthropic, or custom providers
+3. Update `.opencode/model-registry.yaml` with your model IDs
+4. Update `.opencode/brain-config.json` with your routing policy
+5. Run `bash scripts/validate-config-schema.sh` to verify
+
+See [docs/PUBLIC_SYNC_POLICY.md](docs/PUBLIC_SYNC_POLICY.md) for how the public repo relates to the internal development repo.
+
 ## External Reviewers Welcome
 
 We welcome external review. If you are a technical reviewer:
@@ -160,7 +192,10 @@ See [Feedback Triage Policy](docs/FEEDBACK_TRIAGE.md) for how feedback is handle
 | [docs/RUNTIME_MAP.md](docs/RUNTIME_MAP.md) | Runtime source-of-truth map |
 | [docs/CONFIGURATION_GUIDE.md](docs/CONFIGURATION_GUIDE.md) | How to customize the protocol |
 | [docs/CLAIMS.md](docs/CLAIMS.md) | Allowed and disallowed public claims |
-| [docs/VALIDATION.md](docs/VALIDATION.md) | Validation scripts and CI enforcement |
+| [docs/VALIDATION.md](docs/VALIDATION.md) | Validation scripts, test tiers, and CI enforcement |
+| [docs/OWN_MODEL_SETUP.md](docs/OWN_MODEL_SETUP.md) | How to adapt the protocol to your own model providers |
+| [docs/PUBLIC_SYNC_POLICY.md](docs/PUBLIC_SYNC_POLICY.md) | How the public repo relates to the internal development repo |
+| [docs/DOGFOODING_LOG_TEMPLATE.md](docs/DOGFOODING_LOG_TEMPLATE.md) | Template for recording daily-use evidence |
 | [docs/MAINTAINERS.md](docs/MAINTAINERS.md) | Maintainer guide and branch protection |
 | [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) | Release checklist |
 | [CHANGELOG.md](CHANGELOG.md) | Public release summary |
@@ -189,7 +224,7 @@ bash .opencode/conformance/tests/model-roi.sh
 
 ## Protocol Version
 
-**Current:** v5.5.0 — External Review Pilot + Feedback Triage
+**Current:** v5.5.1 — Public Runtime Onboarding + Portability Clarification
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
 

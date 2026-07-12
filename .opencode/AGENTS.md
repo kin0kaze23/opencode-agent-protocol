@@ -321,12 +321,12 @@ The workspace configuration follows a four-layer authority model. See `.opencode
 3. If `NOW.md` status is active or blocked: apply Session Resume Rule.
 
 5. **Progressive expansion only** — do NOT read everything at startup. Expand context when:
-   - Repo selection is ambiguous → read `WORKSPACE_MAP.md`
+   - Repo selection is ambiguous → read your workspace map (if you maintain one)
    - Repo structure unclear → spawn Explorer or read file tree
-   - Task overlaps lesson keywords → read `vault/projects/<repo>/lessons.md`
+   - Task overlaps lesson keywords → read your project lessons file (if you maintain one)
    - Cross-repo work → read dependent repo `AGENTS.md` before switching
    - Roadmapping relevant → read `ROADMAP.md`
-   - Durable memory relevant → read `vault/owner-memory/index.md`, `vault/owner-memory/log.md`, then only relevant memory pages
+   - Durable memory relevant → read your durable memory index (if you maintain one), then only relevant memory pages
 6. Before the first preflight or resume block, output a visible session banner:
 
    ```
@@ -365,7 +365,7 @@ Major risks:      <key uncertainties or "Low">
 If any of those conditions stop being true, fall back to the full preflight block.
 
 9. Use native OpenCode command discovery for `.opencode/commands/`; do not inject command bodies through `instructions` unless a future runtime regression requires a rollback.
-10. Treat `vault/owner-memory/` as advisory durable memory only; repo truth and current user instructions remain higher authority.
+10. Treat your durable memory (if you maintain one) as advisory only; repo truth and current user instructions remain higher authority.
 
 11. Model selection guidance (v1.5.2 capacity-first):
    - Routine/medium-risk orchestration: `umans-glm-5.2` (primary), `umans-coder` (fallback)
@@ -428,7 +428,7 @@ Before executing any task, follow all five patterns below:
 
 **Pattern 4: Gate-Then-Ship**
 - Before the final commit: Run ALL quality gates (lint → typecheck → test → build). 
-- If the repo has a dev port in `WORKSPACE_MAP.md` AND the touch list includes UI files: run mandatory browser verification. 
+- If the repo has a dev port configured in your workspace AND the touch list includes UI files: run mandatory browser verification. 
 - Output a Completion Summary before `/checkpoint`:
   ```
   Completion Summary:
@@ -437,7 +437,7 @@ Before executing any task, follow all five patterns below:
   Gate classifications: <TARGETED_FAILURE / BROAD_BASELINE_FAILURE / FLAKY_OR_INFRA_FAILURE / NOT_RUN / ACCEPTED_NON_BLOCKING / BLOCKING_UNKNOWN for every non-pass or skipped gate>
   Browser route preflight: <Playwright MCP state, Python Playwright state, browser binary state, agent-browser state, selected route; or "Not required — <reason>">
   Browser verification: <structured evidence for qualifying web UI changes — dev_url, screenshot_path, viewport, console_errors, accessibility_result, performance_result, command_used, timestamp, known_visual_risks; otherwise "Not required — <reason>">
-  Dirty workspace inventory: <OpenCode protocol / vault protocol-eval / product-code / unrelated pre-existing / unknown-risky groups; or "Clean except committed scope">
+  Dirty workspace inventory: <OpenCode protocol / knowledge-base eval / product-code / unrelated pre-existing / unknown-risky groups; or "Clean except committed scope">
   Manual verification: <2–3 steps the user can take to confirm it works>
   Rollback note: <what to revert or disable if this slice misbehaves>
   Type: <rollback type>
@@ -482,7 +482,7 @@ The guard is the fast, canonical check for keeping OpenCode, Claude, Codex, Gemi
 - Repo root handles repo truth.
 - Use tool-native OpenCode config and commands for execution behavior.
 - Stop on authority conflicts instead of choosing silently.
-- Keep durable protocol documentation under `vault/protocols/`; root-level files are only for active contracts such as `PLAN.md`, `AGENTS.md`, and `NOW.md`.
+- Keep durable protocol documentation under your knowledge base (if you maintain one); root-level files are only for active contracts such as `PLAN.md`, `AGENTS.md`, and `NOW.md`.
 - Never paste raw `oc debug config` output into chat, docs, commits, or issue comments. Use redacted summaries only.
 
 ## Daily Use Note
@@ -499,7 +499,7 @@ Do not treat these as OpenCode runtime authority unless the target repo explicit
 - Root `.agent/`
 - Repo-local `.agent/`
 - `.ai/codex/config.json`
-- `vault/agent-protocols/`
+- internal protocol archives (if any)
 - `.opencode/archive/`, `.opencode/benchmarks/`, `.opencode/conformance/results/`
 - `.claude/validation/`
 - Generated runtime state, backups, caches, and token-bearing workspaces
