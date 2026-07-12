@@ -2,12 +2,11 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in this repository, please report it responsibly:
+If you discover a security vulnerability in this repository, please report it through [GitHub Security Advisories](https://github.com/kin0kaze23/opencode-agent-protocol/security/advisories/new).
 
-1. **Do not** open a public GitHub issue
-2. Email: security@[repo-owner-domain] (replace with your contact)
-3. Include a description of the vulnerability and steps to reproduce
-4. We will acknowledge receipt within 48 hours and provide a fix timeline
+- **Do not** open a public GitHub issue for suspected vulnerabilities.
+- Include a description of the vulnerability, steps to reproduce, and potential impact.
+- Reports are reviewed and acknowledged within 72 hours.
 
 ## Secrets Policy
 

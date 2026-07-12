@@ -7,6 +7,10 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+## Status
+
+Actively maintained. The protocol is production-oriented and versioned through tagged releases. Breaking changes are documented in the [changelog](CHANGELOG.md) and release notes.
+
 ## What This Is
 
 This repository contains the **OpenCode agent protocol** — a protocol layer and AI engineering harness specification for governing AI-assisted software development with OpenCode.
