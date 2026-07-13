@@ -22,7 +22,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Run public-surface-scan
         run: bash scripts/public-surface-scan.sh
 
@@ -34,7 +34,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Validate docs drift
         run: bash scripts/validate-docs-drift.sh
 
@@ -46,7 +46,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Validate config schema
         run: bash scripts/validate-config-schema.sh
 
@@ -58,7 +58,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Validate claims and evidence
         run: bash scripts/validate-claims-evidence.sh
 
@@ -70,7 +70,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Protocol Atlas validation
         run: bash .opencode/scripts/validate-protocol-atlas.sh
       - name: Protocol Atlas conformance
