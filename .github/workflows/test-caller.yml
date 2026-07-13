@@ -1,0 +1,12 @@
+name: Test Caller (Temporary)
+
+on:
+  push:
+    branches: [fix/ci-gates-input-expressions]
+
+jobs:
+  gates:
+    uses: ./.github/workflows/gates.yml
+    with:
+      node_version: "20"
+      package_manager: "npm"
