@@ -9,7 +9,7 @@
 #   on: [pull_request]
 #   jobs:
 #     gates:
-#       uses: kin0kaze23/opencode-agent-protocol/.github/workflows/gates.yml@main
+#       uses: ./.github/workflows/gates.yml
 #       secrets: inherit
 #
 # Or copy this file into the repo's .github/workflows/ directory.
@@ -22,10 +22,12 @@ on:
       node_version:
         description: 'Node.js version'
         required: false
+        type: string
         default: '20'
       package_manager:
         description: 'Override package manager detection (pnpm, npm, yarn, bun)'
         required: false
+        type: string
         default: 'auto'
 
 jobs:
