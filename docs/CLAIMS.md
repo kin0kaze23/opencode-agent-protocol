@@ -1,7 +1,7 @@
 # Claims Policy
 
 > **Purpose:** Defines what claims are accurate and defensible about OpenCode Agent Protocol.
-> **Last Updated:** 2026-07-11
+> **Last Updated:** 2026-07-14
 
 ---
 
@@ -32,6 +32,9 @@ These claims are evidence-based and defensible:
 | Harness/loop architecture | Two-layer separation documented in HARNESS_AND_LOOP.md |
 | Minimal loop example | Illustrative Plan → Act → Verify → Review script in examples/loop-runner/ |
 | Progressive onboarding | 10-stage path from clone to first useful workflow |
+| Cross-platform launcher compatibility | `opencode-safe-launch.sh` detects OS and uses macOS/Linux appropriate commands |
+| First-run setup script | `scripts/setup.sh` detects OS, checks prerequisites, generates aliases |
+| Placeholder model defaults | `opencode.json` ships with `YOUR_PROVIDER/YOUR_*_MODEL` placeholders |
 
 ---
 
@@ -51,12 +54,15 @@ These claims are not supported by evidence and must not be made:
 | Turnkey any-model support | Requires user configuration of providers and models |
 | Works without OpenCode | OpenCode is the required runtime |
 | No setup required | Users must configure OpenCode, models, and providers |
+| Clone-and-go without provider setup | Placeholder model IDs must be replaced before runtime use |
+| Works with any model automatically | Model IDs must be manually configured |
+| Bundled runtime | This is a protocol layer, not a bundled runtime |
 
 ---
 
 ## Recommended Public Description
 
-> OpenCode Agent Protocol is a safety-first AI engineering harness for governed agentic development, with CI-enforced privacy scanning, protocol conformance, release discipline, agent topology documentation, and portable public installation.
+> OpenCode Agent Protocol is a safety-first AI engineering harness for governed agentic development, with CI-enforced privacy scanning, protocol conformance, release discipline, agent topology documentation, cross-platform launcher compatibility, and portable public installation with placeholder model defaults.
 
 ---
 
@@ -69,5 +75,6 @@ These claims are not supported by evidence and must not be made:
 | Productivity | Before/after time comparison with controlled variables |
 | External review | Named reviewer with credentials |
 | Compliance | Audit report from certified auditor |
+| Cross-platform | CI matrix passing on both Ubuntu and macOS |
 
 Do not make claims without the corresponding evidence.

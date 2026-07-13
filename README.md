@@ -30,6 +30,9 @@ Fresh-clone validation proves **protocol integrity** (files are valid, tests pas
 | [OpenCode](https://github.com/opencode-ai/opencode) | Runtime that executes the protocol |
 | git | Version control |
 | bash 4+ | Script execution (validation, scanning, conformance tests) |
+| Python 3 | Conformance tests |
+| Node.js 18+ | MCP servers, sync scripts |
+| jq | JSON processing in scripts |
 | GitHub account | CI, branch protection, PR workflow |
 | Model provider access | API keys for your chosen AI models (configured by you, not included) |
 
@@ -38,6 +41,7 @@ Fresh-clone validation proves **protocol integrity** (files are valid, tests pas
 - **OpenCode protocol** (`.opencode/`) — behavioral rules, model routing, commands, scripts, conformance tests
 - **Protocol Atlas** (`docs/protocol/PROTOCOL_ATLAS.md`) — visual system map with 11 Mermaid diagrams
 - **Conformance suite** — 297+ tests across multiple suites, 0 failures
+- **First-run setup script** (`scripts/setup.sh`) — detects OS, checks prerequisites, generates aliases
 
 It does **not** contain product code. It is a protocol layer that sits on top of the OpenCode CLI.
 
@@ -61,14 +65,17 @@ AI coding agents are powerful but unsafe without guardrails. This protocol provi
 git clone https://github.com/kin0kaze23/opencode-agent-protocol.git
 cd opencode-agent-protocol
 
-# 2. Verify
+# 2. Run setup (checks prerequisites, generates aliases)
+bash scripts/setup.sh
+
+# 3. Verify
 bash scripts/verify-install.sh
 
-# 3. Run conformance tests
+# 4. Run conformance tests
 bash .opencode/conformance/tests/protocol-atlas.sh
 bash .opencode/conformance/tests/production-hardening.sh
 
-# 4. Run public-surface scan (privacy regression)
+# 5. Run public-surface scan (privacy regression)
 bash scripts/public-surface-scan.sh
 ```
 
@@ -130,6 +137,7 @@ This protocol is **safety-first** but not **guaranteed safe**. It provides guard
 - Branch protection (PR required, no force push)
 - Documented agent topology and model routing
 - Repeatable release process with fresh-clone validation
+- Cross-platform launcher (macOS + Linux)
 
 ### What the protocol does not do
 
@@ -176,15 +184,22 @@ See [docs/HARNESS_AND_LOOP.md](docs/HARNESS_AND_LOOP.md) for the full two-layer 
 
 ## Getting Started With Your Own Models
 
-This protocol ships with model routing configured for the original author's providers. To adapt it to your own setup:
+This protocol ships with **placeholder model IDs** (`YOUR_PROVIDER/YOUR_MODEL_ID`) in `opencode.json`. You must replace these with your own provider's model IDs before the harness can run.
 
-1. Read [docs/OWN_MODEL_SETUP.md](docs/OWN_MODEL_SETUP.md) — how to configure your providers
-2. Copy templates from [examples/config/](examples/config/) — placeholder configs for OpenAI, Anthropic, or custom providers
-3. Update `.opencode/model-registry.yaml` with your model IDs
-4. Update `.opencode/brain-config.json` with your routing policy
-5. Run `bash scripts/validate-config-schema.sh` to verify
+To adapt it to your own setup:
+
+1. Run `bash scripts/setup.sh` — checks prerequisites and detects placeholder config
+2. Read [docs/OWN_MODEL_SETUP.md](docs/OWN_MODEL_SETUP.md) — how to configure your providers
+3. Update `.opencode/opencode.json` — replace `YOUR_PROVIDER/YOUR_*_MODEL` with your actual model IDs
+4. Copy templates from [examples/config/](examples/config/) — reference configs for OpenAI, Anthropic, or custom providers
+5. Set your API key environment variable (e.g. `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
+6. Run `bash scripts/validate-config-schema.sh` to verify
 
 See [docs/PUBLIC_SYNC_POLICY.md](docs/PUBLIC_SYNC_POLICY.md) for how the public repo relates to the internal development repo.
+
+## MCP Servers
+
+The protocol configures several MCP servers (context7, exa, sequential-thinking, github). On first run, `npx` downloads these packages automatically (30-60 seconds, network required). To disable MCP servers you don't need, set `"enabled": false` in `.opencode/opencode.json`.
 
 ## External Reviewers Welcome
 
@@ -227,6 +242,9 @@ See [Feedback Triage Policy](docs/FEEDBACK_TRIAGE.md) for how feedback is handle
 ## Verification
 
 ```bash
+# First-run setup (checks prerequisites, generates aliases)
+bash scripts/setup.sh
+
 # Install verification
 bash scripts/verify-install.sh
 
@@ -245,7 +263,7 @@ bash .opencode/conformance/tests/model-roi.sh
 
 ## Protocol Version
 
-**Current:** v5.5.2 — Harness/Loop Onboarding Pack
+**Current:** v5.5.3 — Fresh-Clone Runtime Install Hardening
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
 
