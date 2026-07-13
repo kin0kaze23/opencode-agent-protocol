@@ -1,1 +1,0 @@
-{"name":"gates-test-fixture","version":"1.0.0","private":true,"scripts":{"lint":"echo lint-pass","test":"echo test-pass","typecheck":"echo typecheck-pass","build":"echo build-pass"}}
