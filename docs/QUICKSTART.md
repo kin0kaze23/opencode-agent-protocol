@@ -8,6 +8,8 @@
 - [OpenCode](https://github.com/opencode-ai/opencode) CLI installed
 - Git
 - Python 3 (for conformance tests)
+- Node.js 18+ (for MCP servers and sync scripts)
+- jq (for JSON processing in scripts)
 - A shell (bash or zsh)
 
 ## Step 1: Clone
@@ -15,10 +17,17 @@
 ```bash
 git clone https://github.com/kin0kaze23/opencode-agent-protocol.git
 cd opencode-agent-protocol
-git submodule update --init --recursive
 ```
 
-## Step 2: Add Shell Aliases
+## Step 2: Run Setup (Recommended)
+
+```bash
+bash scripts/setup.sh
+```
+
+This script detects your OS, checks prerequisites, and generates shell alias snippets. Or follow the manual steps below.
+
+## Step 3: Add Shell Aliases (Manual Alternative)
 
 Add to your `~/.zshrc` or `~/.bashrc`:
 
@@ -31,7 +40,25 @@ alias oc-manual='bash /path/to/opencode-agent-protocol/.opencode/scripts/opencod
 
 Then: `source ~/.zshrc`
 
-## Step 3: Verify Installation
+## Step 4: Configure Your Model Provider
+
+This protocol ships with placeholder model IDs. You must configure your own provider before running OpenCode:
+
+1. Read [docs/OWN_MODEL_SETUP.md](OWN_MODEL_SETUP.md) for provider setup
+2. Update `.opencode/opencode.json` with your model IDs
+3. Set your API key environment variable
+
+```bash
+# Example: OpenAI
+export OPENAI_API_KEY="your-api-key"
+
+# Example: Anthropic
+export ANTHROPIC_API_KEY="your-api-key"
+```
+
+**Never commit API keys to Git.** The `.gitignore` blocks `.env` files.
+
+## Step 5: Verify Installation
 
 ```bash
 bash scripts/verify-install.sh
@@ -39,7 +66,7 @@ bash scripts/verify-install.sh
 
 This runs a 10-suite install verification.
 
-## Step 4: Run Validation
+## Step 6: Run Validation
 
 ```bash
 bash .opencode/scripts/validate-protocol-atlas.sh
@@ -49,7 +76,7 @@ bash .opencode/conformance/tests/production-hardening.sh
 
 All tests should pass.
 
-## Step 5: Start OpenCode
+## Step 7: Start OpenCode
 
 ```bash
 # Autopilot mode (auto-approves safe operations, denies dangerous ones)
@@ -61,6 +88,8 @@ oc-fresh
 # Manual mode (all permissions require approval)
 oc-manual
 ```
+
+> **Note:** First run may be slow as MCP server packages are downloaded via `npx`. Network access is required.
 
 ## What's Safe
 

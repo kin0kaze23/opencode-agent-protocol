@@ -1,0 +1,9 @@
+{
+  "name": ".opencode",
+  "private": true,
+  "description": "OpenCode Agent Protocol — plugin dependencies",
+  "dependencies": {
+    "@opencode-ai/plugin": "1.3.17",
+    "@opencode-ai/sdk": "1.3.5"
+  }
+}
