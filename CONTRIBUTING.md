@@ -20,6 +20,18 @@ Thank you for your interest in contributing to the OpenCode Agent Protocol!
 5. Commit with conventional messages: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`
 6. Open a PR against `kin0kaze23/opencode-agent-protocol`
 
+### Repository Workflow
+
+All changes follow this operating model:
+
+1. **Branch** — create a feature branch from `main`
+2. **Pull request** — open a PR with a clear description and validation evidence
+3. **Validation** — all ten required CI checks must pass (Privacy Scan, Docs Drift, Config Schema, Claims & Evidence, Protocol Conformance — each on Ubuntu and macOS)
+4. **Squash merge** — only squash merges are allowed; merge commits and rebase merges are disabled
+5. **Branch deletion** — the feature branch is automatically deleted after merge
+
+Direct pushes to `main` are blocked. Force pushes and branch deletion are also blocked.
+
 ### Tests Required
 
 All PRs must pass the conformance suite:
