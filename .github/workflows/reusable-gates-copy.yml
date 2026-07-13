@@ -1,0 +1,167 @@
+# Reusable Gate Workflow (v4.22)
+#
+# This workflow runs lint, typecheck, test, and build for any repo that calls it.
+# It auto-detects the package manager and gracefully skips unavailable scripts.
+#
+# Usage in individual repo .github/workflows/ci.yml:
+#
+#   name: CI
+#   on: [pull_request]
+#   jobs:
+#     gates:
+#       uses: kin0kaze23/opencode-agent-protocol/.github/workflows/gates.yml@main
+#       secrets: inherit
+#
+# Or copy this file into the repo's .github/workflows/ directory.
+
+name: Reusable Gates
+
+on:
+  workflow_call:
+    inputs:
+      node_version:
+        description: 'Node.js version'
+        required: false
+        default: '20'
+      package_manager:
+        description: 'Override package manager detection (pnpm, npm, yarn, bun)'
+        required: false
+        default: 'auto'
+
+jobs:
+  detect-and-run:
+    if: github.event_name == 'workflow_call'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect package manager
+        id: pm
+        run: |
+          if [ "${{ inputs.package_manager }}" != "auto" ]; then
+            echo "manager=${{ inputs.package_manager }}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          if [ -f "pnpm-lock.yaml" ]; then
+            echo "manager=pnpm" >> $GITHUB_OUTPUT
+          elif [ -f "bun.lock" ] || [ -f "bun.lockb" ]; then
+            echo "manager=bun" >> $GITHUB_OUTPUT
+          elif [ -f "yarn.lock" ]; then
+            echo "manager=yarn" >> $GITHUB_OUTPUT
+          else
+            echo "manager=npm" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
+
+      - name: Setup pnpm
+        if: steps.pm.outputs.manager == 'pnpm'
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - name: Setup Bun
+        if: steps.pm.outputs.manager == 'bun'
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: |
+          case ${{ steps.pm.outputs.manager }} in
+            pnpm) pnpm install --frozen-lockfile ;;
+            npm) npm ci ;;
+            yarn) yarn install --frozen-lockfile ;;
+            bun) bun install --frozen-lockfile ;;
+          esac
+
+      - name: Run lint
+        continue-on-error: true
+        id: lint
+        run: |
+          # Check if lint script exists in package.json
+          if ! jq -e '.scripts.lint // empty' package.json > /dev/null 2>&1; then
+            echo "lint script not found — skipping"
+            exit 0
+          fi
+          case ${{ steps.pm.outputs.manager }} in
+            pnpm) pnpm lint ;;
+            npm) npm run lint ;;
+            yarn) yarn lint ;;
+            bun) bun run lint ;;
+          esac
+
+      - name: Run typecheck
+        continue-on-error: true
+        id: typecheck
+        run: |
+          # Check if typecheck script exists, fall back to tsc --noEmit
+          if jq -e '.scripts.typecheck // empty' package.json > /dev/null 2>&1; then
+            case ${{ steps.pm.outputs.manager }} in
+              pnpm) pnpm typecheck ;;
+              npm) npm run typecheck ;;
+              yarn) yarn typecheck ;;
+              bun) bun run typecheck ;;
+            esac
+          elif [ -f "tsconfig.json" ]; then
+            echo "typecheck script not found — running tsc --noEmit directly"
+            case ${{ steps.pm.outputs.manager }} in
+              pnpm) pnpm exec tsc --noEmit ;;
+              npm) npx tsc --noEmit ;;
+              yarn) yarn tsc --noEmit ;;
+              bun) bunx tsc --noEmit ;;
+            esac
+          else
+            echo "typecheck script not found and no tsconfig.json — skipping"
+            exit 0
+          fi
+
+      - name: Run tests
+        continue-on-error: true
+        id: test
+        run: |
+          # Check if test script exists in package.json
+          if ! jq -e '.scripts.test // empty' package.json > /dev/null 2>&1; then
+            echo "test script not found — skipping"
+            exit 0
+          fi
+          case ${{ steps.pm.outputs.manager }} in
+            pnpm) pnpm test ;;
+            npm) npm test ;;
+            yarn) yarn test ;;
+            bun) bun test ;;
+          esac
+
+      - name: Run build
+        continue-on-error: true
+        id: build
+        run: |
+          # Check if build script exists in package.json
+          if ! jq -e '.scripts.build // empty' package.json > /dev/null 2>&1; then
+            echo "build script not found — skipping"
+            exit 0
+          fi
+          case ${{ steps.pm.outputs.manager }} in
+            pnpm) pnpm build ;;
+            npm) npm run build ;;
+            yarn) yarn build ;;
+            bun) bun run build ;;
+          esac
+
+      - name: Gate summary
+        run: |
+          echo "## Gate Summary"
+          echo "| Gate | Status |"
+          echo "|------|--------|"
+          echo "| lint | ${{ steps.lint.outcome }} |"
+          echo "| typecheck | ${{ steps.typecheck.outcome }} |"
+          echo "| test | ${{ steps.test.outcome }} |"
+          echo "| build | ${{ steps.build.outcome }} |"
+          echo ""
+          if [ "${{ steps.lint.outcome }}" = "failure" ] || [ "${{ steps.typecheck.outcome }}" = "failure" ] || [ "${{ steps.test.outcome }}" = "failure" ] || [ "${{ steps.build.outcome }}" = "failure" ]; then
+            echo "❌ One or more gates failed"
+            exit 1
+          else
+            echo "✅ All gates passed (or skipped — not configured)"
+          fi
