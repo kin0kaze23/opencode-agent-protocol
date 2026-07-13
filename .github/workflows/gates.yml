@@ -3,16 +3,27 @@
 # This workflow runs lint, typecheck, test, and build for any repo that calls it.
 # It auto-detects the package manager and gracefully skips unavailable scripts.
 #
-# Usage in individual repo .github/workflows/ci.yml:
+# Usage from another repository:
 #
 #   name: CI
 #   on: [pull_request]
 #   jobs:
 #     gates:
+#       uses: kin0kaze23/opencode-agent-protocol/.github/workflows/gates.yml@v5.5.2
+#       with:
+#         node_version: '20'
+#         package_manager: 'auto'
+#       secrets: inherit
+#
+# Usage from another workflow in this repository:
+#
+#   jobs:
+#     gates:
 #       uses: ./.github/workflows/gates.yml
 #       secrets: inherit
 #
-# Or copy this file into the repo's .github/workflows/ directory.
+# Pin to the latest stable release tag for external consumers.
+# See https://github.com/kin0kaze23/opencode-agent-protocol/tags for available tags.
 
 name: Reusable Gates
 
