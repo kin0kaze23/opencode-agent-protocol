@@ -1,7 +1,7 @@
 # Protocol Atlas — OpenCode Agent Harness
 
-> **Version:** v5.5.2
-> **Last Updated:** 2026-07-11
+> **Version:** v5.5.3
+> **Last Updated:** 2026-07-14
 > **Status:** Active — Public Hardening
 > **protected-repo:** EXCLUDED — do not touch
 
@@ -81,7 +81,7 @@ The protocol uses a multi-agent architecture where the Orchestrator delegates to
 ```mermaid
 graph TB
     subgraph "Orchestrator Layer"
-        ORC[Orchestrator<br/>umans-glm-5.2<br/>Routes tasks, owns strategy]
+        ORC[Orchestrator<br/>YOUR_MODEL_ID<br/>Routes tasks, owns strategy]
     end
 
     subgraph "Planning Layer"
@@ -94,16 +94,16 @@ graph TB
     end
 
     subgraph "Review Layer"
-        REV[Reviewer<br/>umans-glm-5.1<br/>Risk 4+, sensitive paths]
-        ARCH[Architect<br/>qwen3.7-plus<br/>Auth/schema/state-model]
+        REV[Reviewer<br/>YOUR_REVIEWER_MODEL<br/>Risk 4+, sensitive paths]
+        ARCH[Architect<br/>YOUR_MODEL_ID<br/>Auth/schema/state-model]
     end
 
     subgraph "Budget Layer"
-        BUD[Budget<br/>deepseek-v4-flash<br/>Cheap summaries, routing]
+        BUD[Budget<br/>YOUR_SMALL_MODEL_ID<br/>Cheap summaries, routing]
     end
 
     subgraph "Compaction Layer"
-        CMP[Compaction<br/>glm-5.2 / kimi-k2.7<br/>Context preservation]
+        CMP[Compaction<br/>YOUR_COMPACTION_MODEL<br/>Context preservation]
     end
 
     subgraph "Eval & Routing Layer"
@@ -148,14 +148,16 @@ graph TB
 
 | Agent | Model | Role | When Used |
 |-------|-------|------|-----------|
-| **Orchestrator** | umans-glm-5.2 | Routes tasks, owns strategy, makes final decisions | Every session |
-| **Planner** | umans-coder | Creates plans, touch lists, success criteria | Ambiguous, multi-step, high-risk work |
-| **Implementer** | umans-coder | Bounded code changes within approved touch list | After plan approval |
-| **Explorer** | umans-flash | Read-only codebase discovery, dependency mapping | Before planning, cheap-first routing |
-| **Reviewer** | umans-glm-5.1 | Risk 4+, sensitive paths, release gates | HIGH-RISK, 4+ files, auth/security/payment |
-| **Architect** | qwen3.7-plus | Auth/session semantics, schema, state-model | Architecture decisions, cross-surface design |
-| **Budget** | deepseek-v4-flash | Cheap summaries, routing classification, cost summaries | Routine read-only work |
-| **Compaction** | glm-5.2 / kimi-k2.7 | Context preservation during long sessions | Session compaction |
+| **Orchestrator** | YOUR_MODEL_ID | Routes tasks, owns strategy, makes final decisions | Every session |
+| **Planner** | YOUR_MODEL_ID | Creates plans, touch lists, success criteria | Ambiguous, multi-step, high-risk work |
+| **Implementer** | YOUR_MODEL_ID | Bounded code changes within approved touch list | After plan approval |
+| **Explorer** | YOUR_SMALL_MODEL_ID | Read-only codebase discovery, dependency mapping | Before planning, cheap-first routing |
+| **Reviewer** | YOUR_REVIEWER_MODEL | Risk 4+, sensitive paths, release gates | HIGH-RISK, 4+ files, auth/security/payment |
+| **Architect** | YOUR_MODEL_ID | Auth/session semantics, schema, state-model | Architecture decisions, cross-surface design |
+| **Budget** | YOUR_SMALL_MODEL_ID | Cheap summaries, routing classification, cost summaries | Routine read-only work |
+| **Compaction** | YOUR_COMPACTION_MODEL | Context preservation during long sessions | Session compaction |
+
+> **Note:** Model IDs shown as `YOUR_*_MODEL` are placeholders. Replace them with your own provider's model IDs in `.opencode/opencode.json`. See [docs/OWN_MODEL_SETUP.md](../OWN_MODEL_SETUP.md) for configuration guide.
 
 ### How Agents Cooperate
 
@@ -493,13 +495,15 @@ flowchart TD
 |----------|----------|-----------|
 | AGENTS.md | workspace root | Workspace router |
 | rules.md | `.opencode/rules.md` | OpenCode guardrails |
-| brain-config.json | `.opencode/brain-config.json` | Orchestration policy |
+| brain-config.json | `.opencode/brain-config.json` | Orchestration policy (see note below) |
 | NOW.md | repo root | Current state |
 | PLAN.md | repo root | Active plan |
 | tasks.yaml | `.opencode/evals/task-replay/` | Benchmark tasks |
 | performance-records.jsonl | `.opencode/metrics/model-performance/` | Normalized records |
 | loop-lessons.jsonl | `.opencode/evals/lessons/` | Extracted lessons |
 | model-routing-policy.recommended.yaml | `.opencode/config/` | Advisory routing policy |
+
+> **brain-config.json note:** In the public repo, `brain-config.json` is an internal reference config. The `opencode.json` file is the runtime config that OpenCode reads. The `sync-opencode-runtime.sh` script reads from `brain-config.json` and writes to `opencode.json`, but includes a public-mode guard that prevents overwriting placeholder model IDs with author-specific values. Users should edit `opencode.json` directly with their model IDs. See [docs/OWN_MODEL_SETUP.md](../OWN_MODEL_SETUP.md) for details.
 
 ---
 
