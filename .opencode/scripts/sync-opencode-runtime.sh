@@ -17,6 +17,12 @@
 #   Conformance:
 #     Fails if generated mirrors drift from canonical source.
 #     Fails if installed prompts drift from generated mirrors (or canonical for orchestrator).
+#
+# Public-mode guard (v5.5.3):
+#   If opencode.json contains placeholder model IDs (YOUR_PROVIDER),
+#   and brain-config.json contains non-placeholder model IDs,
+#   sync is refused to prevent overwriting user-facing placeholders
+##   with author-specific config. Override with --allow-local-sync.
 
 set -euo pipefail
 
@@ -62,6 +68,38 @@ if [ "$missing" -eq 1 ]; then
   exit 1
 fi
 
+# === Public-mode guard (v5.5.3) ===
+# Prevents sync from overwriting placeholder model IDs in opencode.json
+# with author-specific values from brain-config.json.
+ALLOW_LOCAL_SYNC=0
+for arg in "$@"; do
+  if [ "$arg" = "--allow-local-sync" ]; then
+    ALLOW_LOCAL_SYNC=1
+  fi
+done
+
+if grep -q "YOUR_PROVIDER" "$WORKSPACE_CFG" 2>/dev/null; then
+  if ! grep -q "YOUR_PROVIDER" "$LOCAL_BRAIN" 2>/dev/null; then
+    echo "⚠️  Public-mode guard: opencode.json has placeholder model IDs but"
+    echo "    brain-config.json has non-placeholder values."
+    echo "    Sync would overwrite placeholders with brain-config.json values."
+    echo ""
+    echo "    To proceed, either:"
+    echo "      1. Edit opencode.json directly with your model IDs (recommended)"
+    echo "      2. Update brain-config.json with your model IDs, then sync"
+    echo "      3. Run with --allow-local-sync to override this guard"
+    echo ""
+    echo "    See: docs/OWN_MODEL_SETUP.md for provider configuration."
+    echo ""
+    if [ "$ALLOW_LOCAL_SYNC" -eq 0 ]; then
+      echo "[BLOCKED] Sync refused to protect placeholder config."
+      exit 1
+    else
+      echo "  --allow-local-sync detected. Proceeding with sync."
+    fi
+  fi
+fi
+
 # === Backup ===
 mkdir -p "$GLOBAL_PROMPTS_DIR"
 BACKUP_DIR="$GLOBAL_DIR/backups/$(date +%Y-%m-%d)-sync-opencode-runtime"
@@ -87,7 +125,7 @@ for agent_name in architect budget explorer implementer planner reviewer visual-
   target="$LOCAL_PROMPTS_DIR/$agent_name.md"
 
   {
-    echo "# ${agent_title} Helper — Personal Projects Workspace"
+    echo "# ${agent_title} Helper"
     echo ""
     echo "> GENERATED FILE — DO NOT EDIT DIRECTLY."
     echo "> Canonical source: .opencode/agents/${agent_name}.md"
@@ -158,7 +196,7 @@ const definitions = {
   orchestrator: {
     model: models.orchestrator,
     mode: 'primary',
-    description: 'Primary owner agent for the Personal Projects workspace. Single front-door authority that follows the checked-in workspace protocol and delegates only to the canonical helper roster.',
+    description: 'Primary owner agent. Single front-door authority that follows the checked-in workspace protocol and delegates only to the canonical helper roster.',
     prompt: '{file:prompts/orchestrator.md}',
     permission: {
       edit: 'ask',
@@ -244,7 +282,7 @@ const definitions = {
   'visual-reviewer': {
     model: models.visual_reviewer,
     mode: 'all',
-    description: 'Visual QA specialist (primary) — screenshot analysis, UI/UX review, accessibility visual audit using vision/multimodal capability. Evaluated: 4.6/5.0 multimodal usefulness.',
+    description: 'Visual QA specialist (primary) — screenshot analysis, UI/UX review, accessibility visual audit using vision/multimodal capability.',
     prompt: '{file:prompts/visual-reviewer.md}',
     permission: readOnlyPermission,
     temperature: 0.1,
@@ -254,7 +292,7 @@ const definitions = {
   'visual-reviewer-fallback': {
     model: models.visual_reviewer_fallback,
     mode: 'all',
-    description: 'Visual QA specialist (fallback) — screenshot analysis using Kimi K2.7 vision capability. Used when OpenCode Go quota is hit. Same prompt as visual-reviewer.',
+    description: 'Visual QA specialist (fallback) — screenshot analysis using a vision-capable model. Used when the primary visual reviewer is unavailable.',
     prompt: '{file:prompts/visual-reviewer-fallback.md}',
     permission: readOnlyPermission,
     temperature: 0.1,
@@ -321,7 +359,6 @@ workspaceCfg.permission.task = {
 fs.writeFileSync(workspacePath, JSON.stringify(workspaceCfg, null, 2) + '\n');
 
 // Also update global config with same agent definitions + MCP + model
-// This ensures repos outside the workspace (e.g., antigravity repos) get the approved baseline
 const globalPath = process.env.GLOBAL_CFG_PATH;
 if (globalPath && fs.existsSync(globalPath)) {
   const globalCfg = JSON.parse(fs.readFileSync(globalPath, 'utf8'));
@@ -329,24 +366,18 @@ if (globalPath && fs.existsSync(globalPath)) {
   globalCfg.mcp = mcp;
   globalCfg.model = brainCfg.default_model;
   globalCfg.small_model = brainCfg.small_model || 'opencode-go/deepseek-v4-flash';
-  // Note: permission.task is NOT written to global config (C5.1 invariant: global must not contain permission key)
   fs.writeFileSync(globalPath, JSON.stringify(globalCfg, null, 2) + '\n');
 }
 NODE
 
 echo "  Updated agent definitions in $WORKSPACE_CFG (workspace authority)"
-echo "  Updated agent definitions in $GLOBAL_DIR/opencode.json (global baseline for repos outside workspace)"
+echo "  Updated agent definitions in $GLOBAL_DIR/opencode.json (global baseline)"
 
 # === Step 4: Copy all prompts to installed runtime ===
-#   - Generated mirrors (explorer, planner, implementer, reviewer, architect, budget)
-#     already have GENERATED FILE headers from Step 1.
-#   - orchestrator.md is canonical in LOCAL_PROMPTS_DIR (no header in source).
-#     It gets copied as-is (no header added to the installed copy).
 echo ""
 echo "=== Step 4: Copying prompts to installed runtime ==="
 mkdir -p "$GLOBAL_PROMPTS_DIR"
 
-# Copy all approved prompts (including visual-reviewer)
 PROMPT_COPY_COUNT=0
 for prompt_name in orchestrator explorer planner implementer reviewer architect budget visual-reviewer visual-reviewer-fallback; do
   prompt_file="$LOCAL_PROMPTS_DIR/$prompt_name.md"

@@ -8,8 +8,8 @@
     "tail_turns": 3,
     "preserve_recent_tokens": 6000
   },
-  "model": "opencode-go/qwen3.7-plus",
-  "small_model": "opencode-go/deepseek-v4-flash",
+  "model": "YOUR_PROVIDER/YOUR_MODEL_ID",
+  "small_model": "YOUR_PROVIDER/YOUR_SMALL_MODEL_ID",
   "provider": {},
   "instructions": [
     ".opencode/AGENTS.md",
@@ -295,9 +295,9 @@
   },
   "agent": {
     "orchestrator": {
-      "model": "umans-ai-coding-plan/umans-glm-5.2",
+      "model": "YOUR_PROVIDER/YOUR_MODEL_ID",
       "mode": "primary",
-      "description": "Primary owner agent for the Personal Projects workspace. Single front-door authority that follows the checked-in workspace protocol and delegates only to the canonical helper roster.",
+      "description": "Primary owner agent. Single front-door authority that follows the checked-in workspace protocol and delegates only to the canonical helper roster.",
       "prompt": "{file:prompts/orchestrator.md}",
       "permission": {
         "edit": "ask",
@@ -321,7 +321,7 @@
       "color": "#7C3AED"
     },
     "explorer": {
-      "model": "umans-ai-coding-plan/umans-flash",
+      "model": "YOUR_PROVIDER/YOUR_SMALL_MODEL_ID",
       "mode": "all",
       "description": "Explorer helper — read-only codebase discovery, dependency mapping, runtime-path search, and hotspot identification before planning unfamiliar work.",
       "prompt": "{file:prompts/explorer.md}",
@@ -337,7 +337,7 @@
       "color": "#2563EB"
     },
     "planner": {
-      "model": "umans-ai-coding-plan/umans-coder",
+      "model": "YOUR_PROVIDER/YOUR_MODEL_ID",
       "mode": "all",
       "description": "Planner helper — plan creation, plan correction, scope slicing, and implementation-readiness checks against runtime authority and touch-list completeness.",
       "prompt": "{file:prompts/planner.md}",
@@ -353,7 +353,7 @@
       "color": "#059669"
     },
     "implementer": {
-      "model": "umans-ai-coding-plan/umans-coder",
+      "model": "YOUR_PROVIDER/YOUR_MODEL_ID",
       "mode": "all",
       "description": "Implementer helper — bounded code changes on an approved touch list only, with gate reporting back to the owner.",
       "prompt": "{file:prompts/implementer.md}",
@@ -371,7 +371,7 @@
       "color": "#DC2626"
     },
     "reviewer": {
-      "model": "umans-ai-coding-plan/umans-glm-5.1",
+      "model": "YOUR_PROVIDER/YOUR_REVIEWER_MODEL",
       "mode": "all",
       "description": "Reviewer helper — primary risk review, regression check, and exact next-step recommendation before commit or ship.",
       "prompt": "{file:prompts/reviewer.md}",
@@ -387,7 +387,7 @@
       "color": "#D97706"
     },
     "architect": {
-      "model": "opencode-go/qwen3.7-plus",
+      "model": "YOUR_PROVIDER/YOUR_MODEL_ID",
       "mode": "all",
       "description": "Architect helper — resolve high-ambiguity auth, schema, state-model, or cross-surface design decisions before implementation.",
       "prompt": "{file:prompts/architect.md}",
@@ -403,7 +403,7 @@
       "color": "#9333EA"
     },
     "budget": {
-      "model": "umans-ai-coding-plan/umans-flash",
+      "model": "YOUR_PROVIDER/YOUR_SMALL_MODEL_ID",
       "mode": "all",
       "description": "Budget helper — cheap read-only alternative for review, planning, and routing summaries using strict resource constraints.",
       "prompt": "{file:prompts/budget.md}",
@@ -419,9 +419,9 @@
       "color": "#6B7280"
     },
     "visual-reviewer": {
-      "model": "umans-ai-coding-plan/umans-kimi-k2.7",
+      "model": "YOUR_PROVIDER/YOUR_VISUAL_MODEL",
       "mode": "all",
-      "description": "Visual QA specialist (primary) — screenshot analysis, UI/UX review, accessibility visual audit using vision/multimodal capability. Evaluated: 4.6/5.0 multimodal usefulness.",
+      "description": "Visual QA specialist (primary) — screenshot analysis, UI/UX review, accessibility visual audit using vision/multimodal capability.",
       "prompt": "{file:prompts/visual-reviewer.md}",
       "permission": {
         "edit": "deny",
@@ -435,9 +435,9 @@
       "color": "#EC4899"
     },
     "visual-reviewer-fallback": {
-      "model": "opencode-go/kimi-k2.6",
+      "model": "YOUR_PROVIDER/YOUR_VISUAL_FALLBACK_MODEL",
       "mode": "all",
-      "description": "Visual QA specialist (fallback) — screenshot analysis using Kimi K2.7 vision capability. Used when OpenCode Go quota is hit. Same prompt as visual-reviewer.",
+      "description": "Visual QA specialist (fallback) — screenshot analysis using a vision-capable model. Used when the primary visual reviewer is unavailable.",
       "prompt": "{file:prompts/visual-reviewer-fallback.md}",
       "permission": {
         "edit": "deny",
@@ -451,7 +451,7 @@
       "color": "#F472B6"
     },
     "summary": {
-      "model": "umans-ai-coding-plan/umans-kimi-k2.7",
+      "model": "YOUR_PROVIDER/YOUR_COMPACTION_MODEL",
       "mode": "subagent",
       "description": "Summary helper — dedicated continuity-aware summarizer for long-session compaction. Only a compaction-safe model is allowed.",
       "prompt": "You are OpenCode's dedicated continuity-aware summarizer. Read the long session transcript and produce a compact summary preserving the minimum state needed to resume. Output ONLY these fields, each on its own line: Repo:, Current task:, Lane:, Touch list digest:, Blockers:, Latest decision:, Next step:. No markdown, code fences, or commentary. Use concise text only; use 'none' or 'unknown' if a field cannot be determined.",
@@ -467,7 +467,7 @@
       "color": "#0891B2"
     },
     "compaction": {
-      "model": "umans-ai-coding-plan/umans-kimi-k2.7",
+      "model": "YOUR_PROVIDER/YOUR_COMPACTION_MODEL",
       "mode": "subagent",
       "description": "Compaction helper — dedicated agent used to compress full context when sessions exceed the safe token threshold. Only a compaction-safe model is allowed.",
       "prompt": "You are OpenCode's dedicated compaction agent. When a session grows too long, produce a compact summary that preserves critical task continuity. Keep recent turns verbatim when provided. Condense older turns into a single structured continuity block. Output ONLY these fields, each on its own line: Repo:, Current task:, Lane:, Touch list digest:, Blockers:, Latest decision:, Next step:. After anchors you may add a brief 'Session notes' paragraph (under 300 tokens) capturing key decisions and unresolved risks. Do not invent facts; use 'none' or 'unknown' if a field cannot be determined.",

@@ -1,13 +1,41 @@
 # Portability Guide
 
 > **What is portable vs what remains device-specific.**
+> **Last Updated:** 2026-07-14
+
+## brain-config.json Status
+
+The `.opencode/brain-config.json` file is an **internal reference config** that ships with the public repo for structural completeness. It is NOT the runtime config that OpenCode reads.
+
+| File | Role | What OpenCode reads | User action |
+|------|------|---------------------|-------------|
+| `.opencode/opencode.json` | **Runtime config** — the file OpenCode actually loads | ✅ Yes | Replace `YOUR_PROVIDER/YOUR_*_MODEL` with your model IDs |
+| `.opencode/brain-config.json` | **Internal reference** — used by `sync-opencode-runtime.sh` as a source for agent definitions | ❌ No (sync writes to opencode.json) | Do not edit unless you understand the sync flow |
+
+### Sync Safety (v5.5.3)
+
+`sync-opencode-runtime.sh` includes a **public-mode guard** that prevents overwriting placeholder model IDs in `opencode.json` with author-specific values from `brain-config.json`:
+
+- If `opencode.json` contains `YOUR_PROVIDER` placeholders
+- And `brain-config.json` contains non-placeholder model IDs
+- Sync is **refused** with a clear message
+- Override with `--allow-local-sync` flag (not recommended for public repo users)
+
+### Recommended Setup Path
+
+1. Edit `.opencode/opencode.json` directly — replace `YOUR_PROVIDER/YOUR_*_MODEL` with your model IDs
+2. Set your API key environment variable
+3. Do NOT run `sync-opencode-runtime.sh` unless you have also updated `brain-config.json`
+
+See [docs/OWN_MODEL_SETUP.md](OWN_MODEL_SETUP.md) for detailed provider configuration.
 
 ## Portable (tracked in git, safe to clone)
 
 | Category | Files | Notes |
 |---|---|---|
 | Protocol kernel | `.opencode/AGENTS.md`, `.opencode/rules.md` | Startup-loaded, canonical |
-| Runtime config | `.opencode/opencode.json`, `.opencode/brain-config.json` | Behavioral authority |
+| Runtime config | `.opencode/opencode.json` | Behavioral authority — has placeholder model IDs |
+| Internal reference | `.opencode/brain-config.json` | Used by sync script — not read by OpenCode directly |
 | Commands | `.opencode/commands/*.md` | 40 slash commands |
 | Scripts | `.opencode/scripts/*.sh` | 47 protocol scripts |
 | Conformance tests | `.opencode/conformance/tests/*.sh` | 59 test files |
@@ -21,68 +49,47 @@
 | Runtime contract | `.opencode/docs/runtime-contract.md` | Required files per environment |
 | Sync contract | `.opencode/docs/sync-contract.md` | Update procedures |
 | Archive | `.opencode/archive/` | Historical files with MANIFEST.md |
-| Workspace map | `WORKSPACE_MAP.md` | Repo registry |
-| Project registry | `.opencode/registry.yaml` | Canonical repo metadata |
-| Vault | `vault/` | Knowledge base (separate git repo) |
+| Setup script | `scripts/setup.sh` | First-run setup (OS detection, prerequisites, aliases) |
+| Package metadata | `.opencode/package.json` | Plugin dependencies |
 
 ## Device-Specific (NOT tracked, must be configured locally)
 
 | Category | Path | Notes |
 |---|---|---|
 | Global OpenCode config | `~/.config/opencode/opencode.json` | Provider auth only |
-| Global prompts | `~/.config/opencode/prompts/*.md` | Generated from workspace |
-| Secrets | Doppler (project: `nuggie-be`) | Never committed |
+| Global prompts | `~/.config/opencode/prompts/*.md` | Generated from workspace via sync |
+| Secrets | Your secrets manager (e.g. Doppler, .env) | Never committed |
 | Session cache | `.opencode/.session-cache/` | Ephemeral, gitignored |
 | Pattern index | `.opencode/cache/` | Ephemeral, gitignored |
 | Test results | `.opencode/conformance/results/` | Ephemeral, gitignored |
-| Node modules | `.opencode/node_modules/` | Installed via `pnpm install` |
+| Node modules | `.opencode/node_modules/` | Installed via `npm install` |
 
 ## What Must NOT Be Copied Between Devices
 
-1. **Secrets** — Never copy `.env` files or API keys. Use Doppler.
+1. **Secrets** — Never copy `.env` files or API keys. Use a secrets manager.
 2. **Session cache** — Ephemeral, device-specific.
 3. **Global config** — Contains machine-local auth. Each device configures its own.
 4. **Test results** — Ephemeral output, not portable.
 
 ## Portability Guarantees
 
-1. **No hardcoded user paths** in scripts (except `opencode-safe-launch.sh` which uses `$HOME`)
+1. **No hardcoded user paths** in scripts (all use `$HOME` or relative paths)
 2. **No secrets in tracked files** — verified by gitleaks pre-commit hook
 3. **No machine-specific config in workspace** — global config is separate
-4. **Cross-platform scripts** — bash scripts work on macOS and Linux (CI)
-5. **Doppler for secrets** — secrets are sourced by name, never hardcoded
+4. **Cross-platform scripts** — bash scripts work on macOS and Linux
+5. **Placeholder model IDs** — `opencode.json` ships with `YOUR_PROVIDER/YOUR_*_MODEL` placeholders
+6. **Sync safety guard** — `sync-opencode-runtime.sh` refuses to overwrite placeholders with author-specific values
+7. **First-run setup** — `scripts/setup.sh` detects OS, checks prerequisites, generates aliases
 
-## Nested Git Repo Resolution (v4.28.2)
+## Cross-Platform Compatibility (v5.5.3)
 
-The control-plane previously tracked gitlinks (mode 160000) for three nested git repos that were not registered as submodules in `.gitmodules`. This caused persistent dirty `git status` output whenever the nested repos advanced locally.
+The launcher (`opencode-safe-launch.sh`) supports both macOS and Linux:
 
-### Decisions
-
-| Repo | Classification | Decision | Rationale |
-|---|---|---|---|
-| `example-agent/example-agent` | Nested git repo (inside tracked `example-agent/` directory) | Untracked from control-plane index (`git rm --cached`). Already covered by `.gitignore` rule `example-agent/example-agent/`. | Independently managed repo. Control-plane should not track its commit state. |
-| `example-platform` | Nested git repo (pure gitlink, no other tracked files) | Untracked from control-plane index (`git rm --cached`). Already covered by `.gitignore` rule `/example-platform/`. | No GitHub remote configured. Local-only repo. Control-plane should not track its commit state. |
-| `example-toolchain-PROD` | Stale gitlink (empty directory, no `.git` on disk) | Untracked from control-plane index (`git rm --cached`). Added `/example-toolchain-PROD/` to `.gitignore`. | Stale gitlink with no actual repo on disk. Was causing workspace protocol guard failure. |
-| `example-orchestrator-PROD` | Nested git repo (pure gitlink, no other tracked files) | Untracked from control-plane index (`git rm --cached`). Already covered by `.gitignore` rule `/example-orchestrator-PROD/`. | Independently managed repo. Control-plane should not track its commit state. |
-
-### Proper Submodules (unchanged)
-
-| Submodule | `.gitmodules` entry | Status |
+| Function | macOS | Linux |
 |---|---|---|
-| `vault` | `https://github.com/kin0kaze23/vault.git` | Active, properly registered |
-| `career-ops` | `https://github.com/santifer/career-ops.git` | Active, properly registered |
+| Memory check | `memory_pressure` / `vm_stat` | `/proc/meminfo` / `free -m` |
+| File mtime | `stat -f %m` | `stat -c %Y` |
+| Date parsing | `date -j -f` | `date -d` |
+| OS detection | `uname -s` → `Darwin` | `uname -s` → `Linux` |
 
-### Known Legacy Tracking
-
-The following directories were untracked from the control-plane index in v4.28.2a. Files remain on disk for historical reference but are no longer tracked by git.
-
-| Directory | Previously Tracked | Classification | Decision | Date |
-|---|---|---|---|---|
-| `.agent/` | 166 files | Legacy (v2.0 AutonomousOrchestrator, 2026-03-25) | Untracked (`git rm -r --cached`). Added `/.agent/` to `.gitignore`. No active runtime references — all conformance tests are negative assertions verifying `.agent/` is NOT referenced. | v4.28.2a |
-| `example-agent/` | 10 files | Legacy product-repo files (AGENTS.md, CLAUDE.md, NOW.md, etc.) | Untracked (`git rm --cached`). Already covered by `.gitignore` rule `/example-agent/`. No active protocol references. Files belong in the example-agent product repo, not the control-plane. | v4.28.2a |
-
-### Local-Only Repos
-
-| Repo | Status | Notes |
-|---|---|---|
-| `example-platform` | Local-only (no GitHub remote) | Not portable across devices. Has `AGENTS.md`, `NOW.md`, `PROJECT_MEMORY.md`. Owner decision: add remote or keep local-only. |
+If the OS is unknown, the launcher skips the memory check with a warning.

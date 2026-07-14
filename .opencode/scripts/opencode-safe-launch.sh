@@ -2,7 +2,7 @@
 # OpenCode Safe Launch — Pre-flight memory check before starting opencode
 # Usage: bash .opencode/scripts/opencode-safe-launch.sh [--fresh] [opencode args...]
 #
-# Canonical launcher for the Personal Projects workspace.
+# Canonical launcher for the workspace.
 # This is the single entrypoint for `oc` and `oc-fresh`.
 #
 # Scope: CLI only. This launcher starts an OpenCode CLI session in the
@@ -27,13 +27,14 @@
 # Checks RAM before launching. Warns or blocks if memory is tight.
 # Default mode avoids shared-server session clobbering between terminals.
 # Fresh mode clears stale shared-server artifacts first, then starts clean.
+#
+# Cross-platform: Supports macOS (Darwin) and Linux.
 
 # Avoid `set -e`: macOS ships bash 3.2.57, where a failed command substitution
 # in a top-level variable assignment (e.g. X=$(false)) silently aborts the
-# script with no error message. The user would see the launcher print
-# "Loading Doppler secrets..." and then nothing. We rely on `set -u` and
-# `set -o pipefail` for fast-fail on unset-variable and pipeline failures,
-# and on explicit error handling for everything else.
+# script with no error message. We rely on `set -u` and `set -o pipefail`
+# for fast-fail on unset-variable and pipeline failures, and on explicit
+# error handling for everything else.
 set -u
 set -o pipefail
 
@@ -49,6 +50,9 @@ LOCAL_CANONICAL_ITEMS=(
 )
 PORT=4096
 FORCE_FRESH=0
+
+# Detect OS for cross-platform compatibility
+OS_TYPE="$(uname -s)"
 
 # ── Fast-path passthroughs ───────────────────────────────────────────────────
 # For version/help/upgrade queries, call native opencode directly without
@@ -77,15 +81,28 @@ BLOCK_THRESHOLD=90
 
 echo "🔍 Pre-flight memory check..."
 
-# Get memory usage percentage
-FREE_PCT=$(memory_pressure 2>/dev/null | grep "free percentage" | awk '{print $NF}' | tr -d '%')
-if [ -z "$FREE_PCT" ]; then
-    FREE_MB=$(vm_stat | awk -v ps=$(sysctl -n hw.pagesize) '
-        /Pages free:/ {free=$3}
-        /Pages speculative:/ {spec=$3}
-        END {printf "%.0f", (free+spec)*ps/1024/1024}')
-    TOTAL_GB=$(sysctl -n hw.memsize | awk '{printf "%.0f", $1/1024/1024/1024}')
-    FREE_PCT=$(echo "$FREE_MB $TOTAL_GB" | awk '{printf "%.0f", ($1/($2*1024))*100}')
+# Get memory usage percentage (cross-platform: macOS + Linux)
+if [ "$OS_TYPE" = "Darwin" ]; then
+    FREE_PCT=$(memory_pressure 2>/dev/null | grep "free percentage" | awk '{print $NF}' | tr -d '%')
+    if [ -z "$FREE_PCT" ]; then
+        FREE_MB=$(vm_stat | awk -v ps=$(sysctl -n hw.pagesize) '
+            /Pages free:/ {free=$3}
+            /Pages speculative:/ {spec=$3}
+            END {printf "%.0f", (free+spec)*ps/1024/1024}')
+        TOTAL_GB=$(sysctl -n hw.memsize | awk '{printf "%.0f", $1/1024/1024/1024}')
+        FREE_PCT=$(echo "$FREE_MB $TOTAL_GB" | awk '{printf "%.0f", ($1/($2*1024))*100}')
+    fi
+elif [ "$OS_TYPE" = "Linux" ]; then
+    MEMINFO_FREE_KB=$(grep MemAvailable /proc/meminfo 2>/dev/null | awk '{print $2}')
+    MEMINFO_TOTAL_KB=$(grep MemTotal /proc/meminfo 2>/dev/null | awk '{print $2}')
+    if [ -n "$MEMINFO_FREE_KB" ] && [ -n "$MEMINFO_TOTAL_KB" ]; then
+        FREE_PCT=$(echo "$MEMINFO_FREE_KB $MEMINFO_TOTAL_KB" | awk '{printf "%.0f", ($1/$2)*100}')
+    else
+        FREE_PCT=$(free -m 2>/dev/null | awk '/Mem:/ {printf "%.0f", ($4/$2)*100}')
+    fi
+else
+    echo "⚠️  Unknown OS: $OS_TYPE. Skipping memory check."
+    FREE_PCT=50
 fi
 
 USED_PCT=$((100 - ${FREE_PCT:-50}))
@@ -105,9 +122,8 @@ if [ "$USED_PCT" -ge "$BLOCK_THRESHOLD" ]; then
     echo "Current opencode processes: ${OC_COUNT}"
     echo ""
     echo "To free memory:"
-    echo "  1. Run: ram-cleanup"
-    echo "  2. Close browser tabs"
-    echo "  3. Kill standalone opencode: pkill -f 'opencode [a-z]'"
+    echo "  1. Close browser tabs"
+    echo "  2. Kill standalone opencode: pkill -f 'opencode [a-z]'"
     echo ""
     exit 1
 fi
@@ -119,7 +135,7 @@ if [ "$USED_PCT" -ge "$WARN_THRESHOLD" ]; then
     echo ""
     read -p "   Continue anyway? (y/N): " confirm
     if [[ $confirm != [Yy] ]]; then
-        echo "   Cancelled. Run: ram-cleanup"
+        echo "   Cancelled."
         exit 1
     fi
 fi
@@ -138,15 +154,8 @@ if [ ! -e "$PROMPTS_LINK" ]; then
 fi
 
 # ── Provider secrets (intentionally NOT loaded here) ────────────────────────
-# The launcher does not own provider secrets. Earlier revisions of this script
-# tried to fetch BAILIAN_CODING_PLAN_API_KEY from Doppler, but that secret has
-# been removed (Alibaba/Bailian is decommissioned; canonical secret is
-# OPENCODE_GO_API_KEY, see .opencode/brain-config.json and
-# .opencode/model-registry.yaml). The OpenCode Go provider reads
-# OPENCODE_GO_API_KEY from the environment itself, not from this launcher.
-#
-# If a future migration adds a new provider, configure the provider in
-# .opencode/opencode.json — do not add secret loading back to this script.
+# The launcher does not own provider secrets. Configure providers in
+# .opencode/opencode.json — do not add secret loading to this script.
 
 # ── Runtime staleness / sync check ────────────────────────────────────────────
 # The launcher-visible runtime lives in ~/.config/opencode, but the canonical
@@ -154,20 +163,30 @@ fi
 # helper files are newer than the global runtime, sync first. Then, if the
 # effective runtime is newer than the running server process, note it.
 CONFIG_STALE=0
+
+# Cross-platform file modification time
+get_mtime() {
+    if [ "$OS_TYPE" = "Darwin" ]; then
+        stat -f "%m" "$1" 2>/dev/null || echo "0"
+    else
+        stat -c "%Y" "$1" 2>/dev/null || echo "0"
+    fi
+}
+
 latest_mtime() {
     local latest=0
     for item in "$@"; do
         if [ -d "$item" ]; then
             while IFS= read -r path; do
                 local mtime
-                mtime=$(stat -f "%m" "$path" 2>/dev/null || echo "0")
+                mtime=$(get_mtime "$path")
                 if [ "$mtime" -gt "$latest" ]; then
                     latest="$mtime"
                 fi
             done < <(find "$item" -type f 2>/dev/null)
         elif [ -f "$item" ]; then
             local mtime
-            mtime=$(stat -f "%m" "$item" 2>/dev/null || echo "0")
+            mtime=$(get_mtime "$item")
             if [ "$mtime" -gt "$latest" ]; then
                 latest="$mtime"
             fi
@@ -188,7 +207,11 @@ fi
 if [ -n "$SERVE_PID" ] && [ -f "$CONFIG_FILE" ]; then
     SERVER_START=$(ps -o lstart= -p "$SERVE_PID" 2>/dev/null || echo "")
     if [ -n "$SERVER_START" ]; then
-        SERVER_START_EPOCH=$(date -j -f "%a %b %d %T %Y" "$SERVER_START" "+%s" 2>/dev/null || echo "0")
+        if [ "$OS_TYPE" = "Darwin" ]; then
+            SERVER_START_EPOCH=$(date -j -f "%a %b %d %T %Y" "$SERVER_START" "+%s" 2>/dev/null || echo "0")
+        else
+            SERVER_START_EPOCH=$(date -d "$SERVER_START" "+%s" 2>/dev/null || echo "0")
+        fi
         if [ "$GLOBAL_RUNTIME_EPOCH" -gt "$SERVER_START_EPOCH" ]; then
             CONFIG_STALE=1
             echo "⚠️  OpenCode runtime changed since server started."
