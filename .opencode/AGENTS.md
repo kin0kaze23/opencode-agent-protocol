@@ -1,8 +1,8 @@
-# OpenCode Workspace Protocol — Personal Projects
+# OpenCode Workspace Protocol — Public
 
 > **CANONICAL** — This file is the authoritative orchestration layer for the workspace.
 > It does not replace repo-root truth.
-> **Version:** v4.55 — Release/Tag Normalization
+> **Version:** v5.5.4 — Public Drift Hardening + Sync Guardrails
 
 ## Protocol Kernel (v4.20)
 
@@ -312,7 +312,7 @@ The workspace configuration follows a four-layer authority model. See `.opencode
 | **Workspace** (`.opencode/brain-config.json`) | **Orchestration policy authority** — routing, budgets, eval policy, protocol intelligence |
 | **Repo-level** (`<repo>/.opencode/`) | Exception-only — hooks, local tools, approved MCP overlays, documented ADR exceptions |
 
-**Sealed state (v1.0.0):** Workspace is the self-contained behavioral runtime authority. Global contains only provider/auth/machine-local plumbing. Repo-level `.opencode/` is exception-only with approved MCP overlays for ui_ux repos and APA domain-specific agents. Conformance guards enforce this permanently.
+**Sealed state (v1.0.0):** Workspace is the self-contained behavioral runtime authority. Global contains only provider/auth/machine-local plumbing. Repo-level `.opencode/` is exception-only with approved MCP overlays. Conformance guards enforce this permanently.
 
 ## Startup Sequence (Progressive Context Loading — v4.5)
 
@@ -330,8 +330,8 @@ The workspace configuration follows a four-layer authority model. See `.opencode
 6. Before the first preflight or resume block, output a visible session banner:
 
    ```
-     Protocol: OpenCode v4.48 — Live Non-Production Pilot
-   Status: Active (v4.48: live pilot + cross-model selective coverage tests + best_observed validation, v4.47.1: cross-model simulation validation, v4.47: confidence calibration + cross-model run plan + cross-model runner, v4.46: model ROI + routing optimizer + confidence system + guardrails, v4.45: loop controller + state machine + stop conditions + repair policy + lesson extraction + telemetry, v4.44.2: installer comment script hotfix, v4.44.1: task replay validation, v4.44: task replay evals + scoring + scorecard, v4.43.1: freshness snapshot hotfix, v4.43: evidence freshness / expiry workflow, v4.42: enhanced trend analytics, v4.41: manual branch protection evidence, v4.40: dashboard / trend reporting, v4.39: PR comments / annotations, v4.38: branch protection verifier + CODEOWNERS, v4.37.2: rollout closure + status semantics, v4.37.1: installer hotfix, v4.37: multi-repo rollout kit, v4.36 reviewer trust hardening, v4.35 reviewer evidence enforcement, v4.34 GitHub PR release gate integration, v4.33 content-aware sensitive change classification, v4.32 production hardening + security/release gates, v4.27.1 protocol coherence closure, v4.20.1 lite delegation + risk classifier, v4.17.x throughput/token efficiency, v4.15.0 sealed baseline)
+     Protocol: OpenCode v5.5.4 — Public Drift Hardening + Sync Guardrails
+   Status: Active (v5.5.4: public drift hardening + sync guardrails + visual QA protocol sync, v5.5.3: fresh-clone runtime install hardening, v5.5.2: harness/loop onboarding pack, v5.5.1: public runtime onboarding + portability clarification, v5.5.0: public baseline)
    ```
 
 7. Run repo-local preflight before edits or non-trivial commands.
@@ -367,14 +367,15 @@ If any of those conditions stop being true, fall back to the full preflight bloc
 9. Use native OpenCode command discovery for `.opencode/commands/`; do not inject command bodies through `instructions` unless a future runtime regression requires a rollback.
 10. Treat your durable memory (if you maintain one) as advisory only; repo truth and current user instructions remain higher authority.
 
-11. Model selection guidance (v1.5.2 capacity-first):
-   - Routine/medium-risk orchestration: `umans-glm-5.2` (primary), `umans-coder` (fallback)
-   - Implementation/Planning: `umans-coder` (primary), `opencode-go/qwen3.7-plus` (premium fallback)
-   - Review/Judge: `umans-glm-5.1` (primary), `opencode-go/glm-5.1` (premium reserve)
-   - Architecture (high-risk): `opencode-go/qwen3.7-plus` (premium reserve)
-   - Explorer/Budget: `umans-flash` (primary), `opencode-go/deepseek-v4-flash` (fallback)
-   - Compaction: `umans-kimi-k2.7` (proven safe)
+11. Model selection guidance (provider-agnostic):
+   - Routine/medium-risk orchestration: `YOUR_PROVIDER/YOUR_ORCHESTRATOR_MODEL` (primary), `YOUR_PROVIDER/YOUR_IMPLEMENTER_MODEL` (fallback)
+   - Implementation/Planning: `YOUR_PROVIDER/YOUR_IMPLEMENTER_MODEL` (primary), `YOUR_PROVIDER/YOUR_ARCHITECT_MODEL` (premium fallback)
+   - Review/Judge: `YOUR_PROVIDER/YOUR_REVIEWER_MODEL` (primary), `YOUR_PROVIDER/YOUR_REVIEWER_FALLBACK_MODEL` (premium reserve)
+   - Architecture (high-risk): `YOUR_PROVIDER/YOUR_ARCHITECT_MODEL` (premium reserve)
+   - Explorer/Budget: `YOUR_PROVIDER/YOUR_EXPLORER_MODEL` (primary), `YOUR_PROVIDER/YOUR_EXPLORER_FALLBACK_MODEL` (fallback)
+   - Compaction: `YOUR_PROVIDER/YOUR_COMPACTION_MODEL` (proven safe)
    - See `.opencode/helper-roster.md` for full routing details (reference-only)
+   - See `docs/OWN_MODEL_SETUP.md` for provider-agnostic setup guide
 
 ## Harness Patterns (non-negotiable across ALL task classes)
 
@@ -411,7 +412,7 @@ Before executing any task, follow all five patterns below:
 
 **Pattern 2: Targeted File Reading**
 - Never read a file in full unless it's under 100 lines. 
-- Use `Grep` to find the specific section first, then `Read` with offset/limit. 
+- Use `Grep` to find the section first, then `Read` with offset/limit. 
 - Max 300 lines per Read call. 
 - Rationale: prevents context flooding and forces precision. 
 
@@ -474,7 +475,7 @@ For workspace-level agent/runtime edits, run the guard before and after changes:
 bash .opencode/scripts/workspace-protocol-guard.sh
 ```
 
-The guard is the fast, canonical check for keeping OpenCode, Claude, Codex, Gemini, example-agent routing, registry state, and launcher-facing runtime config aligned.
+The guard is the fast, canonical check for keeping OpenCode, Claude, Codex, Gemini, routing, registry state, and launcher-facing runtime config aligned.
 
 ## OpenCode Session Expectations
 
@@ -551,3 +552,65 @@ When the runtime exposes token or cost telemetry, treat it as a guardrail signal
 - use lane-specific thresholds as soft warnings, not hard stops
 
 - do not fabricate token or cost counts when the runtime did not expose them
+
+## Visual QA & Design Review Protocol (v1.0)
+
+> Enforces screenshot evidence, vision-capable review, and separation between technical visual QA and design approval for all visual/UI tasks.
+
+### 1. Screenshot Evidence Required
+
+For any visual/UI task, the agent must capture or receive screenshots before claiming visual quality. Screenshots must be captured at the target viewport(s) and include the relevant scroll positions, themes, and routes.
+
+If screenshots cannot be captured (e.g., no Playwright, no browser available), the report must say `NOT VISUALLY VERIFIED` and no visual quality claim may be made.
+
+### 2. Vision-Capable Reviewer Required
+
+The orchestrator must delegate screenshots to `visual-reviewer` for analysis. The orchestrator must not self-review screenshots using its own text-only reasoning.
+
+If `visual-reviewer` fails or is unavailable:
+1. Try `visual-reviewer-fallback`
+2. If both fail, block with: `BLOCKED: visual reviewer unavailable`
+
+### 3. Code-Only Visual Review Is Forbidden
+
+The orchestrator must not claim visual pass, design pass, or merge readiness from source code inspection alone. Reading component code, CSS, or design tokens is not a substitute for viewing the rendered output.
+
+### 4. Separate Review Gates
+
+Technical visual QA and design/art-direction approval are separate gates:
+
+- **Technical Visual QA** catches rendering defects: contrast, overlap, clipping, responsiveness, theme consistency, double headers, unreadable text, broken layouts.
+- **Design Director Review** judges design quality: composition, premium quality, brand identity, shell integration, feed quality, hero impact, product clarity, interaction quality, platform fit.
+
+Both gates must pass independently. A technical pass does not imply art direction pass, and vice versa.
+
+### 5. Allowed Verdicts
+
+Use only these verdicts for visual/UI tasks:
+
+| Verdict | Meaning | Who issues |
+|---|---|---|
+| `TECHNICAL_VISUAL_PASS` | Technical visual QA passed — no rendering defects | visual-reviewer |
+| `TECHNICAL_VISUAL_FAIL` | Technical visual QA failed — rendering defects found | visual-reviewer |
+| `ART_DIRECTION_PASS` | Design Director Review passed — composition and quality approved | visual-reviewer (Design Director prompt) |
+| `ART_DIRECTION_FAIL` | Design Director Review failed — design quality insufficient | visual-reviewer (Design Director prompt) |
+| `OWNER_REVIEW_REQUIRED` | Both technical and art direction passed; owner must review on device | Orchestrator |
+| `READY_FOR_MERGE` | All gates passed: technical + art direction + owner approval | Orchestrator (only after owner approval) |
+
+**Forbidden phrases:** "READY TO SHIP", "VISUAL PASS" (without qualifier), "DESIGN APPROVED" (without both review verdicts).
+
+### 6. Stable Preview/Staging URL Required
+
+Visual task reports must include a stable preview/staging URL when available. Transient deploy URLs (e.g., Vercel preview deployments that change per commit) may be included for debugging, but must not be the primary QA URL.
+
+If no stable URL is available, the report must say `NO STAGING URL — local screenshots only`.
+
+### 7. Screenshot Paths Required
+
+Visual reviewer verdicts must cite the screenshots reviewed:
+- Viewport (e.g., 375px, 390px, 430px)
+- Scroll position (e.g., top, mid, bottom)
+- Theme (e.g., light, dark)
+- Route (e.g., `/design-lab/seeker-nebula`)
+
+Example: `Screenshots reviewed: seeker-nebula-390-top.png (390px, top, Seeker Dark, /design-lab/seeker-nebula)`
