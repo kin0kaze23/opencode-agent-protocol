@@ -5,9 +5,26 @@ updates:
     schedule:
       interval: "weekly"
     groups:
-      github-actions:
-        patterns:
-          - "*"
+      github-actions-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "automation"
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: "npm"
+    directory: "/.opencode"
+    schedule:
+      interval: "weekly"
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
     open-pull-requests-limit: 3
     labels:
       - "dependencies"
