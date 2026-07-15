@@ -1,5 +1,6 @@
 # Validation CI — runs on every PR and push to main
-# Ensures privacy scan, docs drift, config schema, claims, and protocol conformance pass before merge.
+# Ensures privacy scan, docs drift, config schema, claims, protocol conformance,
+# and public sync drift detection pass before merge.
 # Validates on both Ubuntu and macOS for multi-environment portability.
 
 name: Validation
@@ -61,6 +62,18 @@ jobs:
       - uses: actions/checkout@v7
       - name: Validate claims and evidence
         run: bash scripts/validate-claims-evidence.sh
+
+  public-sync-validation:
+    name: Public Sync (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate public sync
+        run: bash scripts/validate-public-sync.sh
 
   protocol-validation:
     name: Protocol Conformance (${{ matrix.os }})

@@ -1,32 +1,29 @@
-# NOW.md — v5.5.3 Fresh-Clone Runtime Install Hardening
+# NOW.md — v5.5.4 Public Drift Hardening + Sync Guardrails
 
 **Status:** ACTIVE
-**Last Updated:** 2026-07-14
+**Last Updated:** 2026-07-15
 
 ## Current Task
 
-v5.5.3 — Fresh-clone runtime install hardening. Fixed cross-platform launcher, package metadata, stale submodule docs, provider/model placeholders, and first-run setup friction.
+v5.5.4 — Public drift hardening + sync guardrails. Sanitized public-facing control files of author-specific content, synced Visual QA protocol from internal repo, added automated drift detection script.
 
 ## Progress
 
-- ✅ v5.0.0–v5.5.2: Public baseline through harness/loop onboarding
-- ✅ v5.5.3: Fresh-Clone Runtime Install Hardening (this release)
-  - P0: Fixed `opencode-safe-launch.sh` for Linux (OS detection, `/proc/meminfo`, `stat -c %Y`, `date -d`)
-  - P1: Added `.opencode/package.json` matching existing `package-lock.json`
-  - P2: Removed stale `git submodule update` and vault references from QUICKSTART and INSTALLATION
-  - P3: Replaced author-specific model IDs with `YOUR_PROVIDER/YOUR_*_MODEL` placeholders in `opencode.json`
-  - P4: Added `scripts/setup.sh` — first-run setup script (OS detection, prerequisites, aliases, provider check)
-  - P5: Updated README, QUICKSTART, INSTALLATION, FIRST_RUN_CHECKLIST with setup.sh and cross-platform docs
-  - P6: Added MCP first-run documentation to QUICKSTART, INSTALLATION, FIRST_RUN_CHECKLIST
-  - P8: Updated CLAIMS.md with cross-platform, setup script, and placeholder model claims
-  - Fresh-clone validated
+- ✅ v5.0.0–v5.5.3: Public baseline through fresh-clone runtime install hardening
+- ✅ v5.5.4: Public Drift Hardening + Sync Guardrails (this release)
+  - P1: Synced Visual QA protocol to visual-reviewer agent definitions and prompt mirrors
+  - P2: Added scripts/validate-public-sync.sh — drift detection script
+  - P3: Sanitized AGENTS.md, rules.md, helper-roster.md of all author-specific content
+  - P4: Added public-sync-validation job to CI
+  - P5: Created docs/PUBLIC_SYNC_MANIFEST.md
+  - P6: Updated version files to v5.5.4
 
-## Status: v5.5.3 Complete — Ready for External Review
+## Status: v5.5.4 Complete — Ready for External Review
 
 ## Next Steps
 
 1. Merge PR to main
-2. Tag v5.5.3 and create GitHub Release
+2. Tag v5.5.4 and create GitHub Release
 3. Launch external review pilot (invite 3–5 reviewers)
 4. Start daily dogfooding with measurement log
 5. v5.6.0 after real feedback arrives
