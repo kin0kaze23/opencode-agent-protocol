@@ -28,29 +28,44 @@ The following checks from `.github/workflows/validation.yml` must pass before me
 | `Docs Drift (ubuntu-latest)` | `Docs Drift (macos-latest)` |
 | `Config Schema (ubuntu-latest)` | `Config Schema (macos-latest)` |
 | `Claims & Evidence (ubuntu-latest)` | `Claims & Evidence (macos-latest)` |
+| `Public Sync (ubuntu-latest)` | `Public Sync (macos-latest)` |
 | `Protocol Conformance (ubuntu-latest)` | `Protocol Conformance (macos-latest)` |
 
-All 10 checks are required by branch protection. A PR cannot merge until all 10 pass.
+All 12 checks are required by branch protection. A PR cannot merge until all 12 pass.
 
 ### How to Configure
 
 1. Go to **Settings → Branches** on GitHub
-2. Click **Add branch protection rule**
+2. Click **Add branch protection rule** (or edit existing)
 3. Branch name pattern: `main`
 4. Check the boxes per the table above
-5. In "Require status checks to pass before merging", select:
-   - `Privacy Scan`
-   - `Protocol Conformance`
-6. Click **Create**
+5. In "Require status checks to pass before merging", select all 12:
+   - `Privacy Scan (ubuntu-latest)` / `Privacy Scan (macos-latest)`
+   - `Docs Drift (ubuntu-latest)` / `Docs Drift (macos-latest)`
+   - `Config Schema (ubuntu-latest)` / `Config Schema (macos-latest)`
+   - `Claims & Evidence (ubuntu-latest)` / `Claims & Evidence (macos-latest)`
+   - `Public Sync (ubuntu-latest)` / `Public Sync (macos-latest)`
+   - `Protocol Conformance (ubuntu-latest)` / `Protocol Conformance (macos-latest)`
+6. Click **Create** or **Save changes**
 
 Alternatively, use GitHub Rulesets (Settings → Rules → Rulesets) for the same configuration with more flexibility.
+
+### v5.5.4 Branch Protection Update
+
+v5.5.4 added the `Public Sync` CI job. Maintainers must update branch protection to require the two new checks:
+
+- `Public Sync (ubuntu-latest)`
+- `Public Sync (macos-latest)`
+
+Without this update, the drift detector can fail without blocking merges, defeating the purpose of v5.5.4.
 
 ## Merge Policy
 
 - Squash merges preferred for clean history
 - PR title should follow conventional commits format
-- All CI checks must pass
+- All CI checks must pass (12/12)
 - No secrets or personal data in diffs (enforced by privacy scan)
+- No author-specific content in control files (enforced by public sync validation)
 
 ## Release Process
 
