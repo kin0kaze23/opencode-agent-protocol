@@ -42,6 +42,7 @@ Fresh-clone validation proves **protocol integrity** (files are valid, tests pas
 - **Protocol Atlas** (`docs/protocol/PROTOCOL_ATLAS.md`) — visual system map with 11 Mermaid diagrams
 - **Conformance suite** — 297+ tests across multiple suites, 0 failures
 - **First-run setup script** (`scripts/setup.sh`) — detects OS, checks prerequisites, generates aliases
+- **Public sync validation** (`scripts/validate-public-sync.sh`) — drift detection for author-specific content
 
 It does **not** contain product code. It is a protocol layer that sits on top of the OpenCode CLI.
 
@@ -57,6 +58,7 @@ AI coding agents are powerful but unsafe without guardrails. This protocol provi
 6. **Scoring** — 7 dimensions + 2 penalties, max 35, pass 24
 7. **Learning** — lessons extracted to JSONL, model ROI tracked
 8. **Routing improvement** — evidence-based recommendations feed back to routing
+9. **Visual QA protocol** — screenshot evidence, vision-capable review, separate technical and art-direction gates
 
 ## Quick Start
 
@@ -77,6 +79,9 @@ bash .opencode/conformance/tests/production-hardening.sh
 
 # 5. Run public-surface scan (privacy regression)
 bash scripts/public-surface-scan.sh
+
+# 6. Run public sync validation (drift detection)
+bash scripts/validate-public-sync.sh
 ```
 
 See [docs/QUICKSTART.md](docs/QUICKSTART.md) for the 5-minute guide.
@@ -108,6 +113,7 @@ See [SECURITY.md](SECURITY.md) for the full security policy.
 | Risk classification | — | Lanes enforced |
 | Pre-commit hooks | — | Secrets blocked |
 | Release gates | — | CI + reviewer evidence |
+| Public sync | — | Drift detection in CI |
 
 ## How the Orchestrator and Sub-Agents Cooperate
 
@@ -121,8 +127,9 @@ The protocol defines a multi-agent topology where the orchestrator delegates to 
 | **Reviewer** | Risk 4+, sensitive paths, release gates | Independent quality check |
 | **Architect** | Architecture, auth, schema, cross-surface design | Resolves high-ambiguity decisions |
 | **Explorer** | Read-only discovery, cost/quota checks | Cheap routing classification |
+| **Visual Reviewer** | Any visual/UI task | Screenshot analysis, technical visual QA, design director review |
 
-**Model routing** assigns the right model to each role based on eval evidence. **CI** enforces privacy scan and protocol conformance on every PR. **Branch protection** prevents direct pushes to main.
+**Model routing** assigns the right model to each role based on eval evidence. **CI** enforces privacy scan, protocol conformance, and public sync drift detection on every PR. **Branch protection** prevents direct pushes to main.
 
 See [docs/CAPABILITY_CATALOG.md](docs/CAPABILITY_CATALOG.md) for the full capability map and [docs/RUNTIME_MAP.md](docs/RUNTIME_MAP.md) for the runtime source-of-truth map.
 
@@ -133,11 +140,13 @@ This protocol is **safety-first** but not **guaranteed safe**. It provides guard
 ### What the protocol does
 
 - CI-enforced privacy scanning on every PR
+- CI-enforced public sync drift detection on every PR
 - Protocol conformance tests (297+ tests)
 - Branch protection (PR required, no force push)
 - Documented agent topology and model routing
 - Repeatable release process with fresh-clone validation
 - Cross-platform launcher (macOS + Linux)
+- Visual QA protocol with vision-capable reviewer delegation
 
 ### What the protocol does not do
 
@@ -156,6 +165,7 @@ This protocol is **safety-first** but not **guaranteed safe**. It provides guard
 | [docs/FAILURE_MODES.md](docs/FAILURE_MODES.md) | 8 known failure modes with mitigations |
 | [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) | Security threat model with 9 threat categories |
 | [docs/CLAIMS.md](docs/CLAIMS.md) | Allowed and disallowed public claims |
+| [docs/PUBLIC_SYNC_MANIFEST.md](docs/PUBLIC_SYNC_MANIFEST.md) | Sanitized files and forbidden patterns manifest |
 
 ## External Review and First Run
 
@@ -231,6 +241,7 @@ See [Feedback Triage Policy](docs/FEEDBACK_TRIAGE.md) for how feedback is handle
 | [docs/PROGRESSIVE_ONBOARDING.md](docs/PROGRESSIVE_ONBOARDING.md) | 10-stage path from clone to first workflow |
 | [docs/OWN_MODEL_SETUP.md](docs/OWN_MODEL_SETUP.md) | How to adapt the protocol to your own model providers |
 | [docs/PUBLIC_SYNC_POLICY.md](docs/PUBLIC_SYNC_POLICY.md) | How the public repo relates to the internal development repo |
+| [docs/PUBLIC_SYNC_MANIFEST.md](docs/PUBLIC_SYNC_MANIFEST.md) | Sanitized files and forbidden patterns manifest |
 | [docs/DOGFOODING_LOG_TEMPLATE.md](docs/DOGFOODING_LOG_TEMPLATE.md) | Template for recording daily-use evidence |
 | [docs/MAINTAINERS.md](docs/MAINTAINERS.md) | Maintainer guide and branch protection |
 | [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) | Release checklist |
@@ -254,6 +265,9 @@ bash .opencode/scripts/validate-protocol-atlas.sh
 # Public-surface privacy scan
 bash scripts/public-surface-scan.sh
 
+# Public sync drift detection
+bash scripts/validate-public-sync.sh
+
 # Conformance tests
 bash .opencode/conformance/tests/protocol-atlas.sh
 bash .opencode/conformance/tests/production-hardening.sh
@@ -263,7 +277,7 @@ bash .opencode/conformance/tests/model-roi.sh
 
 ## Protocol Version
 
-**Current:** v5.5.3 — Fresh-Clone Runtime Install Hardening
+**Current:** v5.5.4 — Public Drift Hardening + Sync Guardrails
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
 
