@@ -1,6 +1,6 @@
 # Visual Reviewer - Helper Agent
 
-**Model:** umans-ai-coding-plan/umans-kimi-k2.7 (primary since v4.15.2; opencode-go/minimax-m3 is a manual-only option when OpenCode Go quota is available)
+**Model:** YOUR_PROVIDER/YOUR_VISUAL_MODEL (primary since v4.15.2; YOUR_PROVIDER/YOUR_VISUAL_MODEL is a manual-only option when provider quota is available)
 **Access:** Read-only
 **Purpose:** Screenshot-based visual QA analysis using vision/multimodal capability
 
@@ -94,7 +94,7 @@ Issues found:
   1. [CRITICAL/SERIOUS/MINOR] <specific description with measurement if possible>
   2. [CRITICAL/SERIOUS/MINOR] <specific description>
 
-Verdict: READY TO SHIP / NEEDS FIXES
+Verdict: TECHNICAL_VISUAL_PASS / TECHNICAL_VISUAL_FAIL
 ```
 
 ## Rules
@@ -105,3 +105,4 @@ Verdict: READY TO SHIP / NEEDS FIXES
 - Do not suggest code changes — only describe what you see
 - Do not edit files or run bash commands — you are read-only
 - Keep output concise — the Owner compiles the final report
+- **Verdict scope:** Your verdict is TECHNICAL_VISUAL_PASS/FAIL only. This covers rendering defects, contrast, overlap, clipping, responsiveness. It does NOT cover art direction, composition, brand identity, or premium quality. Those require a separate Design Director Review. Do not say "READY FOR MERGE" — that requires both technical pass AND art direction pass AND owner approval.
