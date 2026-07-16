@@ -1,0 +1,111 @@
+# Public Sync Manifest v5
+#
+# Declares export mappings, version domains, and forbidden patterns.
+# Used by scripts/validate-public-sync.sh in two modes.
+#
+# Architecture:
+#   - Files already sanitized on public main (AGENTS.md, rules.md, etc.)
+#     are retained as-is — no template needed.
+#   - Files with internal data (brain-config.json, model-registry.yaml,
+#     opencode.json) have hand-authored sanitized templates.
+#   - Public mode invokes scripts/public-surface-scan.sh as the
+#     canonical sanitation authority.
+#   - Supplementary patterns are strictly target-scoped and complement
+#     (not replace) the canonical privacy scanner.
+
+version: 5
+last_updated: "2026-07-16"
+
+# ── Version domains ─────────────────────────────────────────────────────────
+versions:
+  protocol_release: "v5.6.0"
+  protocol_kernel: "v4.20"
+  brain_config_revision: "4.56"
+  model_registry_schema: "1"
+
+# ── Forbidden patterns (supplementary to public-surface-scan.sh) ────────────
+# These patterns complement the canonical privacy scanner by checking for
+# provider namespaces, secret metadata, and internal routing terms that
+# the canonical scanner does not cover.
+# Patterns are checked ONLY against declared public targets, not policy files.
+forbidden_patterns:
+  - pattern: "umans-ai-coding-plan/"
+    description: "Real provider namespace"
+  - pattern: "opencode-go/"
+    description: "Real provider namespace"
+  - pattern: "bailian-coding-plan/"
+    description: "Real provider namespace"
+  - pattern: "nuggie-be"
+    description: "Internal project identifier"
+  - pattern: "Doppler"
+    description: "Secret management service"
+  - pattern: "doppler"
+    description: "Secret management service"
+  - pattern: "OPENCODE_GO_API_KEY"
+    description: "API key environment variable"
+  - pattern: "UMANS_API_KEY"
+    description: "API key environment variable"
+  - pattern: "BAILIAN_CODING_PLAN_API_KEY"
+    description: "API key environment variable"
+  - pattern: "DASHSCOPE_API_KEY"
+    description: "API key environment variable"
+  - pattern: "Alibaba"
+    description: "Internal provider reference"
+  - pattern: "Bailian"
+    description: "Internal provider reference"
+  - pattern: "vault/evals/"
+    description: "Internal evaluation path"
+  - pattern: "vault/protocols/"
+    description: "Internal protocol path"
+  - pattern: "vault/projects/"
+    description: "Internal project path"
+  - pattern: "vault/owner-memory/"
+    description: "Internal memory path"
+  - pattern: "vault/agent-protocols/"
+    description: "Internal agent protocol path"
+  - pattern: "WORKSPACE_MAP"
+    description: "Internal workspace map reference"
+  - pattern: "Internal Clean Public Baseline"
+    description: "Internal release terminology"
+
+# Note: Generic English phrases are NOT included as forbidden patterns.
+# The canonical privacy scanner catches specific internal identifiers.
+
+# ── Export mappings ─────────────────────────────────────────────────────────
+exports:
+  - internal_source: .opencode/brain-config.json
+    public_template: .opencode/templates/brain-config.public.json
+    public_target: .opencode/brain-config.json
+    mode: exact_copy
+    classification: public_canonical_from_template
+    version_domain: brain_config_revision
+
+  - internal_source: .opencode/model-registry.yaml
+    public_template: .opencode/templates/model-registry.public.yaml
+    public_target: .opencode/model-registry.yaml
+    mode: exact_copy
+    classification: public_canonical_from_template
+    version_domain: model_registry_schema
+
+  - internal_source: .opencode/opencode.json
+    public_template: .opencode/templates/opencode.public.json
+    public_target: .opencode/opencode.json
+    mode: exact_copy
+    classification: public_canonical_from_template
+    version_domain: protocol_kernel
+
+retained_public_files:
+  - path: .opencode/AGENTS.md
+    reason: Already sanitized on public main branch
+  - path: .opencode/rules.md
+    reason: Already sanitized on public main branch
+  - path: .opencode/helper-roster.md
+    reason: Already sanitized on public main branch
+  - path: .opencode/agents/visual-reviewer.md
+    reason: Already sanitized on public main branch
+  - path: .opencode/agents/visual-reviewer-fallback.md
+    reason: Already sanitized on public main branch
+  - path: .opencode/global-runtime/prompts/visual-reviewer.md
+    reason: Already sanitized on public main branch
+  - path: .opencode/global-runtime/prompts/visual-reviewer-fallback.md
+    reason: Already sanitized on public main branch
