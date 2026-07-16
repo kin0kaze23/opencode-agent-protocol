@@ -1,14 +1,15 @@
 #!/bin/bash
-# validate-public-sync.sh v4 — Two-mode public sync validation
+# validate-public-sync.sh v5 — Two-mode public sync validation
 #
 # Canonical path: scripts/validate-public-sync.sh
 # Usage:
 #   bash scripts/validate-public-sync.sh --mode internal   # Check manifest, templates, export mappings
-#   bash scripts/validate-public-sync.sh --mode public     # Invoke canonical privacy scan + drift detection
+#   bash scripts/validate-public-sync.sh --mode public     # Invoke canonical privacy scan + target-scoped supplementary scan
 #   bash scripts/validate-public-sync.sh                   # Run both modes
 #
 # Public mode invokes scripts/public-surface-scan.sh as the canonical sanitation authority.
-# The manifest forbidden-pattern list is supplementary, not a replacement.
+# The supplementary manifest scan is strictly target-scoped: it scans only declared
+# public targets, not policy files, manifests, or test fixtures.
 
 set -u
 set -o pipefail
@@ -56,6 +57,16 @@ check_forbidden() {
     echo "$found"
 }
 
+# Build scan target list from manifest declarations only
+# This prevents self-scan false positives where the manifest's own
+# pattern definitions are detected as leaks.
+get_scan_targets() {
+    # From exports: public_target
+    grep 'public_target:' "$MANIFEST" | sed 's/.*public_target: *//' | tr -d ' '
+    # From retained_public_files: path
+    sed -n '/^retained_public_files:/,$ p' "$MANIFEST" | grep '^[[:space:]]*- path:' | sed 's/.*path: *//' | tr -d ' '
+}
+
 # ── Internal source mode ────────────────────────────────────────────────────
 run_internal_mode() {
     echo "=========================================="
@@ -74,7 +85,6 @@ run_internal_mode() {
 
     echo ""
     echo "== Templates (exist and are clean) =="
-    # Only brain-config, model-registry, opencode have templates
     for tmpl in .opencode/templates/brain-config.public.json .opencode/templates/model-registry.public.yaml .opencode/templates/opencode.public.json; do
         local full_path="$ROOT_DIR/$tmpl"
         if [ ! -f "$full_path" ]; then
@@ -132,22 +142,32 @@ run_public_mode() {
         fail "scripts/public-surface-scan.sh not found — cannot run canonical privacy scan"
     fi
 
-    # 2. Supplementary forbidden pattern scan on current repo
+    # 2. Supplementary forbidden pattern scan — TARGET-SCOPED only
+    # Scans only declared public targets, not policy files or manifests.
+    # This prevents self-scan false positives where the manifest's own
+    # pattern definitions are detected as leaks.
     echo ""
-    echo "== Supplementary Forbidden Pattern Scan (manifest patterns) =="
-    REPO_FILES=$(find "$ROOT_DIR/.opencode" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) 2>/dev/null | grep -v "/templates/" || true)
+    echo "== Supplementary Forbidden Pattern Scan (declared public targets only) =="
+
+    local scan_targets=()
+    while IFS= read -r target; do
+        [ -n "$target" ] && scan_targets+=("$target")
+    done < <(get_scan_targets)
+
+    pass "Scan targets: ${#scan_targets[@]} declared public files"
 
     for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
         local found=0
         local found_in=""
-        while IFS= read -r f; do
-            if grep -q "$pattern" "$f" 2>/dev/null; then
+        for target in "${scan_targets[@]}"; do
+            local full_path="$ROOT_DIR/$target"
+            if [ -f "$full_path" ] && grep -q "$pattern" "$full_path" 2>/dev/null; then
                 found=1
-                found_in="$found_in $(basename "$f")"
+                found_in="$found_in $(basename "$full_path")"
             fi
-        done <<< "$REPO_FILES"
+        done
         if [ "$found" -eq 0 ]; then
-            pass "No forbidden pattern '$pattern' in repo files"
+            pass "No forbidden pattern '$pattern' in public targets"
         else
             fail "Forbidden pattern '$pattern' found in:$found_in"
         fi
