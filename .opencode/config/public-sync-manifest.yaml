@@ -1,0 +1,116 @@
+# Public Sync Manifest v3
+#
+# Declares all files, their export mappings, version domains, and classifications.
+# Used by scripts/validate-public-sync.sh in two modes:
+#   --mode internal  : verify manifest coverage, template existence, template cleanliness
+#   --mode public    : materialize staging tree from templates, validate zero forbidden patterns
+#
+# All public-bound files have sanitized templates in .opencode/templates/.
+# The materialization step copies templates to their public target paths.
+
+version: 3
+last_updated: "2026-07-16"
+
+# ── Version domains (each validated independently) ──────────────────────────
+versions:
+  protocol_release: "v5.5.4"
+  protocol_kernel: "v4.20"
+  brain_config_revision: "4.56"
+  model_registry_schema: "1"
+
+# ── Forbidden patterns (checked in public tree mode only) ───────────────────
+forbidden_patterns:
+  - pattern: "umans-ai-coding-plan/"
+    description: "Real Umans provider namespace"
+  - pattern: "opencode-go/"
+    description: "Real OpenCode Go provider namespace"
+  - pattern: "bailian-coding-plan/"
+    description: "Real Bailian provider namespace"
+  - pattern: "nuggie-be"
+    description: "Internal Doppler project name"
+  - pattern: "Doppler"
+    description: "Secret management service name"
+  - pattern: "doppler"
+    description: "Secret management service name (lowercase)"
+  - pattern: "OPENCODE_GO_API_KEY"
+    description: "Real API key env var name"
+  - pattern: "UMANS_API_KEY"
+    description: "Real API key env var name"
+  - pattern: "BAILIAN_CODING_PLAN_API_KEY"
+    description: "Real API key env var name"
+  - pattern: "DASHSCOPE_API_KEY"
+    description: "Real API key env var name"
+  - pattern: "Alibaba"
+    description: "Internal provider reference"
+  - pattern: "Bailian"
+    description: "Internal provider reference"
+  - pattern: "vault/evals/"
+    description: "Internal evaluation path reference"
+  - pattern: "vault/protocols/"
+    description: "Internal protocol path reference"
+
+# ── Export mappings: internal source → sanitized template → public target ────
+exports:
+  - internal_source: .opencode/brain-config.json
+    public_template: .opencode/templates/brain-config.public.json
+    public_target: .opencode/brain-config.json
+    mode: exact_copy
+    classification: public_canonical_from_template
+    version_domain: brain_config_revision
+
+  - internal_source: .opencode/model-registry.yaml
+    public_template: .opencode/templates/model-registry.public.yaml
+    public_target: .opencode/model-registry.yaml
+    mode: exact_copy
+    classification: public_canonical_from_template
+    version_domain: model_registry_schema
+
+  - internal_source: .opencode/opencode.json
+    public_template: .opencode/templates/opencode.public.json
+    public_target: .opencode/opencode.json
+    mode: exact_copy
+    classification: public_canonical_from_template
+    version_domain: protocol_kernel
+
+  - internal_source: .opencode/AGENTS.md
+    public_template: .opencode/templates/AGENTS.public.md
+    public_target: .opencode/AGENTS.md
+    mode: exact_copy
+    classification: public_canonical_from_template
+    version_domain: protocol_kernel
+
+  - internal_source: .opencode/rules.md
+    public_template: .opencode/templates/rules.public.md
+    public_target: .opencode/rules.md
+    mode: exact_copy
+    classification: public_canonical_from_template
+    version_domain: protocol_kernel
+
+  - internal_source: .opencode/helper-roster.md
+    public_template: .opencode/templates/helper-roster.public.md
+    public_target: .opencode/helper-roster.md
+    mode: exact_copy
+    classification: public_canonical_from_template
+    version_domain: protocol_kernel
+
+# ── Agent prompt files ──────────────────────────────────────────────────────
+agent_prompts:
+  - internal_source: .opencode/agents/visual-reviewer.md
+    public_template: .opencode/templates/visual-reviewer.public.md
+    public_target: .opencode/agents/visual-reviewer.md
+    mode: exact_copy
+
+  - internal_source: .opencode/agents/visual-reviewer-fallback.md
+    public_template: .opencode/templates/visual-reviewer-fallback.public.md
+    public_target: .opencode/agents/visual-reviewer-fallback.md
+    mode: exact_copy
+
+  - internal_source: .opencode/global-runtime/prompts/visual-reviewer.md
+    public_template: .opencode/templates/prompt-visual-reviewer.public.md
+    public_target: .opencode/global-runtime/prompts/visual-reviewer.md
+    mode: exact_copy
+
+  - internal_source: .opencode/global-runtime/prompts/visual-reviewer-fallback.md
+    public_template: .opencode/templates/prompt-visual-reviewer-fallback.public.md
+    public_target: .opencode/global-runtime/prompts/visual-reviewer-fallback.md
+    mode: exact_copy

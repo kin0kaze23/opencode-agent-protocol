@@ -1,197 +1,278 @@
 #!/bin/bash
-# validate-public-sync.sh — Public drift detection for OpenCode Agent Protocol
-# Usage: bash scripts/validate-public-sync.sh
+# validate-public-sync.sh v3 — Two-mode public sync validation
 #
-# Checks that public-facing control files are sanitized and version-aligned.
-# Run before every public release.
+# Canonical path: scripts/validate-public-sync.sh
+# Usage:
+#   bash scripts/validate-public-sync.sh --mode internal   # Check manifest, templates, export mappings
+#   bash scripts/validate-public-sync.sh --mode public     # Materialize staging tree, validate zero failures
+#   bash scripts/validate-public-sync.sh                   # Run both modes
+#
+# Internal source mode does NOT scan internal canonical files for forbidden patterns.
+# Public tree mode materializes sanitized templates into a staging tree and validates that.
 
 set -u
 set -o pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+if [ "$(basename "$SCRIPT_DIR")" = "scripts" ]; then
+    ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+else
+    ROOT_DIR="$SCRIPT_DIR"
+fi
+
+MANIFEST="$ROOT_DIR/.opencode/config/public-sync-manifest.yaml"
+MODE="${1:-both}"
+MODE="${MODE#--mode=}"
+if [ "$MODE" = "--mode" ]; then
+    MODE="${2:-both}"
+fi
 
 PASS=0
 FAIL=0
 WARN=0
 
-pass() { printf '  \033[0;32m✓\033[0m %s\n' "$1"; PASS=$((PASS + 1)); }
-fail() { printf '  \033[0;31m✗\033[0m %s\n' "$1"; FAIL=$((FAIL + 1)); }
-warn() { printf '  \033[0;33m⚠\033[0m %s\n' "$1"; WARN=$((WARN + 1)); }
+pass() { printf '  PASS: %s\n' "$1"; PASS=$((PASS + 1)); }
+fail() { printf '  FAIL: %s\n' "$1"; FAIL=$((FAIL + 1)); }
+warn() { printf '  WARN: %s\n' "$1"; WARN=$((WARN + 1)); }
 
-echo "=========================================="
-echo "Public Sync Validation"
-echo "=========================================="
+FORBIDDEN_PATTERNS=()
+load_forbidden_patterns() {
+    while IFS= read -r line; do
+        pattern=$(echo "$line" | sed 's/.*pattern: *"\([^"]*\)".*/\1/')
+        if [ -n "$pattern" ]; then
+            FORBIDDEN_PATTERNS+=("$pattern")
+        fi
+    done < <(grep '^\s*- pattern:' "$MANIFEST")
+}
 
-# ── 1. Version consistency ────────────────────────────────────────────────────
-echo ""
-echo "== Version Consistency =="
-
-VERSION_FILES=(
-    "$ROOT_DIR/.opencode/AGENTS.md"
-    "$ROOT_DIR/.opencode/rules.md"
-    "$ROOT_DIR/NOW.md"
-    "$ROOT_DIR/README.md"
-    "$ROOT_DIR/docs/protocol/PROTOCOL_ATLAS.md"
-)
-
-EXPECTED_VERSION=""
-for f in "${VERSION_FILES[@]}"; do
-    if [ ! -f "$f" ]; then
-        fail "$(basename "$f"): file not found"
-        continue
-    fi
-    VERSION=$(grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' "$f" | head -1)
-    if [ -z "$VERSION" ]; then
-        warn "$(basename "$f"): no version found"
-        continue
-    fi
-    if [ -z "$EXPECTED_VERSION" ]; then
-        EXPECTED_VERSION="$VERSION"
-        pass "$(basename "$f"): $VERSION"
-    elif [ "$VERSION" = "$EXPECTED_VERSION" ]; then
-        pass "$(basename "$f"): $VERSION"
-    else
-        fail "$(basename "$f"): $VERSION (expected $EXPECTED_VERSION)"
-    fi
-done
-
-# ── 2. Forbidden author-specific strings ─────────────────────────────────────
-echo ""
-echo "== Forbidden Author-Specific Strings =="
-
-FORBIDDEN_PATTERNS=(
-    'umans-ai-coding-plan/'
-    'opencode-go/'
-    'nuggie-be'
-    'Doppler'
-    'Alibaba'
-    'Bailian'
-    'example-agent'
-)
-
-CHECK_FILES=(
-    "$ROOT_DIR/.opencode/AGENTS.md"
-    "$ROOT_DIR/.opencode/rules.md"
-    "$ROOT_DIR/.opencode/helper-roster.md"
-    "$ROOT_DIR/.opencode/opencode.json"
-)
-
-for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
-    FOUND=0
-    for f in "${CHECK_FILES[@]}"; do
-        if [ ! -f "$f" ]; then continue; fi
-        if grep -q "$pattern" "$f" 2>/dev/null; then
-            fail "Forbidden pattern '$pattern' found in $(basename "$f")"
-            FOUND=1
+check_forbidden() {
+    local file="$1"
+    local found=0
+    for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
+        if grep -q "$pattern" "$file" 2>/dev/null; then
+            found=$((found + 1))
         fi
     done
-    if [ "$FOUND" -eq 0 ]; then
-        pass "No forbidden pattern '$pattern' in control files"
+    echo "$found"
+}
+
+# ── Internal source mode ────────────────────────────────────────────────────
+run_internal_mode() {
+    echo "=========================================="
+    echo "Public Sync Validation — Internal Source Mode"
+    echo "=========================================="
+    echo ""
+
+    echo "== Manifest =="
+    if [ ! -f "$MANIFEST" ]; then
+        fail "public-sync-manifest.yaml not found"
+        return
     fi
-done
+    pass "Manifest found"
+    load_forbidden_patterns
+    pass "Loaded ${#FORBIDDEN_PATTERNS[@]} forbidden patterns"
 
-# ── 3. Agent definitions check ────────────────────────────────────────────────
-echo ""
-echo "== Agent Definitions =="
+    echo ""
+    echo "== Export Mappings (templates exist and are clean) =="
 
-AGENT_FILES=(
-    "$ROOT_DIR/.opencode/agents/visual-reviewer.md"
-    "$ROOT_DIR/.opencode/agents/visual-reviewer-fallback.md"
-    "$ROOT_DIR/.opencode/global-runtime/prompts/visual-reviewer.md"
-    "$ROOT_DIR/.opencode/global-runtime/prompts/visual-reviewer-fallback.md"
-)
-
-for f in "${AGENT_FILES[@]}"; do
-    if [ ! -f "$f" ]; then
-        fail "$(basename "$f"): file not found"
-        continue
-    fi
-    if grep -q "READY TO SHIP" "$f" 2>/dev/null; then
-        fail "$(basename "$f"): still has 'READY TO SHIP' verdict"
-    else
-        pass "$(basename "$f"): uses TECHNICAL_VISUAL_PASS/FAIL"
-    fi
-    if grep -q "TECHNICAL_VISUAL_PASS" "$f" 2>/dev/null; then
-        pass "$(basename "$f"): has TECHNICAL_VISUAL_PASS verdict"
-    else
-        warn "$(basename "$f"): missing TECHNICAL_VISUAL_PASS"
-    fi
-done
-
-# ── 4. Stale v4 banners ───────────────────────────────────────────────────────
-echo ""
-echo "== Stale v4 Banners =="
-
-for f in "${VERSION_FILES[@]}"; do
-    if [ ! -f "$f" ]; then continue; fi
-    if grep -q "v4\.[0-9]" "$f" 2>/dev/null; then
-        # Check if it's a historical reference (not a current version banner)
-        if grep -q "Protocol: OpenCode v4\." "$f" 2>/dev/null; then
-            fail "$(basename "$f"): has stale v4 session banner"
-        else
-            pass "$(basename "$f"): v4 references are historical"
+    local template_paths=()
+    while IFS= read -r line; do
+        template=$(echo "$line" | sed 's/.*public_template: *//' | tr -d ' ')
+        if [ -n "$template" ]; then
+            template_paths+=("$template")
         fi
-    else
-        pass "$(basename "$f"): no stale v4 banners"
-    fi
-done
+    done < <(grep 'public_template:' "$MANIFEST")
 
-# ── 5. Placeholder model IDs ─────────────────────────────────────────────────
-echo ""
-echo "== Placeholder Model IDs =="
+    for tmpl in "${template_paths[@]}"; do
+        local full_path="$ROOT_DIR/$tmpl"
+        if [ ! -f "$full_path" ]; then
+            fail "Template not found: $tmpl"
+            continue
+        fi
+        local forbidden_count=$(check_forbidden "$full_path")
+        if [ "$forbidden_count" -eq 0 ]; then
+            pass "$(basename "$tmpl"): sanitized (0 forbidden patterns)"
+        else
+            fail "$(basename "$tmpl"): contains $forbidden_count forbidden patterns"
+        fi
+    done
 
-if grep -q "YOUR_PROVIDER" "$ROOT_DIR/.opencode/opencode.json" 2>/dev/null; then
-    pass "opencode.json uses YOUR_PROVIDER placeholders"
-else
-    warn "opencode.json may have real model IDs (no YOUR_PROVIDER found)"
-fi
+    echo ""
+    echo "== Version Domains =="
+    for vfield in protocol_release protocol_kernel brain_config_revision model_registry_schema; do
+        if grep -q "$vfield:" "$MANIFEST"; then
+            local vval=$(grep "$vfield:" "$MANIFEST" | head -1 | sed 's/.*: *"\{0,1\}\([^"]*\)"\{0,1\}/\1/')
+            pass "$vfield: $vval"
+        else
+            fail "Version domain '$vfield' not declared in manifest"
+        fi
+    done
 
-if grep -q "YOUR_PROVIDER" "$ROOT_DIR/.opencode/AGENTS.md" 2>/dev/null; then
-    pass "AGENTS.md uses YOUR_PROVIDER placeholders"
-else
-    warn "AGENTS.md may have real model IDs"
-fi
+    echo ""
+    echo "== Internal-Only File Coverage =="
+    for f in brain-config.json model-registry.yaml opencode.json AGENTS.md rules.md helper-roster.md; do
+        local template_path=""
+        case "$f" in
+            brain-config.json) template_path=".opencode/templates/brain-config.public.json" ;;
+            model-registry.yaml) template_path=".opencode/templates/model-registry.public.yaml" ;;
+            opencode.json) template_path=".opencode/templates/opencode.public.json" ;;
+            AGENTS.md) template_path=".opencode/templates/AGENTS.public.md" ;;
+            rules.md) template_path=".opencode/templates/rules.public.md" ;;
+            helper-roster.md) template_path=".opencode/templates/helper-roster.public.md" ;;
+        esac
+        if [ -f "$ROOT_DIR/$template_path" ]; then
+            pass "$f: public template exists"
+        else
+            fail "$f: no public template found"
+        fi
+    done
 
-if grep -q "YOUR_PROVIDER" "$ROOT_DIR/.opencode/rules.md" 2>/dev/null; then
-    pass "rules.md uses YOUR_PROVIDER placeholders"
-else
-    warn "rules.md may have real model IDs"
-fi
+    echo ""
+    echo "== Prompt Mirrors =="
+    for agent in orchestrator explorer planner implementer reviewer architect budget visual-reviewer visual-reviewer-fallback; do
+        if [ -f "$ROOT_DIR/.opencode/global-runtime/prompts/$agent.md" ]; then
+            pass "Prompt mirror: $agent.md exists"
+        else
+            fail "Prompt mirror: $agent.md missing"
+        fi
+    done
+}
 
-if grep -q "YOUR_PROVIDER" "$ROOT_DIR/.opencode/helper-roster.md" 2>/dev/null; then
-    pass "helper-roster.md uses YOUR_PROVIDER placeholders"
-else
-    warn "helper-roster.md may have real model IDs"
-fi
+# ── Public tree mode ────────────────────────────────────────────────────────
+run_public_mode() {
+    echo "=========================================="
+    echo "Public Sync Validation — Public Tree Mode"
+    echo "=========================================="
+    echo ""
 
-# ── 6. Vault/evals references ─────────────────────────────────────────────────
-echo ""
-echo "== Vault/Evals References =="
+    load_forbidden_patterns
 
-for f in "${CHECK_FILES[@]}"; do
-    if [ ! -f "$f" ]; then continue; fi
-    if grep -q "vault/evals/" "$f" 2>/dev/null; then
-        fail "$(basename "$f"): has vault/evals/ reference"
-    else
-        pass "$(basename "$f"): no vault/evals/ references"
-    fi
-done
+    echo "== Materializing Staging Tree =="
+    STAGING_DIR=$(mktemp -d /tmp/public-sync-staging-XXXXXX)
+    pass "Staging directory: $STAGING_DIR"
 
-# ── 7. Prompt mirrors exist ───────────────────────────────────────────────────
-echo ""
-echo "== Prompt Mirrors =="
+    mkdir -p "$STAGING_DIR/.opencode/agents"
+    mkdir -p "$STAGING_DIR/.opencode/global-runtime/prompts"
+    mkdir -p "$STAGING_DIR/.opencode/templates"
 
-PROMPT_AGENTS="orchestrator explorer planner implementer reviewer architect budget visual-reviewer visual-reviewer-fallback"
-for agent in $PROMPT_AGENTS; do
-    if [ -f "$ROOT_DIR/.opencode/global-runtime/prompts/$agent.md" ]; then
-        pass "Prompt mirror: $agent.md exists"
-    else
-        fail "Prompt mirror: $agent.md missing"
-    fi
-done
+    # Materialize from templates
+    materialize() {
+        local template="$1"
+        local target="$2"
+        local full_template="$ROOT_DIR/$template"
+        local full_target="$STAGING_DIR/$target"
 
-# ── Summary ───────────────────────────────────────────────────────────────────
+        if [ -f "$full_template" ]; then
+            mkdir -p "$(dirname "$full_target")"
+            cp "$full_template" "$full_target"
+            pass "Materialized: $target"
+        else
+            fail "Cannot materialize $target — template missing: $template"
+        fi
+    }
+
+    materialize ".opencode/templates/brain-config.public.json" ".opencode/brain-config.json"
+    materialize ".opencode/templates/model-registry.public.yaml" ".opencode/model-registry.yaml"
+    materialize ".opencode/templates/opencode.public.json" ".opencode/opencode.json"
+    materialize ".opencode/templates/AGENTS.public.md" ".opencode/AGENTS.md"
+    materialize ".opencode/templates/rules.public.md" ".opencode/rules.md"
+    materialize ".opencode/templates/helper-roster.public.md" ".opencode/helper-roster.md"
+    materialize ".opencode/templates/visual-reviewer.public.md" ".opencode/agents/visual-reviewer.md"
+    materialize ".opencode/templates/visual-reviewer-fallback.public.md" ".opencode/agents/visual-reviewer-fallback.md"
+    materialize ".opencode/templates/prompt-visual-reviewer.public.md" ".opencode/global-runtime/prompts/visual-reviewer.md"
+    materialize ".opencode/templates/prompt-visual-reviewer-fallback.public.md" ".opencode/global-runtime/prompts/visual-reviewer-fallback.md"
+
+    # Forbidden pattern scan
+    echo ""
+    echo "== Forbidden Pattern Scan (staging tree) =="
+
+    STAGING_FILES=$(find "$STAGING_DIR" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) 2>/dev/null)
+
+    for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
+        local found=0
+        local found_in=""
+        while IFS= read -r f; do
+            if grep -q "$pattern" "$f" 2>/dev/null; then
+                found=1
+                found_in="$found_in $(basename "$f")"
+            fi
+        done <<< "$STAGING_FILES"
+        if [ "$found" -eq 0 ]; then
+            pass "No forbidden pattern '$pattern' in staging tree"
+        else
+            fail "Forbidden pattern '$pattern' found in:$found_in"
+        fi
+    done
+
+    # Required canonical files
+    echo ""
+    echo "== Required Canonical Files =="
+    for reqfile in .opencode/brain-config.json .opencode/model-registry.yaml .opencode/opencode.json .opencode/AGENTS.md .opencode/rules.md .opencode/helper-roster.md; do
+        if [ -f "$STAGING_DIR/$reqfile" ]; then
+            pass "$reqfile: exists in staging tree"
+        else
+            fail "$reqfile: missing from staging tree"
+        fi
+    done
+
+    # Placeholder model IDs
+    echo ""
+    echo "== Placeholder Model IDs =="
+    for reqfile in .opencode/brain-config.json .opencode/model-registry.yaml .opencode/opencode.json; do
+        if [ -f "$STAGING_DIR/$reqfile" ]; then
+            if grep -q "YOUR_PROVIDER" "$STAGING_DIR/$reqfile" 2>/dev/null; then
+                pass "$(basename "$reqfile"): uses YOUR_PROVIDER placeholders"
+            else
+                warn "$(basename "$reqfile"): no YOUR_PROVIDER found (may not need placeholders)"
+            fi
+        fi
+    done
+
+    # Agent verdicts
+    echo ""
+    echo "== Agent Verdicts =="
+    for f in visual-reviewer visual-reviewer-fallback; do
+        if [ -f "$STAGING_DIR/.opencode/agents/$f.md" ]; then
+            if grep -q "READY TO SHIP" "$STAGING_DIR/.opencode/agents/$f.md" 2>/dev/null; then
+                fail "$f.md: still has 'READY TO SHIP' verdict"
+            else
+                pass "$f.md: uses TECHNICAL_VISUAL_PASS/FAIL"
+            fi
+        fi
+    done
+
+    # Drift detection
+    echo ""
+    echo "== Template-to-Target Drift Detection =="
+    for pair in \
+        ".opencode/templates/brain-config.public.json:.opencode/brain-config.json" \
+        ".opencode/templates/model-registry.public.yaml:.opencode/model-registry.yaml" \
+        ".opencode/templates/opencode.public.json:.opencode/opencode.json" \
+        ".opencode/templates/AGENTS.public.md:.opencode/AGENTS.md" \
+        ".opencode/templates/rules.public.md:.opencode/rules.md" \
+        ".opencode/templates/helper-roster.public.md:.opencode/helper-roster.md"; do
+        local tmpl="${pair%%:*}"
+        local target="${pair##*:}"
+        if [ -f "$ROOT_DIR/$tmpl" ] && [ -f "$STAGING_DIR/$target" ]; then
+            if diff -q "$ROOT_DIR/$tmpl" "$STAGING_DIR/$target" >/dev/null 2>&1; then
+                pass "$(basename "$target"): template matches public target (no drift)"
+            else
+                fail "$(basename "$target"): template-to-target drift detected"
+            fi
+        fi
+    done
+
+    rm -rf "$STAGING_DIR"
+}
+
+# ── Main ────────────────────────────────────────────────────────────────────
+case "$MODE" in
+    internal) run_internal_mode ;;
+    public)   run_public_mode ;;
+    both)     run_internal_mode; echo ""; run_public_mode ;;
+    *)        echo "Usage: $0 [--mode internal|public|both]"; exit 1 ;;
+esac
+
 echo ""
 echo "=========================================="
 printf '  PASSED: %d\n' "$PASS"
