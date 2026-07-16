@@ -1,14 +1,14 @@
 #!/bin/bash
-# validate-public-sync.sh v3 — Two-mode public sync validation
+# validate-public-sync.sh v4 — Two-mode public sync validation
 #
 # Canonical path: scripts/validate-public-sync.sh
 # Usage:
 #   bash scripts/validate-public-sync.sh --mode internal   # Check manifest, templates, export mappings
-#   bash scripts/validate-public-sync.sh --mode public     # Materialize staging tree, validate zero failures
+#   bash scripts/validate-public-sync.sh --mode public     # Invoke canonical privacy scan + drift detection
 #   bash scripts/validate-public-sync.sh                   # Run both modes
 #
-# Internal source mode does NOT scan internal canonical files for forbidden patterns.
-# Public tree mode materializes sanitized templates into a staging tree and validates that.
+# Public mode invokes scripts/public-surface-scan.sh as the canonical sanitation authority.
+# The manifest forbidden-pattern list is supplementary, not a replacement.
 
 set -u
 set -o pipefail
@@ -73,17 +73,9 @@ run_internal_mode() {
     pass "Loaded ${#FORBIDDEN_PATTERNS[@]} forbidden patterns"
 
     echo ""
-    echo "== Export Mappings (templates exist and are clean) =="
-
-    local template_paths=()
-    while IFS= read -r line; do
-        template=$(echo "$line" | sed 's/.*public_template: *//' | tr -d ' ')
-        if [ -n "$template" ]; then
-            template_paths+=("$template")
-        fi
-    done < <(grep 'public_template:' "$MANIFEST")
-
-    for tmpl in "${template_paths[@]}"; do
+    echo "== Templates (exist and are clean) =="
+    # Only brain-config, model-registry, opencode have templates
+    for tmpl in .opencode/templates/brain-config.public.json .opencode/templates/model-registry.public.yaml .opencode/templates/opencode.public.json; do
         local full_path="$ROOT_DIR/$tmpl"
         if [ ! -f "$full_path" ]; then
             fail "Template not found: $tmpl"
@@ -109,25 +101,6 @@ run_internal_mode() {
     done
 
     echo ""
-    echo "== Internal-Only File Coverage =="
-    for f in brain-config.json model-registry.yaml opencode.json AGENTS.md rules.md helper-roster.md; do
-        local template_path=""
-        case "$f" in
-            brain-config.json) template_path=".opencode/templates/brain-config.public.json" ;;
-            model-registry.yaml) template_path=".opencode/templates/model-registry.public.yaml" ;;
-            opencode.json) template_path=".opencode/templates/opencode.public.json" ;;
-            AGENTS.md) template_path=".opencode/templates/AGENTS.public.md" ;;
-            rules.md) template_path=".opencode/templates/rules.public.md" ;;
-            helper-roster.md) template_path=".opencode/templates/helper-roster.public.md" ;;
-        esac
-        if [ -f "$ROOT_DIR/$template_path" ]; then
-            pass "$f: public template exists"
-        else
-            fail "$f: no public template found"
-        fi
-    done
-
-    echo ""
     echo "== Prompt Mirrors =="
     for agent in orchestrator explorer planner implementer reviewer architect budget visual-reviewer visual-reviewer-fallback; do
         if [ -f "$ROOT_DIR/.opencode/global-runtime/prompts/$agent.md" ]; then
@@ -147,46 +120,22 @@ run_public_mode() {
 
     load_forbidden_patterns
 
-    echo "== Materializing Staging Tree =="
-    STAGING_DIR=$(mktemp -d /tmp/public-sync-staging-XXXXXX)
-    pass "Staging directory: $STAGING_DIR"
-
-    mkdir -p "$STAGING_DIR/.opencode/agents"
-    mkdir -p "$STAGING_DIR/.opencode/global-runtime/prompts"
-    mkdir -p "$STAGING_DIR/.opencode/templates"
-
-    # Materialize from templates
-    materialize() {
-        local template="$1"
-        local target="$2"
-        local full_template="$ROOT_DIR/$template"
-        local full_target="$STAGING_DIR/$target"
-
-        if [ -f "$full_template" ]; then
-            mkdir -p "$(dirname "$full_target")"
-            cp "$full_template" "$full_target"
-            pass "Materialized: $target"
+    # 1. Canonical privacy scan — delegates to public-surface-scan.sh
+    echo "== Canonical Privacy Scan (public-surface-scan.sh) =="
+    if [ -f "$ROOT_DIR/scripts/public-surface-scan.sh" ]; then
+        if bash "$ROOT_DIR/scripts/public-surface-scan.sh" 2>&1; then
+            pass "Canonical privacy scan: PASS"
         else
-            fail "Cannot materialize $target — template missing: $template"
+            fail "Canonical privacy scan: FAIL — see output above"
         fi
-    }
+    else
+        fail "scripts/public-surface-scan.sh not found — cannot run canonical privacy scan"
+    fi
 
-    materialize ".opencode/templates/brain-config.public.json" ".opencode/brain-config.json"
-    materialize ".opencode/templates/model-registry.public.yaml" ".opencode/model-registry.yaml"
-    materialize ".opencode/templates/opencode.public.json" ".opencode/opencode.json"
-    materialize ".opencode/templates/AGENTS.public.md" ".opencode/AGENTS.md"
-    materialize ".opencode/templates/rules.public.md" ".opencode/rules.md"
-    materialize ".opencode/templates/helper-roster.public.md" ".opencode/helper-roster.md"
-    materialize ".opencode/templates/visual-reviewer.public.md" ".opencode/agents/visual-reviewer.md"
-    materialize ".opencode/templates/visual-reviewer-fallback.public.md" ".opencode/agents/visual-reviewer-fallback.md"
-    materialize ".opencode/templates/prompt-visual-reviewer.public.md" ".opencode/global-runtime/prompts/visual-reviewer.md"
-    materialize ".opencode/templates/prompt-visual-reviewer-fallback.public.md" ".opencode/global-runtime/prompts/visual-reviewer-fallback.md"
-
-    # Forbidden pattern scan
+    # 2. Supplementary forbidden pattern scan on current repo
     echo ""
-    echo "== Forbidden Pattern Scan (staging tree) =="
-
-    STAGING_FILES=$(find "$STAGING_DIR" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) 2>/dev/null)
+    echo "== Supplementary Forbidden Pattern Scan (manifest patterns) =="
+    REPO_FILES=$(find "$ROOT_DIR/.opencode" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) 2>/dev/null | grep -v "/templates/" || true)
 
     for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
         local found=0
@@ -196,31 +145,31 @@ run_public_mode() {
                 found=1
                 found_in="$found_in $(basename "$f")"
             fi
-        done <<< "$STAGING_FILES"
+        done <<< "$REPO_FILES"
         if [ "$found" -eq 0 ]; then
-            pass "No forbidden pattern '$pattern' in staging tree"
+            pass "No forbidden pattern '$pattern' in repo files"
         else
             fail "Forbidden pattern '$pattern' found in:$found_in"
         fi
     done
 
-    # Required canonical files
+    # 3. Required canonical files exist
     echo ""
     echo "== Required Canonical Files =="
     for reqfile in .opencode/brain-config.json .opencode/model-registry.yaml .opencode/opencode.json .opencode/AGENTS.md .opencode/rules.md .opencode/helper-roster.md; do
-        if [ -f "$STAGING_DIR/$reqfile" ]; then
-            pass "$reqfile: exists in staging tree"
+        if [ -f "$ROOT_DIR/$reqfile" ]; then
+            pass "$reqfile: exists"
         else
-            fail "$reqfile: missing from staging tree"
+            fail "$reqfile: missing"
         fi
     done
 
-    # Placeholder model IDs
+    # 4. Placeholder model IDs in templated files
     echo ""
-    echo "== Placeholder Model IDs =="
+    echo "== Placeholder Model IDs (templated files) =="
     for reqfile in .opencode/brain-config.json .opencode/model-registry.yaml .opencode/opencode.json; do
-        if [ -f "$STAGING_DIR/$reqfile" ]; then
-            if grep -q "YOUR_PROVIDER" "$STAGING_DIR/$reqfile" 2>/dev/null; then
+        if [ -f "$ROOT_DIR/$reqfile" ]; then
+            if grep -q "YOUR_PROVIDER" "$ROOT_DIR/$reqfile" 2>/dev/null; then
                 pass "$(basename "$reqfile"): uses YOUR_PROVIDER placeholders"
             else
                 warn "$(basename "$reqfile"): no YOUR_PROVIDER found (may not need placeholders)"
@@ -228,41 +177,23 @@ run_public_mode() {
         fi
     done
 
-    # Agent verdicts
-    echo ""
-    echo "== Agent Verdicts =="
-    for f in visual-reviewer visual-reviewer-fallback; do
-        if [ -f "$STAGING_DIR/.opencode/agents/$f.md" ]; then
-            if grep -q "READY TO SHIP" "$STAGING_DIR/.opencode/agents/$f.md" 2>/dev/null; then
-                fail "$f.md: still has 'READY TO SHIP' verdict"
-            else
-                pass "$f.md: uses TECHNICAL_VISUAL_PASS/FAIL"
-            fi
-        fi
-    done
-
-    # Drift detection
+    # 5. Drift detection (only for files with templates)
     echo ""
     echo "== Template-to-Target Drift Detection =="
     for pair in \
         ".opencode/templates/brain-config.public.json:.opencode/brain-config.json" \
         ".opencode/templates/model-registry.public.yaml:.opencode/model-registry.yaml" \
-        ".opencode/templates/opencode.public.json:.opencode/opencode.json" \
-        ".opencode/templates/AGENTS.public.md:.opencode/AGENTS.md" \
-        ".opencode/templates/rules.public.md:.opencode/rules.md" \
-        ".opencode/templates/helper-roster.public.md:.opencode/helper-roster.md"; do
+        ".opencode/templates/opencode.public.json:.opencode/opencode.json"; do
         local tmpl="${pair%%:*}"
         local target="${pair##*:}"
-        if [ -f "$ROOT_DIR/$tmpl" ] && [ -f "$STAGING_DIR/$target" ]; then
-            if diff -q "$ROOT_DIR/$tmpl" "$STAGING_DIR/$target" >/dev/null 2>&1; then
+        if [ -f "$ROOT_DIR/$tmpl" ] && [ -f "$ROOT_DIR/$target" ]; then
+            if diff -q "$ROOT_DIR/$tmpl" "$ROOT_DIR/$target" >/dev/null 2>&1; then
                 pass "$(basename "$target"): template matches public target (no drift)"
             else
                 fail "$(basename "$target"): template-to-target drift detected"
             fi
         fi
     done
-
-    rm -rf "$STAGING_DIR"
 }
 
 # ── Main ────────────────────────────────────────────────────────────────────

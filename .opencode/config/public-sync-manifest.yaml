@@ -1,24 +1,27 @@
-# Public Sync Manifest v3
+# Public Sync Manifest v4
 #
-# Declares all files, their export mappings, version domains, and classifications.
-# Used by scripts/validate-public-sync.sh in two modes:
-#   --mode internal  : verify manifest coverage, template existence, template cleanliness
-#   --mode public    : materialize staging tree from templates, validate zero forbidden patterns
+# Declares export mappings, version domains, and forbidden patterns.
+# Used by scripts/validate-public-sync.sh in two modes.
 #
-# All public-bound files have sanitized templates in .opencode/templates/.
-# The materialization step copies templates to their public target paths.
+# Architecture:
+#   - Files already sanitized on public main (AGENTS.md, rules.md, etc.)
+#     are retained as-is — no template needed.
+#   - Files with internal data (brain-config.json, model-registry.yaml,
+#     opencode.json) have hand-authored sanitized templates.
+#   - Public mode invokes scripts/public-surface-scan.sh as the
+#     canonical sanitation authority.
 
-version: 3
+version: 4
 last_updated: "2026-07-16"
 
-# ── Version domains (each validated independently) ──────────────────────────
+# ── Version domains ─────────────────────────────────────────────────────────
 versions:
-  protocol_release: "v5.5.4"
+  protocol_release: "v5.6.0"
   protocol_kernel: "v4.20"
   brain_config_revision: "4.56"
   model_registry_schema: "1"
 
-# ── Forbidden patterns (checked in public tree mode only) ───────────────────
+# ── Forbidden patterns (supplementary to public-surface-scan.sh) ────────────
 forbidden_patterns:
   - pattern: "umans-ai-coding-plan/"
     description: "Real Umans provider namespace"
@@ -48,8 +51,21 @@ forbidden_patterns:
     description: "Internal evaluation path reference"
   - pattern: "vault/protocols/"
     description: "Internal protocol path reference"
+  - pattern: "vault/projects/"
+    description: "Internal project path reference"
+  - pattern: "vault/owner-memory/"
+    description: "Internal memory path reference"
+  - pattern: "vault/agent-protocols/"
+    description: "Internal agent protocol path reference"
+  - pattern: "WORKSPACE_MAP"
+    description: "Internal workspace map reference"
+  - pattern: "Personal Projects"
+    description: "Internal workspace name"
+  - pattern: "Internal Clean Public Baseline"
+    description: "Internal release terminology"
 
-# ── Export mappings: internal source → sanitized template → public target ────
+# ── Export mappings ─────────────────────────────────────────────────────────
+# Files with hand-authored sanitized templates
 exports:
   - internal_source: .opencode/brain-config.json
     public_template: .opencode/templates/brain-config.public.json
@@ -72,45 +88,19 @@ exports:
     classification: public_canonical_from_template
     version_domain: protocol_kernel
 
-  - internal_source: .opencode/AGENTS.md
-    public_template: .opencode/templates/AGENTS.public.md
-    public_target: .opencode/AGENTS.md
-    mode: exact_copy
-    classification: public_canonical_from_template
-    version_domain: protocol_kernel
-
-  - internal_source: .opencode/rules.md
-    public_template: .opencode/templates/rules.public.md
-    public_target: .opencode/rules.md
-    mode: exact_copy
-    classification: public_canonical_from_template
-    version_domain: protocol_kernel
-
-  - internal_source: .opencode/helper-roster.md
-    public_template: .opencode/templates/helper-roster.public.md
-    public_target: .opencode/helper-roster.md
-    mode: exact_copy
-    classification: public_canonical_from_template
-    version_domain: protocol_kernel
-
-# ── Agent prompt files ──────────────────────────────────────────────────────
-agent_prompts:
-  - internal_source: .opencode/agents/visual-reviewer.md
-    public_template: .opencode/templates/visual-reviewer.public.md
-    public_target: .opencode/agents/visual-reviewer.md
-    mode: exact_copy
-
-  - internal_source: .opencode/agents/visual-reviewer-fallback.md
-    public_template: .opencode/templates/visual-reviewer-fallback.public.md
-    public_target: .opencode/agents/visual-reviewer-fallback.md
-    mode: exact_copy
-
-  - internal_source: .opencode/global-runtime/prompts/visual-reviewer.md
-    public_template: .opencode/templates/prompt-visual-reviewer.public.md
-    public_target: .opencode/global-runtime/prompts/visual-reviewer.md
-    mode: exact_copy
-
-  - internal_source: .opencode/global-runtime/prompts/visual-reviewer-fallback.md
-    public_template: .opencode/templates/prompt-visual-reviewer-fallback.public.md
-    public_target: .opencode/global-runtime/prompts/visual-reviewer-fallback.md
-    mode: exact_copy
+# Files retained from public main (already sanitized — no template needed)
+retained_public_files:
+  - path: .opencode/AGENTS.md
+    reason: Already sanitized on public main branch
+  - path: .opencode/rules.md
+    reason: Already sanitized on public main branch
+  - path: .opencode/helper-roster.md
+    reason: Already sanitized on public main branch
+  - path: .opencode/agents/visual-reviewer.md
+    reason: Already sanitized on public main branch
+  - path: .opencode/agents/visual-reviewer-fallback.md
+    reason: Already sanitized on public main branch
+  - path: .opencode/global-runtime/prompts/visual-reviewer.md
+    reason: Already sanitized on public main branch
+  - path: .opencode/global-runtime/prompts/visual-reviewer-fallback.md
+    reason: Already sanitized on public main branch
