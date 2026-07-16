@@ -30,52 +30,48 @@ versions:
 # Patterns are checked ONLY against declared public targets, not policy files.
 forbidden_patterns:
   - pattern: "umans-ai-coding-plan/"
-    description: "Real Umans provider namespace"
+    description: "Real provider namespace"
   - pattern: "opencode-go/"
-    description: "Real OpenCode Go provider namespace"
+    description: "Real provider namespace"
   - pattern: "bailian-coding-plan/"
-    description: "Real Bailian provider namespace"
+    description: "Real provider namespace"
   - pattern: "nuggie-be"
-    description: "Internal Doppler project name"
+    description: "Internal project identifier"
   - pattern: "Doppler"
-    description: "Secret management service name"
+    description: "Secret management service"
   - pattern: "doppler"
-    description: "Secret management service name (lowercase)"
+    description: "Secret management service"
   - pattern: "OPENCODE_GO_API_KEY"
-    description: "Real API key env var name"
+    description: "API key environment variable"
   - pattern: "UMANS_API_KEY"
-    description: "Real API key env var name"
+    description: "API key environment variable"
   - pattern: "BAILIAN_CODING_PLAN_API_KEY"
-    description: "Real API key env var name"
+    description: "API key environment variable"
   - pattern: "DASHSCOPE_API_KEY"
-    description: "Real API key env var name"
+    description: "API key environment variable"
   - pattern: "Alibaba"
     description: "Internal provider reference"
   - pattern: "Bailian"
     description: "Internal provider reference"
   - pattern: "vault/evals/"
-    description: "Internal evaluation path reference"
+    description: "Internal evaluation path"
   - pattern: "vault/protocols/"
-    description: "Internal protocol path reference"
+    description: "Internal protocol path"
   - pattern: "vault/projects/"
-    description: "Internal project path reference"
+    description: "Internal project path"
   - pattern: "vault/owner-memory/"
-    description: "Internal memory path reference"
+    description: "Internal memory path"
   - pattern: "vault/agent-protocols/"
-    description: "Internal agent protocol path reference"
+    description: "Internal agent protocol path"
   - pattern: "WORKSPACE_MAP"
     description: "Internal workspace map reference"
   - pattern: "Internal Clean Public Baseline"
     description: "Internal release terminology"
 
-# Note: "Personal Projects" is NOT included as a forbidden pattern because
-# it is a generic English phrase that appears in legitimate public content.
-# The canonical privacy scanner (public-surface-scan.sh) catches specific
-# internal project names (AreteLifeOS, BabyGuide, etc.) which are the
-# actual privacy concerns.
+# Note: Generic English phrases are NOT included as forbidden patterns.
+# The canonical privacy scanner catches specific internal identifiers.
 
 # ── Export mappings ─────────────────────────────────────────────────────────
-# Files with hand-authored sanitized templates
 exports:
   - internal_source: .opencode/brain-config.json
     public_template: .opencode/templates/brain-config.public.json
@@ -98,7 +94,6 @@ exports:
     classification: public_canonical_from_template
     version_domain: protocol_kernel
 
-# Files retained from public main (already sanitized — no template needed)
 retained_public_files:
   - path: .opencode/AGENTS.md
     reason: Already sanitized on public main branch
