@@ -1,4 +1,4 @@
-# Public Sync Manifest v4
+# Public Sync Manifest v5
 #
 # Declares export mappings, version domains, and forbidden patterns.
 # Used by scripts/validate-public-sync.sh in two modes.
@@ -10,8 +10,10 @@
 #     opencode.json) have hand-authored sanitized templates.
 #   - Public mode invokes scripts/public-surface-scan.sh as the
 #     canonical sanitation authority.
+#   - Supplementary patterns are strictly target-scoped and complement
+#     (not replace) the canonical privacy scanner.
 
-version: 4
+version: 5
 last_updated: "2026-07-16"
 
 # ── Version domains ─────────────────────────────────────────────────────────
@@ -22,6 +24,10 @@ versions:
   model_registry_schema: "1"
 
 # ── Forbidden patterns (supplementary to public-surface-scan.sh) ────────────
+# These patterns complement the canonical privacy scanner by checking for
+# provider namespaces, secret metadata, and internal routing terms that
+# the canonical scanner does not cover.
+# Patterns are checked ONLY against declared public targets, not policy files.
 forbidden_patterns:
   - pattern: "umans-ai-coding-plan/"
     description: "Real Umans provider namespace"
@@ -59,10 +65,14 @@ forbidden_patterns:
     description: "Internal agent protocol path reference"
   - pattern: "WORKSPACE_MAP"
     description: "Internal workspace map reference"
-  - pattern: "Personal Projects"
-    description: "Internal workspace name"
   - pattern: "Internal Clean Public Baseline"
     description: "Internal release terminology"
+
+# Note: "Personal Projects" is NOT included as a forbidden pattern because
+# it is a generic English phrase that appears in legitimate public content.
+# The canonical privacy scanner (public-surface-scan.sh) catches specific
+# internal project names (AreteLifeOS, BabyGuide, etc.) which are the
+# actual privacy concerns.
 
 # ── Export mappings ─────────────────────────────────────────────────────────
 # Files with hand-authored sanitized templates
