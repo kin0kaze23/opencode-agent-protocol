@@ -1,6 +1,6 @@
-# OpenCode Rules — Personal Projects Workspace
+# OpenCode Rules — Public
 
-> **Version:** v4.56 (Internal Clean Public Baseline Closure)
+> **Version:** v5.5.4 (Public Drift Hardening + Sync Guardrails)
 
 This file holds OpenCode-specific guardrails for the workspace.
 It should stay thinner than repo-root instructions and tool-native config.
@@ -20,7 +20,7 @@ It should stay thinner than repo-root instructions and tool-native config.
 - If file hash unchanged since last read: use cached content, skip re-read.
 - Record reads via `bash .opencode/scripts/session-cache.sh file-record <path>`.
 - Invalidate on: file modification, git operations, session restart.
-- Cacheable: AGENTS.md, NOW.md, PLAN.md, WORKSPACE_MAP.md, .opencode/*.md, skills/*/SKILL.md.
+- Cacheable: AGENTS.md, NOW.md, PLAN.md, your workspace map, .opencode/*.md, skills/*/SKILL.md.
 
 ### Session Gate Cache Rules
 - Track gate results via `bash .opencode/scripts/session-cache.sh gate-set <name> <pass|fail> <exit>`.
@@ -58,16 +58,16 @@ If runtime config and behavioral policy disagree in a way that could change exec
 1. Fail safe
 2. Stop before taking the ambiguous action
 
-## Empty Response Guardrail (v1 Production-Ready — sealed 2026-06-05)
+## Empty Response Guardrail (v1 Production-Ready)
 
 - If any model returns empty content (no response or whitespace-only) after consuming tokens:
   1. Do NOT mark the task as successful.
-   2. Retry once with `YOUR_PROVIDER/qwen3.6-plus` (stable fallback).
+  2. Retry once with `YOUR_PROVIDER/YOUR_FALLBACK_MODEL` (stable fallback).
   3. Log: model, task type, prompt hash, latency, token usage, and failure reason.
 - Never allow an empty response to pass as successful task completion.
-- Models with empty-response history (mimo-v2.5-pro, deepseek-v4-pro, minimax-m2.7) are blocked from automatic production routing until root cause is resolved and re-eval passes.
+- Models with empty-response history are blocked from automatic production routing until root cause is resolved and re-eval passes.
 - Root cause investigation track: check API mode, reasoning_content handling, streaming vs non-streaming, max_tokens exhaustion, tool-call history serialization, and provider adapter parsing.
-- Enforcement: runtime script (`.opencode/scripts/empty-response-guard.sh`), plugin validation (`.opencode/plugins/brain-hooks.js`), conformance test (`.opencode/conformance/tests/empty-response-guardrail.sh` — 30/30 PASS).
+- Enforcement: runtime script (`.opencode/scripts/empty-response-guard.sh`), plugin validation (`.opencode/plugins/brain-hooks.js`), conformance test (`.opencode/conformance/tests/empty-response-guardrail.sh`).
 
 ## Startup Rule (Progressive Context Loading — v4.5)
 
@@ -77,9 +77,9 @@ Before non-trivial work:
 2. Read `<repo>/NOW.md` (mandatory).
    - Treat `NOW.md` as required behavioral state even when it is not auto-loaded by the runtime.
 3. **Progressive expansion only** — read additional files ONLY when:
-   - Repo selection ambiguous → read `WORKSPACE_MAP.md`
+   - Repo selection ambiguous → read your workspace map (if you maintain one)
    - Repo structure unclear → spawn Explorer or read file tree
-   - Task overlaps lesson keywords → read `vault/projects/<repo>/lessons.md`
+   - Task overlaps lesson keywords → read your project lessons file (if you maintain one)
    - Cross-repo work → read dependent repo `AGENTS.md` before switching
    - Roadmapping relevant → read `ROADMAP.md`
 4. Run repo-local preflight.
@@ -100,7 +100,7 @@ When risk score is 0, exactly 1 file, and no sensitive paths are touched:
 - Keep daily helper permissions limited to the active helper roster: Explorer, Planner, Implementer, Reviewer, Architect.
 - ModelEval helpers are Eval mode only. Do not expose them in the default daily permission surface.
 - Never paste raw `oc debug config` output into chat, docs, commits, or issue comments. It may resolve environment-backed secrets. Use filtered/redacted summaries only. Short rule phrase for checks: raw oc debug config output is blocked.
-- Durable protocol documentation belongs under `docs/protocols/`. Avoid new workspace-root documents unless the protocol explicitly requires an active root contract (`PLAN.md`, `AGENTS.md`, `NOW.md`).
+- Durable protocol documentation belongs under your knowledge base (if you maintain one). Avoid new workspace-root documents unless the protocol explicitly requires an active root contract (`PLAN.md`, `AGENTS.md`, `NOW.md`).
 - New or untracked repos are not first-class until the repo-promotion gate is satisfied: registry entry, workspace map entry, repo `AGENTS.md`, repo `NOW.md`, git lifecycle decision, and guard pass.
 
 ## v4.6.1 Stabilization Rules
@@ -112,7 +112,7 @@ When risk score is 0, exactly 1 file, and no sensitive paths are touched:
 - `NOT_RUN` must include the reason, risk, and what confidence is missing.
 - `ACCEPTED_NON_BLOCKING` is valid only after explicit owner approval; cite the approval in the summary.
 - `BLOCKING_UNKNOWN` is the default when the failure cannot be confidently classified.
-- Before claiming completion, report dirty workspace inventory by group: OpenCode protocol files, vault protocol/eval files, product-code files, unrelated pre-existing changes, and unknown/risky changes. Do not hide dirty state behind a generic "done" summary.
+- Before claiming completion, report dirty workspace inventory by group: OpenCode protocol files, knowledge-base files, product-code files, unrelated pre-existing changes, and unknown/risky changes. Do not hide dirty state behind a generic "done" summary.
 - For UI verification, run or document browser route preflight before browser evidence: Playwright MCP enabled/disabled, Python Playwright usability, required browser binary availability, agent-browser usability when configured, and selected fallback route. Do not force-enable Playwright MCP or install browser dependencies without explicit approval.
 
 ## Phase M1 Pre-Edit Guardrails — Ambiguity, Performance, Unsafe Security
@@ -121,27 +121,26 @@ When risk score is 0, exactly 1 file, and no sensitive paths are touched:
 - Vague optimization prompts such as “make the app faster”, “improve performance”, “speed this up”, or “optimize everything” are blocked before edits unless the plan includes: baseline measurement, target metric, suspected bottleneck, approved touch list, verification command, and rollback path.
 - Unsafe security/auth/rate-limit/CORS requests must refuse early when they ask to bypass controls, weaken authentication, disable rate limits, loosen CORS broadly, expose secrets, or evade detection. Provide a safe alternative such as threat modeling, least-privilege configuration, scoped allowlists, local-only test fixtures, or defensive validation.
 - `/implement` must run this classifier before DIRECT or FAST lane shortcuts and before the first file edit. A request blocked by this section may proceed only after the missing plan fields are added and approved.
-- OpenCode Go migration caveat: `YOUR_PROVIDER/qwen3.7-plus` is v1.1-production primary (Action 4D). `YOUR_PROVIDER/qwen3.6-plus` is retained as fallback/hard-solver/rollback baseline. `YOUR_PROVIDER/qwen3.5-plus` is decommissioned from workspace routing (YOUR_PROVIDER quota exhausted) and superseded by qwen3.7-plus.
-- These guardrails are additive and do not authorize production/default model routing changes, `.opencode/opencode.json` edits, Hermes/direct API migration, Claude wrapper migration, secret changes, or YOUR_PROVIDER/YOUR_PROVIDER fallback removal.
+- These guardrails are additive and do not authorize production/default model routing changes, `.opencode/opencode.json` edits, direct API migration, Claude wrapper migration, secret changes, or provider fallback removal.
 
 ## Phase M1.7 Token And Model Efficiency Rules
 
-- Use cheap-first routing for read-only discovery and routine classification: prefer Explorer or Budget on `YOUR_PROVIDER/deepseek-v4-flash` before spending qwen3.7-plus context.
-- Reserve `YOUR_PROVIDER/qwen3.6-plus` for fallback, hard-solver, and rollback. Use `YOUR_PROVIDER/qwen3.7-plus` as production primary for orchestration, architecture, implementation, and FAST/DIRECT.
-- Implementer uses `YOUR_PROVIDER/qwen3.7-plus` (v1.1-production) for bounded implementation. Implementer must consume the approved plan/touch list and must not redo planning or expand scope.
+- Use cheap-first routing for read-only discovery and routine classification: prefer Explorer or Budget on `YOUR_PROVIDER/YOUR_EXPLORER_FALLBACK_MODEL` before spending premium model context.
+- Reserve `YOUR_PROVIDER/YOUR_FALLBACK_MODEL` for fallback, hard-solver, and rollback. Use `YOUR_PROVIDER/YOUR_ARCHITECT_MODEL` as production primary for orchestration, architecture, implementation, and FAST/DIRECT.
+- Implementer uses `YOUR_PROVIDER/YOUR_ARCHITECT_MODEL` for bounded implementation. Implementer must consume the approved plan/touch list and must not redo planning or expand scope.
 - Avoid duplicate planning: Planner is for ambiguous, multi-step, high-risk, formal-plan, plan-correction, or owner-requested planning work. Do not spawn Planner just to restate the Owner's already accepted strategy.
-- Guard reviewer usage: use `YOUR_PROVIDER/umans-glm-5.1` for routine review. Escalate to `YOUR_PROVIDER/glm-5.1` (premium reserve) for risk score 4+, sensitive paths, auth/security/payment/data/secrets changes, 4+ changed files, release/ship gates, unclear implementation quality, or explicit owner request. Low-risk DIRECT/FAST work may use sampled review instead of mandatory review.
+- Guard reviewer usage: use `YOUR_PROVIDER/YOUR_REVIEWER_MODEL` for routine review. Escalate to `YOUR_PROVIDER/YOUR_REVIEWER_FALLBACK_MODEL` (premium reserve) for risk score 4+, sensitive paths, auth/security/payment/data/secrets changes, 4+ changed files, release/ship gates, unclear implementation quality, or explicit owner request. Low-risk DIRECT/FAST work may use sampled review instead of mandatory review.
 - Helper handoffs must be compact: Objective, Files inspected/changed, Key findings, Decision/recommendation, Risks/blockers, and Next recommended agent/action. Avoid dumping large files or broad transcripts when a focused snippet or digest is enough.
-- If quota, latency, or cost pressure appears: prefer Budget/Explorer, avoid GLM reviewer unless high-risk, defer challenger models, and use YOUR_PROVIDER/YOUR_PROVIDER only as an explicit fallback path, never as silent routing.
+- If quota, latency, or cost pressure appears: prefer Budget/Explorer, avoid premium reviewer unless high-risk, defer challenger models, and use your fallback provider only as an explicit fallback path, never as silent routing.
 - Meaningful completion/checkpoint summaries should include: Models/helpers used, reason each was used, token/cost/latency if exposed by runtime, and whether a cheaper route would have been sufficient in hindsight.
 
 ## Owner Memory Runtime Rules (v4.5.1)
 
-- Owner memory lives under `vault/owner-memory/` and is advisory only; it never overrides current user instructions, repo `AGENTS.md`, repo `NOW.md`, or active `PLAN.md`.
+- Owner memory (if you maintain it) lives under your durable memory directory and is advisory only; it never overrides current user instructions, repo `AGENTS.md`, repo `NOW.md`, or active `PLAN.md`.
 - Read Owner memory only when relevant: user asks about prior context/preferences, the task overlaps durable workspace/project memory, or repo truth is insufficient for continuity.
-- Before using Owner memory, orient through `vault/owner-memory/index.md` and `vault/owner-memory/log.md`, then read only relevant pages.
+- Before using Owner memory, orient through your memory index and log, then read only relevant pages.
 - Write Owner memory only for durable, source-backed facts: explicit user preferences, confirmed lessons, durable decisions, project summaries, hazards, or workspace conventions.
-- Every Owner memory page must declare `authority: advisory`, include provenance in `sources:`, and be listed in `vault/owner-memory/index.md`.
+- Every Owner memory page must declare `authority: advisory`, include provenance in `sources:`, and be listed in your memory index.
 - Never store secrets, raw resolved config output, unreviewed transcripts, or temporary debugging logs in Owner memory.
 - If Owner memory conflicts with repo truth, trust repo truth, mark the memory stale/superseded, and log the conflict.
 - Use `/memory-status`, `/memory-save`, and `/memory-audit` command contracts for manual memory operations; the workspace protocol guard enforces the baseline memory structure.
@@ -178,7 +177,7 @@ Unless a repo-root contract explicitly says otherwise:
 - Root `.agent/`
 - Repo-local `.agent/`
 - `.ai/codex/config.json`
-- `vault/agent-protocols/`
+- internal protocol archives (if any)
 - Archives, validation outputs, caches, backups, and generated runtime state
 - `~/.claude/CLAUDE.md` and `~/.claude/rules/*` as sources of OpenCode authority
 
@@ -261,22 +260,22 @@ If the runtime does not expose that callback, preserve the anchors in the inject
 
 ### Model-Specific Token Budgets
 
-| Model | Context | Safe Zone | Compaction Zone | Danger Zone |
+| Model Category | Context | Safe Zone | Compaction Zone | Danger Zone |
 |-------|---------|-----------|-----------------|-------------|
-| GLM-5.2 (compaction primary) | ~1M | 0 - 800K | 800K - 950K | > 950K |
-| Kimi K2.7 (bounded fallback) | 256K | 0 - 180K | 180K - 220K | > 220K |
-| Qwen 3.7 Plus (bounded fallback) | ~128K | 0 - 100K | 100K - 120K | > 120K |
-| MiMo V2.5 Free/Pro | ~128K | 0 - 40K | 40K - 60K | > 60K |
-| DeepSeek V4 Flash | ~128K | 0 - 30K | 30K - 50K | > 50K |
+| Large context (1M) | ~1M | 0 - 800K | 800K - 950K | > 950K |
+| Medium context (256K) | 256K | 0 - 180K | 180K - 220K | > 220K |
+| Standard context (128K) | ~128K | 0 - 100K | 100K - 120K | > 120K |
+| Small context (128K, limited) | ~128K | 0 - 40K | 40K - 60K | > 60K |
+| Flash context (128K, budget) | ~128K | 0 - 30K | 30K - 50K | > 50K |
 
 ### Session Budget Guard (HARD RULE)
 
 | Session Size | Action |
 |---|---|
 | 0–150K tokens | Normal. Any compaction-safe model may be used. |
-| 150K–220K tokens | Checkpoint soon. Kimi-k2.7 fallback still safe. |
-| 220K–500K tokens | GLM-5.2 compaction only. Do NOT use kimi-k2.7 or qwen3.7-plus. |
-| 500K–800K tokens | Force GLM-5.2 compaction + write external checkpoint. |
+| 150K–220K tokens | Checkpoint soon. Medium-context fallback still safe. |
+| 220K–500K tokens | Large-context compaction only. Do NOT use medium or standard context models. |
+| 500K–800K tokens | Force large-context compaction + write external checkpoint. |
 | 800K+ tokens | No small-model fallback. Create rescue checkpoint and start fresh session. |
 
 ### Proactive Checkpointing
@@ -293,9 +292,9 @@ If a session dies after compaction:
 2. Run `/recover` to restore from snapshot
 3. Verify task context, touch list, and next steps
 
-## Vault Persistence Policy (ADR-002)
+## Knowledge Base Persistence Policy (ADR-002)
 
-**Detection:** Always use `git -C vault status --short` (NOT `git status vault/` from root).
+**Detection:** Always use `git -C <your-knowledge-base> status --short` (NOT `git status <your-knowledge-base>/` from root).
 
 **Allowlisted files (per active repo):**
 - `projects/<repo>/progress.md`
@@ -305,14 +304,14 @@ If a session dies after compaction:
 - `projects/<repo>/archived-plans/**`
 
 **Outcomes:**
-| Vault State | Outcome | Action |
+| State | Outcome | Action |
 |-------------|---------|--------|
-| Allowlist-only changes | PERSISTED | Commit in dedicated vault commit |
+| Allowlist-only changes | PERSISTED | Commit in dedicated knowledge-base commit |
 | Any other changes | DEFERRED | Write patch to `/tmp/`, report path |
 
 **Rules:**
-1. Vault is non-authoritative — persistence outcome does NOT block repo-local checkpoint
-2. Always use `git -C vault status --short` for nested repo detection
+1. Knowledge base is non-authoritative — persistence outcome does NOT block repo-local checkpoint
+2. Always use `git -C <your-knowledge-base> status --short` for nested repo detection
 3. PERSISTED only if allowlist-only changes for active repo
 
 ## Research Invocation Gate (v0.1 canary)
@@ -345,7 +344,7 @@ Do **not** use research for:
 - Deployment, infra, or CI/CD tasks
 - Schema changes or type/interface updates
 - Known repo tasks where protocol already exists
-- Any task solvable from local code/docs/vault
+- Any task solvable from local code/docs/knowledge-base
 
 ### Autonomy levels
 
@@ -360,16 +359,16 @@ Do **not** use research for:
 The orchestrator may invoke `/research-pipeline` autonomously **only** when ALL of these are true:
 
 1. The user explicitly asks for latest/current/external comparison or research, **OR** the task is clearly classified as RESEARCH, EVALUATION, MARKET, TOOLING, or STRATEGY
-2. The query contains no secrets, PII, private repo details, internal URLs, credentials, baby/family private details, or customer data
-3. The pipeline writes only to `vault/research/`
-4. The answer does not already exist in local repo docs or vault research notes
+2. The query contains no secrets, PII, private repo details, internal URLs, credentials, or customer data
+3. The pipeline writes only to your research directory
+4. The answer does not already exist in local repo docs or your research notes
 
 ### Preflight check before invoking research
 
 Before running `/research-pipeline`, agents must verify:
 
 1. Can I solve this from local code/docs/protocol?
-2. Is the information I need already in the vault?
+2. Is the information I need already in your knowledge-base?
 3. Does the query contain any secrets, PII, or private data?
 4. Is this task actually research, or am I avoiding work?
 
@@ -377,19 +376,19 @@ If #1 or #2 is yes → do not run research. If #3 is yes → refuse the query. I
 
 ### Safety rules
 
-1. **No code mutation** — pipeline only writes to `vault/research/`
+1. **No code mutation** — pipeline only writes to your research directory
 2. **No credential exposure** — no env vars, API keys, or tokens in output
-3. **No auto-memory** — owner-memory is never modified
+3. **No auto-memory** — durable memory is never modified
 4. **No secrets in queries** — public information only
 5. **Canary only** — not production-core; promotion requires explicit approval
-6. **websearch primary** — Exa optional only if `EXA_API_KEY` configured
+6. **websearch primary** — Exa optional only if configured
 7. **NotebookLM/Firecrawl/PDF/hooks/memory distillation** — not approved
 
 ### Examples
 
 **Good auto-allowed:**
 - "Evaluate latest AI agent framework adoption trends"
-- "Research BabyGuide competitive landscape"
+- "Research competitive landscape"
 - "Compare OpenCode multi-agent patterns across the community"
 
 **Good manual:**
@@ -409,37 +408,36 @@ If #1 or #2 is yes → do not run research. If #3 is yes → refuse the query. I
 | Resource | Location |
 |----------|----------|
 | Research pipeline command | `.opencode/commands/research-pipeline.md` |
-| Daily use runbook | `docs/protocols/research/RESEARCH_PIPELINE_DAILY_USE.md` |
-| Output contract | `docs/protocols/research/RESEARCH_OUTPUT_CONTRACT.md` |
-| Canary evaluation | `docs/protocols/research/CANARY_EVAL.md` |
+| Daily use runbook | your research pipeline docs |
+| Output contract | your research output contract |
+| Canary evaluation | your research canary eval docs |
 
-## Provider Fallback Policy (v1.5 — 2026-06-22)
+## Provider Fallback Policy (v1.5)
 
-Every agent has an ordered fallback chain. Primary provider is Umans. Premium reserve provider is OpenCode Go. Manual escalation is ChatGPT/Codex.
+Every agent has an ordered fallback chain. Primary provider is your capacity provider. Premium reserve provider is your fallback provider. Manual escalation is external (e.g., ChatGPT/Codex).
 
 ### Core Rules
 
-1. **Primary provider:** Umans (`YOUR_PROVIDER/*`) for routine coding work.
-2. **Premium reserve provider:** OpenCode Go (`YOUR_PROVIDER/*`) for high-risk tasks.
-3. **Default Umans coding model:** `YOUR_PROVIDER/umans-coder`.
-4. **GLM-5.2:** Candidate orchestrator/reviewer — do NOT promote until verification passes. See `glm52_verification_gate` in model-registry.yaml.
-5. **Compaction/summary:** Only use models proven safe for compaction. Current: `YOUR_PROVIDER/glm-5.2` (1M context, eval passed 2026-07-08). `umans-kimi-k2.7` bounded fallback for sessions <=180K tokens only. `YOUR_PROVIDER/qwen3.7-plus` bounded fallback for sessions <=100K tokens only.
-6. **Secrets:** All API keys managed through YOUR_SECRET_MANAGER (project: `YOUR_PROJECT`, config: `dev_backend`). Verify names only. Never print values.
+1. **Primary provider:** Your capacity provider for routine coding work.
+2. **Premium reserve provider:** Your fallback provider for high-risk tasks.
+3. **Default coding model:** `YOUR_PROVIDER/YOUR_IMPLEMENTER_MODEL`.
+4. **Compaction/summary:** Only use models proven safe for compaction.
+5. **Secrets:** All API keys managed through your secret manager. Verify names only. Never print values.
 
 ### Routing Principles
 
-1. If task is routine or medium risk, prefer Umans
-2. If task is high-risk architecture, difficult debugging, production release review, or failed Umans output, escalate to OpenCode Go
-3. If OpenCode quota/rate-limit occurs, return to Umans immediately
-4. Do not spend OpenCode Go on routine implementation/planning unless Umans fails quality or tool-use checks
-5. Compaction remains conservative: YOUR_PROVIDER/glm-5.2 primary (1M context, matches chat model), umans-kimi-k2.7 bounded fallback for sessions <=180K tokens only
+1. If task is routine or medium risk, prefer primary provider
+2. If task is high-risk architecture, difficult debugging, production release review, or failed primary output, escalate to premium reserve
+3. If premium reserve quota/rate-limit occurs, return to primary provider immediately
+4. Do not spend premium reserve on routine implementation/planning unless primary fails quality or tool-use checks
+5. Compaction remains conservative: use proven compaction-safe models only
 6. **Failure-type-aware routing:** different failure types trigger different fallback behavior
 
 ### Authoritative Sources
 
 - **Full routing table and fallback chains:** `.opencode/helper-roster.md` → "Provider Fallback Routing" section
 - **Machine-readable routing:** `.opencode/model-registry.yaml` → `role_router.fallback_chains`
-- **Compaction switchback:** `.opencode/COMPACTION-SAFEGUARD.md` → "OpenCode Go Provider Switchback Procedure"
+- **Compaction switchback:** `.opencode/COMPACTION-SAFEGUARD.md` → "Provider Switchback Procedure"
 
 ## Lite Delegation Mode (v4.20)
 
@@ -535,7 +533,7 @@ In `--auto` mode, `ask` prompts are auto-approved. Only explicit `deny` is a rea
 2. One-line summary: what was done, what's next
 3. Done
 
-Skip: vault persistence, benchmark telemetry, behavioral drift, PGR reflection, loop ledger, branch lifecycle review, compaction continuity check.
+Skip: knowledge-base persistence, benchmark telemetry, behavioral drift, PGR reflection, loop ledger, branch lifecycle review, compaction continuity check.
 
 ### Full Checkpoint (STANDARD / HIGH-RISK)
 Use the existing `/checkpoint` flow with all steps.
@@ -548,9 +546,9 @@ Use the existing `/checkpoint` flow with all steps.
 - Reference-only (read on-demand): `.opencode/helper-roster.md`, `.opencode/model-registry.yaml`, `.opencode/COMPACTION-SAFEGUARD.md`, `.opencode/PROTOCOL_RUNBOOK.md`
 - Target: under 10K tokens consumed by startup instructions before first tool call
 
-## Visual QA & Design Review Protocol (v1.0 — 2026-07-15)
+## Visual QA & Design Review Protocol (v1.0)
 
-> Enforces screenshot evidence, vision-capable review, and separation between technical visual QA and design approval for all visual/UI tasks across all projects.
+> Enforces screenshot evidence, vision-capable review, and separation between technical visual QA and design approval for all visual/UI tasks.
 
 ### 1. Screenshot Evidence Required
 
@@ -569,8 +567,6 @@ If `visual-reviewer` fails or is unavailable:
 ### 3. Code-Only Visual Review Is Forbidden
 
 The orchestrator must not claim visual pass, design pass, or merge readiness from source code inspection alone. Reading component code, CSS, or design tokens is not a substitute for viewing the rendered output.
-
-This rule exists because a text-only orchestrator can capture screenshots but cannot reliably judge visual quality from code. Code review catches logic errors; it does not catch composition, contrast, hierarchy, or premium quality issues.
 
 ### 4. Separate Review Gates
 
@@ -595,35 +591,3 @@ Use only these verdicts for visual/UI tasks:
 | `READY_FOR_MERGE` | All gates passed: technical + art direction + owner approval | Orchestrator (only after owner approval) |
 
 **Forbidden phrases:** "READY TO SHIP", "VISUAL PASS" (without qualifier), "DESIGN APPROVED" (without both review verdicts).
-
-`READY_FOR_MERGE` is only allowed when:
-- Technical gates pass (typecheck, lint, build)
-- Technical visual QA passes (`TECHNICAL_VISUAL_PASS`) if UI is involved
-- Art direction review passes (`ART_DIRECTION_PASS`) if visual/product UI is involved
-- Owner/maintainer approval or explicit merge criteria pass
-
-### 6. Stable Preview/Staging URL Required
-
-Visual task reports must include a stable preview/staging URL when available. Transient deploy URLs (e.g., Vercel preview deployments that change per commit) may be included for debugging, but must not be the primary QA URL.
-
-If no stable URL is available, the report must say `NO STAGING URL — local screenshots only`.
-
-### 7. Screenshot Paths Required
-
-Visual reviewer verdicts must cite the screenshots reviewed:
-- Viewport (e.g., 375px, 390px, 430px)
-- Scroll position (e.g., top, mid, bottom)
-- Theme (e.g., light, dark, Seeker Dark)
-- Route (e.g., `/design-lab/seeker-nebula`)
-
-Example: `Screenshots reviewed: seeker-nebula-390-top.png (390px, top, Seeker Dark, /design-lab/seeker-nebula)`
-
-### 8. Failure Lesson — GLM-5.2 Self-Review Bypass (2026-07-15)
-
-**Postmortem:** A GLM-5.2 text-only orchestrator captured screenshots but did not delegate them to the vision-capable reviewer. Instead, it gave code-level self-review based on source code inspection. This caused bad UI to pass incorrectly — the orchestrator claimed visual quality without actually viewing the rendered output through a vision-capable model.
-
-**Root cause:** The orchestrator's default behavior was to self-assess visual quality from code understanding, not from screenshot analysis. The visual-reviewer agent existed but was not mandatory in the workflow.
-
-**Fix:** Mandatory visual-reviewer delegation is now enforced by this protocol. The orchestrator must delegate screenshots to visual-reviewer (or visual-reviewer-fallback) and must not claim visual quality from code inspection alone.
-
-**Lesson:** Text-only models cannot reliably judge visual quality. Code review and visual review are different gates with different capabilities. Both are required for visual/UI tasks.

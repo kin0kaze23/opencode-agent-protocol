@@ -1,8 +1,8 @@
-# OpenCode Workspace Protocol — Personal Projects
+# OpenCode Workspace Protocol — Public
 
 > **CANONICAL** — This file is the authoritative orchestration layer for the workspace.
 > It does not replace repo-root truth.
-> **Version:** v4.56 — Internal Clean Public Baseline Closure
+> **Version:** v5.5.4 — Public Drift Hardening + Sync Guardrails
 
 ## Protocol Kernel (v4.20)
 
@@ -312,7 +312,7 @@ The workspace configuration follows a four-layer authority model. See `.opencode
 | **Workspace** (`.opencode/brain-config.json`) | **Orchestration policy authority** — routing, budgets, eval policy, protocol intelligence |
 | **Repo-level** (`<repo>/.opencode/`) | Exception-only — hooks, local tools, approved MCP overlays, documented ADR exceptions |
 
-**Sealed state (v1.0.0):** Workspace is the self-contained behavioral runtime authority. Global contains only provider/auth/machine-local plumbing. Repo-level `.opencode/` is exception-only with approved MCP overlays for ui_ux repos and APA domain-specific agents. Conformance guards enforce this permanently.
+**Sealed state (v1.0.0):** Workspace is the self-contained behavioral runtime authority. Global contains only provider/auth/machine-local plumbing. Repo-level `.opencode/` is exception-only with approved MCP overlays. Conformance guards enforce this permanently.
 
 ## Startup Sequence (Progressive Context Loading — v4.5)
 
@@ -321,17 +321,17 @@ The workspace configuration follows a four-layer authority model. See `.opencode
 3. If `NOW.md` status is active or blocked: apply Session Resume Rule.
 
 5. **Progressive expansion only** — do NOT read everything at startup. Expand context when:
-   - Repo selection is ambiguous → read `WORKSPACE_MAP.md`
+   - Repo selection is ambiguous → read your workspace map (if you maintain one)
    - Repo structure unclear → spawn Explorer or read file tree
-   - Task overlaps lesson keywords → read `vault/projects/<repo>/lessons.md`
+   - Task overlaps lesson keywords → read your project lessons file (if you maintain one)
    - Cross-repo work → read dependent repo `AGENTS.md` before switching
    - Roadmapping relevant → read `ROADMAP.md`
-   - Durable memory relevant → read `vault/owner-memory/index.md`, `vault/owner-memory/log.md`, then only relevant memory pages
+   - Durable memory relevant → read your durable memory index (if you maintain one), then only relevant memory pages
 6. Before the first preflight or resume block, output a visible session banner:
 
    ```
-     Protocol: OpenCode v4.56 — Internal Clean Public Baseline Closure
-   Status: Active (v4.56: clean public baseline staging closure + sanitized tree + anonymized project names + vault excluded + 297 validation tests pass + publication runbook, v4.55.1: public surface privacy scrub, v4.55: release/tag normalization, v4.54.1: rename execution validation, v4.54: repo rename + product identity, v4.53.3: fresh-clone empty-state fix, v4.53.2: local/GitHub sync + fresh-clone test, v4.53.1: repo structure cleanup, v4.53: open-source readiness pack, v4.52.2: fresh-clone portability, v4.52.1: safe cleanup + portability, v4.52: repo hygiene audit, v4.51.1: operational consistency, v4.51: regular controlled use pilot, v4.50: Core v1 hardening, v4.49.1: reviewer calibration validation, v4.49: reviewer calibration / disagreement tracking, v4.48.2: Atlas render validation, v4.48.1: Protocol Atlas, v4.48: live pilot + cross-model coverage, v4.47.1: cross-model simulation, v4.47: confidence calibration, v4.46: model ROI + routing optimizer, v4.45: loop controller + state machine, v4.44: task replay evals, v4.43: evidence freshness, v4.42: trend analytics, v4.41: branch protection evidence, v4.40: dashboard / trend reporting, v4.39: PR comments, v4.38: branch protection verifier, v4.37.2: rollout closure, v4.37: multi-repo rollout kit, v4.36: reviewer trust hardening, v4.35: reviewer evidence enforcement, v4.34: GitHub PR release gate, v4.33: content-aware sensitive change classification, v4.32: production hardening + security/release gates, v4.27.1: protocol coherence closure, v4.20.1: lite delegation + risk classifier, v4.17.x: throughput/token efficiency, v4.15.0: sealed baseline)
+     Protocol: OpenCode v5.5.4 — Public Drift Hardening + Sync Guardrails
+   Status: Active (v5.5.4: public drift hardening + sync guardrails + visual QA protocol sync, v5.5.3: fresh-clone runtime install hardening, v5.5.2: harness/loop onboarding pack, v5.5.1: public runtime onboarding + portability clarification, v5.5.0: public baseline)
    ```
 
 7. Run repo-local preflight before edits or non-trivial commands.
@@ -365,16 +365,17 @@ Major risks:      <key uncertainties or "Low">
 If any of those conditions stop being true, fall back to the full preflight block.
 
 9. Use native OpenCode command discovery for `.opencode/commands/`; do not inject command bodies through `instructions` unless a future runtime regression requires a rollback.
-10. Treat `vault/owner-memory/` as advisory durable memory only; repo truth and current user instructions remain higher authority.
+10. Treat your durable memory (if you maintain one) as advisory only; repo truth and current user instructions remain higher authority.
 
-11. Model selection guidance (v1.5.2 capacity-first):
-   - Routine/medium-risk orchestration: `umans-glm-5.2` (primary), `umans-coder` (fallback)
-   - Implementation/Planning: `umans-coder` (primary), `YOUR_PROVIDER/qwen3.7-plus` (premium fallback)
-   - Review/Judge: `umans-glm-5.1` (primary), `YOUR_PROVIDER/glm-5.1` (premium reserve)
-   - Architecture (high-risk): `YOUR_PROVIDER/qwen3.7-plus` (premium reserve)
-   - Explorer/Budget: `umans-flash` (primary), `YOUR_PROVIDER/deepseek-v4-flash` (fallback)
-   - Compaction: `umans-kimi-k2.7` (proven safe)
+11. Model selection guidance (provider-agnostic):
+   - Routine/medium-risk orchestration: `YOUR_PROVIDER/YOUR_ORCHESTRATOR_MODEL` (primary), `YOUR_PROVIDER/YOUR_IMPLEMENTER_MODEL` (fallback)
+   - Implementation/Planning: `YOUR_PROVIDER/YOUR_IMPLEMENTER_MODEL` (primary), `YOUR_PROVIDER/YOUR_ARCHITECT_MODEL` (premium fallback)
+   - Review/Judge: `YOUR_PROVIDER/YOUR_REVIEWER_MODEL` (primary), `YOUR_PROVIDER/YOUR_REVIEWER_FALLBACK_MODEL` (premium reserve)
+   - Architecture (high-risk): `YOUR_PROVIDER/YOUR_ARCHITECT_MODEL` (premium reserve)
+   - Explorer/Budget: `YOUR_PROVIDER/YOUR_EXPLORER_MODEL` (primary), `YOUR_PROVIDER/YOUR_EXPLORER_FALLBACK_MODEL` (fallback)
+   - Compaction: `YOUR_PROVIDER/YOUR_COMPACTION_MODEL` (proven safe)
    - See `.opencode/helper-roster.md` for full routing details (reference-only)
+   - See `docs/OWN_MODEL_SETUP.md` for provider-agnostic setup guide
 
 ## Harness Patterns (non-negotiable across ALL task classes)
 
@@ -411,7 +412,7 @@ Before executing any task, follow all five patterns below:
 
 **Pattern 2: Targeted File Reading**
 - Never read a file in full unless it's under 100 lines. 
-- Use `Grep` to find the specific section first, then `Read` with offset/limit. 
+- Use `Grep` to find the section first, then `Read` with offset/limit. 
 - Max 300 lines per Read call. 
 - Rationale: prevents context flooding and forces precision. 
 
@@ -428,7 +429,7 @@ Before executing any task, follow all five patterns below:
 
 **Pattern 4: Gate-Then-Ship**
 - Before the final commit: Run ALL quality gates (lint → typecheck → test → build). 
-- If the repo has a dev port in `WORKSPACE_MAP.md` AND the touch list includes UI files: run mandatory browser verification. 
+- If the repo has a dev port configured in your workspace AND the touch list includes UI files: run mandatory browser verification. 
 - Output a Completion Summary before `/checkpoint`:
   ```
   Completion Summary:
@@ -437,7 +438,7 @@ Before executing any task, follow all five patterns below:
   Gate classifications: <TARGETED_FAILURE / BROAD_BASELINE_FAILURE / FLAKY_OR_INFRA_FAILURE / NOT_RUN / ACCEPTED_NON_BLOCKING / BLOCKING_UNKNOWN for every non-pass or skipped gate>
   Browser route preflight: <Playwright MCP state, Python Playwright state, browser binary state, agent-browser state, selected route; or "Not required — <reason>">
   Browser verification: <structured evidence for qualifying web UI changes — dev_url, screenshot_path, viewport, console_errors, accessibility_result, performance_result, command_used, timestamp, known_visual_risks; otherwise "Not required — <reason>">
-  Dirty workspace inventory: <OpenCode protocol / vault protocol-eval / product-code / unrelated pre-existing / unknown-risky groups; or "Clean except committed scope">
+  Dirty workspace inventory: <OpenCode protocol / knowledge-base eval / product-code / unrelated pre-existing / unknown-risky groups; or "Clean except committed scope">
   Manual verification: <2–3 steps the user can take to confirm it works>
   Rollback note: <what to revert or disable if this slice misbehaves>
   Type: <rollback type>
@@ -474,7 +475,7 @@ For workspace-level agent/runtime edits, run the guard before and after changes:
 bash .opencode/scripts/workspace-protocol-guard.sh
 ```
 
-The guard is the fast, canonical check for keeping OpenCode, Claude, Codex, Gemini, Hermes routing, registry state, and launcher-facing runtime config aligned.
+The guard is the fast, canonical check for keeping OpenCode, Claude, Codex, Gemini, routing, registry state, and launcher-facing runtime config aligned.
 
 ## OpenCode Session Expectations
 
@@ -482,7 +483,7 @@ The guard is the fast, canonical check for keeping OpenCode, Claude, Codex, Gemi
 - Repo root handles repo truth.
 - Use tool-native OpenCode config and commands for execution behavior.
 - Stop on authority conflicts instead of choosing silently.
-- Keep durable protocol documentation under `docs/protocols/`; root-level files are only for active contracts such as `PLAN.md`, `AGENTS.md`, and `NOW.md`.
+- Keep durable protocol documentation under your knowledge base (if you maintain one); root-level files are only for active contracts such as `PLAN.md`, `AGENTS.md`, and `NOW.md`.
 - Never paste raw `oc debug config` output into chat, docs, commits, or issue comments. Use redacted summaries only.
 
 ## Daily Use Note
@@ -499,7 +500,7 @@ Do not treat these as OpenCode runtime authority unless the target repo explicit
 - Root `.agent/`
 - Repo-local `.agent/`
 - `.ai/codex/config.json`
-- `vault/agent-protocols/`
+- internal protocol archives (if any)
 - `.opencode/archive/`, `.opencode/benchmarks/`, `.opencode/conformance/results/`
 - `.claude/validation/`
 - Generated runtime state, backups, caches, and token-bearing workspaces
@@ -552,9 +553,9 @@ When the runtime exposes token or cost telemetry, treat it as a guardrail signal
 
 - do not fabricate token or cost counts when the runtime did not expose them
 
-## Visual QA & Design Review Protocol (v1.0 — 2026-07-15)
+## Visual QA & Design Review Protocol (v1.0)
 
-> Enforces screenshot evidence, vision-capable review, and separation between technical visual QA and design approval for all visual/UI tasks across all projects.
+> Enforces screenshot evidence, vision-capable review, and separation between technical visual QA and design approval for all visual/UI tasks.
 
 ### 1. Screenshot Evidence Required
 
@@ -573,8 +574,6 @@ If `visual-reviewer` fails or is unavailable:
 ### 3. Code-Only Visual Review Is Forbidden
 
 The orchestrator must not claim visual pass, design pass, or merge readiness from source code inspection alone. Reading component code, CSS, or design tokens is not a substitute for viewing the rendered output.
-
-This rule exists because a text-only orchestrator can capture screenshots but cannot reliably judge visual quality from code. Code review catches logic errors; it does not catch composition, contrast, hierarchy, or premium quality issues.
 
 ### 4. Separate Review Gates
 
@@ -615,13 +614,3 @@ Visual reviewer verdicts must cite the screenshots reviewed:
 - Route (e.g., `/design-lab/seeker-nebula`)
 
 Example: `Screenshots reviewed: seeker-nebula-390-top.png (390px, top, Seeker Dark, /design-lab/seeker-nebula)`
-
-### 8. Failure Lesson — GLM-5.2 Self-Review Bypass (2026-07-15)
-
-**Postmortem:** A GLM-5.2 text-only orchestrator captured screenshots but did not delegate them to the vision-capable reviewer. Instead, it gave code-level self-review based on source code inspection. This caused bad UI to pass incorrectly — the orchestrator claimed visual quality without actually viewing the rendered output through a vision-capable model.
-
-**Root cause:** The orchestrator's default behavior was to self-assess visual quality from code understanding, not from screenshot analysis. The visual-reviewer agent existed but was not mandatory in the workflow.
-
-**Fix:** Mandatory visual-reviewer delegation is now enforced by this protocol. The orchestrator must delegate screenshots to visual-reviewer (or visual-reviewer-fallback) and must not claim visual quality from code inspection alone.
-
-**Lesson:** Text-only models cannot reliably judge visual quality. Code review and visual review are different gates with different capabilities. Both are required for visual/UI tasks.
